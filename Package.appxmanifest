@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  IgnorableNamespaces="uap mp">
+
+  <Identity
+    Name="c5a0c506-8ad4-4850-b83a-201dc1f683c2"
+    Publisher="CN=yuich"
+    Version="1.0.0.0" />
+
+  <mp:PhoneIdentity PhoneProductId="c5a0c506-8ad4-4850-b83a-201dc1f683c2" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+
+  <Properties>
+    <DisplayName>Univ</DisplayName>
+    <PublisherDisplayName>yuich</PublisherDisplayName>
+    <Logo>Assets\ceres44.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.0.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="x-generate"/>
+  </Resources>
+
+  <Applications>
+    <Application Id="App"
+      Executable="$targetnametoken$.exe"
+      EntryPoint="Univ.App">
+      <uap:VisualElements
+        DisplayName="Univ"
+        Description="Univ"
+        BackgroundColor="transparent" Square44x44Logo="Assets\ceres32.png" Square150x150Logo="Assets\ceres44.png">
+        <uap:DefaultTile  Square310x310Logo="Assets\ceres44.png" Wide310x150Logo="Assets\ceres44.png" Square71x71Logo="Assets\ceres44.png">
+          <uap:ShowNameOnTiles>
+            <uap:ShowOn Tile="square310x310Logo"/>
+            <uap:ShowOn Tile="wide310x150Logo"/>
+            <uap:ShowOn Tile="square150x150Logo"/>
+          </uap:ShowNameOnTiles>
+        </uap:DefaultTile >
+        <uap:LockScreen BadgeLogo="Assets\SplashScreen.png" Notification="badge"/>
+        <uap:SplashScreen Image="Assets\white100.png"/>
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <Capability Name="internetClient" />
+  </Capabilities>
+</Package>
