@@ -14,68 +14,143 @@ namespace Univ
 {
   internal partial class Field : FieldCommon
   {
-    //BitmapImage bmpObj_;
-    //Image imgObj_;
     FieldBlock obj_;
-    int boxPos_ = 0;
     FieldBlock player_;
-    FieldBg bg_;
+    FieldBgEx bg_;
+
+    enum PlayerMoving { None, Player, Bg };
+    PlayerMoving player_moving_ = PlayerMoving.None;
+    int moveStep_ = 0;
+    int moveDirectionX_ = 0;
+    int moveDirectionY_ = 0;
 
     public Field(FrameTimer frameTimer, Grid monitor)
     {
       s_frameTimer_ = frameTimer;
       s_monitor_ = monitor;
 
-      bg_ = new FieldBg();
-      //bmpObj_ = UnivLib.BitmapImageFromAssets("char/t5040walkt.png");
+      bg_ = new FieldBgEx();
       obj_ = new FieldBlock("char/t5040walkt.png");
       player_ = new FieldBlock("char/char1p", FieldBlock.DirectionSlot.DownUp);
     }
     public void Run()
     {
+      // 初期化
       bg_.Run();
-      //imgObj_ = AppendXyIndex(0, 1, bmpObj_, "imgObj", "obj", 2);
       AppendXyIndex(0, 1, obj_, "imgObj", "obj", 2);
       player_.Image = AppendXyIndex(0, 0, player_.Bitmap, "imgBox", "box", 2);
-      s_frameTimer_.setTimeOut(FrameOne, 200);
+      player_.BlockSync(kTipXNum / 2 - 1, kTipYNum / 2 - 1);
+
+      //フレームループ開始
+      s_frameTimer_.setTimeOut(FrameOne);
     }
     public void FrameOne(object sender, object e)
     {
-      if (s_frameTimer_.FrameCount % 10 == 0)
+      if (s_frameTimer_.FrameCount % 50 == 0)
       {
         bg_.ChangeBg(0);
       }
-      else if(s_frameTimer_.FrameCount % 5 == 0)
+      else if(s_frameTimer_.FrameCount % 25 == 0)
       {
         bg_.ChangeBg(1);
       }
 
       //右に延々動くやつ
       obj_.XIndex = s_frameTimer_.FrameCount % kTipXNum;
-      /*int x = s_frameTimer_.FrameCount % kTipXNum;
-      Thickness t = imgObj_.Margin;
-      t.Left = x * kTipXSize; ;
-      imgObj_.Margin = t;*/
 
-      //上下に動かせるやつ
-      if (s_frameTimer_.IsKeyDown(VirtualKey.Up))
-      { // ↑
-        if (boxPos_ > 0)
+      //▲▲▲プレイヤー移動処理▲▲▲
+      if (player_moving_ == PlayerMoving.None)
+      {
+        moveDirectionX_ = moveDirectionY_ = 0;
+        if (s_frameTimer_.KeyDirection(out moveDirectionX_, out moveDirectionY_))
         {
-          boxPos_ -= 1;
-          player_.Y = boxPos_ * kTipYSize;
-          Uri uri = new Uri("ms-appx:///Assets/char/char1p20.png");
-          BitmapImage bitmapImage = new BitmapImage(uri);
-          player_.Image.Source = bitmapImage;        }
-      }
-      else if (s_frameTimer_.IsKeyDown(VirtualKey.Down))
-      { // ↓
-        if (boxPos_ < kTipYNum - 1)
-        {
-          boxPos_ += 1;
-          player_.Y = boxPos_ * kTipYSize;
+          if (moveDirectionX_ == -1)
+          {
+            if (player_.blockX > 0)
+            {
+              if (player_.blockX > kTipXNum / 2 - 1)
+                player_moving_ = PlayerMoving.Player;
+              else if (bg_.CanMove(moveDirectionX_, 0))
+                player_moving_ = PlayerMoving.Bg;
+              else
+                player_moving_ = PlayerMoving.Player;
+            }
+          }
+          if (moveDirectionX_ == 1)
+          {
+            if (player_.blockX < kTipXNum - 1)
+            {
+              if (player_.blockX < kTipXNum / 2 - 1)
+                player_moving_ = PlayerMoving.Player;
+              else if (bg_.CanMove(moveDirectionX_, 0))
+                player_moving_ = PlayerMoving.Bg;
+              else
+                player_moving_ = PlayerMoving.Player;
+            }
+          }
+          if (moveDirectionY_ == -1)
+          {
+            if (player_.blockY > 0)
+            {
+              if (player_.blockY > kTipYNum / 2 - 1)
+                player_moving_ = PlayerMoving.Player;
+              else if (bg_.CanMove(0, -moveDirectionY_))
+                player_moving_ = PlayerMoving.Bg;
+              else
+                player_moving_ = PlayerMoving.Player;
+            }
+          }
+          if (moveDirectionY_ == 1)
+          {
+            if (player_.blockY < kTipYNum - 1)
+            {
+              if (player_.blockY < kTipYNum / 2 - 1)
+                player_moving_ = PlayerMoving.Player;
+              else if (bg_.CanMove(0, -moveDirectionY_))
+                player_moving_ = PlayerMoving.Bg;
+              else
+                player_moving_ = PlayerMoving.Player;
+            }
+          }
+          /*if (moveDirectionX_ != 0)
+            player_moving_ = PlayerMoving.Player;
+          else
+            player_moving_ = PlayerMoving.Bg;*/
         }
       }
+      if (player_moving_ == PlayerMoving.Bg)
+      {
+        if (moveStep_ < kMoveTime-1)
+        {
+          moveStep_++;
+          bg_.Move(-moveDirectionX_ * kMoveXStep, -moveDirectionY_ * kMoveYStep);
+        }
+        else
+        {
+          bg_.Move(-moveDirectionX_ * kMoveXStep, -moveDirectionY_ * kMoveYStep);
+          moveStep_ = 0;
+          player_moving_ = PlayerMoving.None;
+        }
+      }//if (player_moving_)
+      else if (player_moving_ == PlayerMoving.Player)
+      {
+        if (moveStep_ < kMoveTime - 1)
+        {
+          moveStep_++;
+          player_.SetXY(
+            player_.X + moveDirectionX_ * kMoveXStep,
+            player_.Y + moveDirectionY_ * kMoveYStep);
+        }
+        else
+        {
+          player_.blockX += moveDirectionX_;
+          player_.blockY += moveDirectionY_;
+          player_.BlockSync();
+          moveStep_ = 0;
+          player_moving_ = PlayerMoving.None;
+        }
+      }
+      //▼▼▼プレイヤー移動処理▼▼▼
     }
   }
 }

@@ -57,7 +57,7 @@ namespace Univ
           if (weed is Image)
           {
             Image i = (Image)weed;
-            if (i.Tag.ToString() == "weed2")
+            if (i.Tag != null && i.Tag.ToString() == "weed2")
             {
               s_monitor_.Children.Remove(weed);
             }

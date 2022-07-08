@@ -31,7 +31,6 @@ namespace Univ
     FrameTimer frameTimer_ = new FrameTimer();
     int count_;
     int delta = 4;
-    const int kOneFrameTimeMs = 40;
     int x = 0;
 
     Field field_;
@@ -42,11 +41,20 @@ namespace Univ
 
       //https://social.msdn.microsoft.com/Forums/en-US/97556dc2-b01c-43a4-8c6a-9a3fd51d9151/updating-imagesource-causes-flickering?forum=wpdevelop
       this.NavigationCacheMode = NavigationCacheMode.Required;
+      JsTrans.s_mainPage = this;
+
+      /*CoreWindow coreWin = CoreWindow.GetForCurrentThread();
+      coreWin.KeyDown += OnKeyDown;
+      coreWin.KeyUp += OnKeyUp;*/
 
       // 初期化処理
       field_ = new Field(frameTimer_, this.idMonitor);
       field_.Run();
-      //frameTimer_.setTimeOut(FrameOne, kOneFrameTimeMs);
+      //frameTimer_.setTimeOut(FrameOne);
+    }
+    public string BottomText
+    {
+      set { this.AppBar.Text = value;  }
     }
     void FrameOne(object sender, object e)
     {
@@ -61,8 +69,7 @@ namespace Univ
     private void Button_Click_1(object sender, RoutedEventArgs e)
     {
       Image image = new Image();
-      Uri uri = new Uri("ms-appx:///Assets/ceres44.png");
-      BitmapImage bitmapImage = new BitmapImage(uri);
+      BitmapImage bitmapImage = UnivLib.BitmapImageFromAssets("ceres44.png");
       image.Source = bitmapImage;
       image.Name = "idImg1";
       image.Margin = new Thickness(x, 100, 0, 0);
@@ -70,19 +77,79 @@ namespace Univ
       image.VerticalAlignment = VerticalAlignment.Top;
       x += 10;
       image.Stretch = Stretch.None;
+      image.Tag = "cls" + x;
       this.idMonitor.Children.Add(image);
     }
 
     private void Button_Click_2(object sender, RoutedEventArgs e)
     {
-      if (frameTimer_.IsRunning)
+      /*if (frameTimer_.IsRunning)
         frameTimer_.Stop();
       else
-        frameTimer_.setTimeOut(FrameOne, kOneFrameTimeMs);
+        frameTimer_.setTimeOut(FrameOne);*/
+      foreach (var v in this.idMonitor.Children)
+      {
+        if (v is Image)
+        {
+          Image img = (Image)v;
+          if (img.Tag.ToString().StartsWith("cls"))
+          {
+            if (Canvas.GetZIndex(img) > 0)
+              Canvas.SetZIndex(img, 0);
+            else
+              Canvas.SetZIndex(img, 3);
+          }
+        }
+      }
     }
     private void Button_Click_3(object sender, RoutedEventArgs e)
     {
-      JsTrans.alert("aa");
+      /*var uiec = this.idMonitor.Children.ToArray();
+      foreach (UIElement ceres in uiec)
+      {
+        if (ceres is Image)
+        {
+          Image i = (Image)ceres;
+          if (i.Tag != null && i.Tag.ToString().StartsWith("clsCeres"))
+          {
+            this.idMonitor.Children.Remove(ceres);
+          }
+        }
+      }*/
+      JsTrans.remove(this.idMonitor, "cls", true);
+      //BottomText = "Button3 をクリックしました。";
+      //JsTrans.window_close("終了します。");
     }
+
+    private void Button_Click_4(object sender, RoutedEventArgs e)
+    {
+      UnivLib.MsgBitmapPaths();
+    }
+
+    private void AppBarStop_Click(object sender, RoutedEventArgs e)
+    {
+      frameTimer_.Stop();
+      this.AppBarPlay.IsEnabled = true;
+      this.AppBarStop.IsEnabled = false;
+    }
+
+    private void AppBarPlay_Click(object sender, RoutedEventArgs e)
+    {
+      this.AppBarPlay.IsEnabled = false;
+      this.AppBarStop.IsEnabled = true;
+      frameTimer_.Start();
+    }
+
+    /*private void OnKeyDown(CoreWindow sender, KeyEventArgs e)
+    {
+      if (frameTimer_.jkey_[(int)e.VirtualKey] == 0)
+      {
+        frameTimer_.jkey_[(int)e.VirtualKey] = 1;
+      }
+    }
+    private void OnKeyUp(CoreWindow sender, KeyEventArgs e)
+    {
+      frameTimer_.jkey_[(int)e.VirtualKey] = 0;
+    }*/
   }
 }

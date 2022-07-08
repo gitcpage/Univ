@@ -13,10 +13,12 @@ namespace Univ
   internal class FrameTimer
   {
     EventHandler<object> handler_ = null;
+    //ElapsedEventHandler handler_ = null;
     DispatcherTimer timer_;
+    //Timer timer_;
     bool isRunning = false;
 
-    byte[] jkey_ = new byte[256];
+    public byte[] jkey_ = new byte[256];
     int frameCount_ = 0;
 
     private void Update(object sender, object e)
@@ -42,8 +44,10 @@ namespace Univ
       // setTimeOut()の第１引数より先に実行されてほしいが保証はない。
       timer_.Tick += Update;
     }
-    public void setTimeOut(EventHandler<object> handler, int oneFrameTimeMs = -1)
+    // oneFrameTimeMs は40で固定する。必要な場合のみ変更する。20220708
+    public void setTimeOut(EventHandler<object> handler/*, int oneFrameTimeMs = -1*/)
     {
+      const int oneFrameTimeMs = 40;
       timer_.Tick -= handler_;
       handler_ = handler;
       timer_.Tick += handler_;
@@ -59,6 +63,11 @@ namespace Univ
     {
       timer_.Stop();
       isRunning = false;
+    }
+    public void Start()
+    {
+      isRunning = true;
+      timer_.Start();
     }
     public bool IsRunning
     {
@@ -87,6 +96,7 @@ namespace Univ
     {
       if (jkey_[keyCode] == 1)
       {
+        jkey_[keyCode]++;
         return true;
       }
       return false;
@@ -95,6 +105,31 @@ namespace Univ
     {
       if (jkey_[(int)keyCode] == 1)
       {
+        return true;
+      }
+      return false;
+    }
+    public bool KeyDirection(out int x, out int y)
+    {
+      x = y = 0;
+      if (IsKeyDown(VirtualKey.Left))
+      { // ↑
+        x = -1;
+        return true;
+      }
+      else if (IsKeyDown(VirtualKey.Right))
+      { // ↓
+        x = 1;
+        return true;
+      }
+      if (IsKeyDown(VirtualKey.Up))
+      { // ↑
+        y = -1;
+        return true;
+      }
+      else if (IsKeyDown(VirtualKey.Down))
+      { // ↓
+        y = 1;
         return true;
       }
       return false;

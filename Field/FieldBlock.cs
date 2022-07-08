@@ -15,6 +15,9 @@ namespace Univ
 
     BitmapImage bmp_;
     Image img_;
+    public int blockX = 0;
+    public int blockY = 0;
+
     public FieldBlock(string path)
     {
       bmp_ = UnivLib.BitmapImageFromAssets(path);
@@ -31,6 +34,14 @@ namespace Univ
     {
       get { return img_; }
       set { img_ = value; }
+    }
+
+    public string src
+    {
+      set {
+        BitmapImage bitmapImage = UnivLib.BitmapImageFromAssets(value);
+        Image.Source = bitmapImage;
+      }
     }
 
     public void SetXY(int x, int y)
@@ -80,6 +91,17 @@ namespace Univ
         t.Top = value * kTipYSize;
         img_.Margin = t;
       }
+    }
+    //public void UpdateWalktipImg(tagId, imageId, x, y, step = 0)
+    public void BlockSync(int blockX, int blockY)
+    {
+      this.blockX = blockX;
+      this.blockY = blockY;
+      BlockSync();
+    }
+    public void BlockSync()
+    {
+      img_.Margin = new Thickness(blockX * kTipXSize, blockY * kTipYSize, 0, 0);
     }
   }
 }
