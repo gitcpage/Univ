@@ -17,7 +17,7 @@ using Windows.UI.Xaml.Media.Imaging; // BitmapImage
 using Windows.UI.Core; // CoreVirtualKeyStates
 using Windows.System;
 using Windows.UI.ViewManagement; // ApplicationView
-
+using Windows.UI.Input; //PointerPoint
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x411 を参照してください
 
 namespace Univ
@@ -28,12 +28,14 @@ namespace Univ
   public sealed partial class MainPage : Page
   {
     //private DispatcherTimer timer_ = null;
-    FrameTimer frameTimer_ = new FrameTimer();
-    int count_;
-    int delta = 4;
-    int x = 0;
+    FrameTimer frameTimer_;
+    public Point mousePoint;
+    public bool isMouseLDown = false;
 
     Field field_;
+
+    string BottomTextFormer = ""; // シーケンス遷移用に使用する
+    string BottomTextLatter = ""; // マウス用に使用する
 
     public MainPage()
     {
@@ -43,82 +45,41 @@ namespace Univ
       this.NavigationCacheMode = NavigationCacheMode.Required;
       JsTrans.s_mainPage = this;
 
-      /*CoreWindow coreWin = CoreWindow.GetForCurrentThread();
-      coreWin.KeyDown += OnKeyDown;
-      coreWin.KeyUp += OnKeyUp;*/
-
       // 初期化処理
-      field_ = new Field(frameTimer_, this.idMonitor);
-      field_.Run();
-      //frameTimer_.setTimeOut(FrameOne);
+      frameTimer_ = new FrameTimer(this);
+      frameTimer_.setTimeOut(FrameOne);
     }
-    public string BottomText
+    /*public string BottomText
     {
       set { this.AppBar.Text = value;  }
+    }*/
+    private void Button_Click_Clear(object sender, RoutedEventArgs e)
+    {
+      ConsoleText = "";
+    }
+    public string ConsoleText
+    {
+      get { return this.txtConsole.Text; }
+      set { this.txtConsole.Text = value; }
     }
     void FrameOne(object sender, object e)
     {
-      // カウントを1加算
-      this.count_ += delta;
-      if (this.count_ > 200)
-        delta = -4;
-      else if (this.count_ <= 0)
-        delta = 4;
+      //if (frameTimer_.IsKeyDown(VirtualKey.Space))
+      {
+        field_ = new Field(frameTimer_, this.idMonitor, this.idMonitorBg);
+        frameTimer_.PushStackHandler(FrameOne, field_);
+      }
     }
 
     private void Button_Click_1(object sender, RoutedEventArgs e)
     {
-      Image image = new Image();
-      BitmapImage bitmapImage = UnivLib.BitmapImageFromAssets("ceres44.png");
-      image.Source = bitmapImage;
-      image.Name = "idImg1";
-      image.Margin = new Thickness(x, 100, 0, 0);
-      image.HorizontalAlignment = HorizontalAlignment.Left;
-      image.VerticalAlignment = VerticalAlignment.Top;
-      x += 10;
-      image.Stretch = Stretch.None;
-      image.Tag = "cls" + x;
-      this.idMonitor.Children.Add(image);
     }
 
     private void Button_Click_2(object sender, RoutedEventArgs e)
     {
-      /*if (frameTimer_.IsRunning)
-        frameTimer_.Stop();
-      else
-        frameTimer_.setTimeOut(FrameOne);*/
-      foreach (var v in this.idMonitor.Children)
-      {
-        if (v is Image)
-        {
-          Image img = (Image)v;
-          if (img.Tag.ToString().StartsWith("cls"))
-          {
-            if (Canvas.GetZIndex(img) > 0)
-              Canvas.SetZIndex(img, 0);
-            else
-              Canvas.SetZIndex(img, 3);
-          }
-        }
-      }
     }
     private void Button_Click_3(object sender, RoutedEventArgs e)
     {
-      /*var uiec = this.idMonitor.Children.ToArray();
-      foreach (UIElement ceres in uiec)
-      {
-        if (ceres is Image)
-        {
-          Image i = (Image)ceres;
-          if (i.Tag != null && i.Tag.ToString().StartsWith("clsCeres"))
-          {
-            this.idMonitor.Children.Remove(ceres);
-          }
-        }
-      }*/
-      JsTrans.remove(this.idMonitor, "cls", true);
-      //BottomText = "Button3 をクリックしました。";
-      //JsTrans.window_close("終了します。");
     }
 
     private void Button_Click_4(object sender, RoutedEventArgs e)
@@ -126,30 +87,60 @@ namespace Univ
       UnivLib.MsgBitmapPaths();
     }
 
-    private void AppBarStop_Click(object sender, RoutedEventArgs e)
+    private void AppBarReset_Click(object sender, RoutedEventArgs e)
     {
-      frameTimer_.Stop();
+      frameTimer_.Reset();
+    }
+    private void AppBarPause_Click(object sender, RoutedEventArgs e)
+    {
+      frameTimer_.Pause();
+      this.AppBarPause.IsEnabled = false;
       this.AppBarPlay.IsEnabled = true;
-      this.AppBarStop.IsEnabled = false;
+      this.AppBarFastPlay.IsEnabled = true;
     }
 
     private void AppBarPlay_Click(object sender, RoutedEventArgs e)
     {
+      this.AppBarPause.IsEnabled = true;
       this.AppBarPlay.IsEnabled = false;
-      this.AppBarStop.IsEnabled = true;
+      this.AppBarFastPlay.IsEnabled = true;
       frameTimer_.Start();
     }
-
-    /*private void OnKeyDown(CoreWindow sender, KeyEventArgs e)
+    private void AppBarFastPlay_Click(object sender, RoutedEventArgs e)
     {
-      if (frameTimer_.jkey_[(int)e.VirtualKey] == 0)
-      {
-        frameTimer_.jkey_[(int)e.VirtualKey] = 1;
-      }
+      this.AppBarPause.IsEnabled = true;
+      this.AppBarPlay.IsEnabled = true;
+      this.AppBarFastPlay.IsEnabled = false;
+      frameTimer_.Start(true);
     }
-    private void OnKeyUp(CoreWindow sender, KeyEventArgs e)
+    public void BottomTextBySequence(string name)
     {
-      frameTimer_.jkey_[(int)e.VirtualKey] = 0;
-    }*/
+      BottomTextFormer = name;
+      this.AppBar.Text = BottomTextFormer + " | " + BottomTextLatter;
+    }
+
+    void BottomTextByMouse()
+    {
+      BottomTextLatter = (int)mousePoint.X + ":" + (int)mousePoint.Y + (isMouseLDown ? " Down" : "");
+      this.AppBar.Text = BottomTextFormer + " | " + BottomTextLatter;
+    }
+    private void idMonitor_PointerMoved(object sender, PointerRoutedEventArgs e)
+    {
+      PointerPoint pp = e.GetCurrentPoint((UIElement)sender);
+      mousePoint = new Point(pp.Position.X, pp.Position.Y);
+      BottomTextByMouse();
+    }
+
+    private void idMonitor_PointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+      isMouseLDown = true;
+      BottomTextByMouse();
+    }
+
+    private void idMonitor_PointerReleased(object sender, PointerRoutedEventArgs e)
+    {
+      isMouseLDown = false;
+      BottomTextByMouse();
+    }
   }
 }

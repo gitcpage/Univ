@@ -45,10 +45,10 @@ namespace Univ
       var uiec = panel.Children.ToArray();
       foreach (UIElement e in uiec)
       {
-        Image img = e as Image;
-        if (img != null)
+        if (e is Image)
         {
-          bool b;
+          Image img = (Image)e;
+          bool b = false;
           if (useStartsWith)
             b = img.Tag.ToString().StartsWith(tag);
           else
@@ -63,17 +63,9 @@ namespace Univ
     }
 
     //
-    static public void console_log(string log/*, bool useBottom = false*/)
+    static public void console_log(string log)
     {
-      /*if (useBottom) s_mainPage.BottomText = log;
-      else*/ s_mainPage.ConsoleText += log + "\n";
+      s_mainPage.BottomText = log;
     }
-    static public void console_clear(string log)
-    {
-      s_mainPage.ConsoleText = "";
-    }
-    static public int clientX { get { return (int)s_mainPage.mousePoint.X; } }
-    static public int clientY { get { return (int)s_mainPage.mousePoint.Y; } }
-    static public bool isMouseLDown { get { return s_mainPage.isMouseLDown; } }
   }
 }

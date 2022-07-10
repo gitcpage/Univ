@@ -9,11 +9,11 @@ using Windows.UI.Xaml; // UIElement
 
 namespace Univ
 {
-  internal class FieldBg : FieldInclude
+  internal class FieldBg : FieldCommon
   {
     BitmapImage[] weeds;
 
-    public FieldBg(Grid monitoBg) : base(monitoBg)
+    public FieldBg()
     {
       weeds = new BitmapImage[2];
       weeds[0] = UnivLib.BitmapImageFromAssets("tipf/w1.png");
@@ -51,7 +51,7 @@ namespace Univ
       }
       else
       {
-        var uiec = monitor_.Children.ToArray();
+        var uiec = s_monitor_.Children.ToArray();
         foreach (UIElement weed in uiec)
         {
           if (weed is Image)
@@ -59,7 +59,7 @@ namespace Univ
             Image i = (Image)weed;
             if (i.Tag != null && i.Tag.ToString() == "weed2")
             {
-              monitor_.Children.Remove(weed);
+              s_monitor_.Children.Remove(weed);
             }
           }
         }

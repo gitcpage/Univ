@@ -9,7 +9,7 @@ using Windows.UI.Xaml; // Thickness
 
 namespace Univ
 {
-  internal class FieldBlock : FieldInclude
+  internal class FieldBlock : FieldCommon
   {
     public enum DirectionSlot { None, Down, DownUp }
 
@@ -18,11 +18,11 @@ namespace Univ
     public int blockX = 0;
     public int blockY = 0;
 
-    public FieldBlock(string path, Grid monitoBg) : base(monitoBg)
+    public FieldBlock(string path)
     {
       bmp_ = UnivLib.BitmapImageFromAssets(path);
     }
-    public FieldBlock(string pathbase, DirectionSlot ds, Grid monitoBg) : base(monitoBg)
+    public FieldBlock(string pathbase, DirectionSlot ds)
     {
       bmp_ = UnivLib.BitmapImageFromAssets(pathbase + "00.png");
     }
@@ -55,45 +55,42 @@ namespace Univ
     {
       SetXY(x * kTipXSize, y * kTipYSize);
     }
-    public int GetX()
+    public int X
     {
-      return (int)img_.Margin.Left;
+      get { return (int)img_.Margin.Left; }
+      set {
+        Thickness t = img_.Margin;
+        t.Left = value;
+        img_.Margin = t;
+      }
     }
-    public int GetCenterX()
+    public int XIndex
     {
-      return (int)img_.Margin.Left + kTipXSize / 2;
+      set
+      {
+        Thickness t = img_.Margin;
+        t.Left = value * kTipXSize;
+        img_.Margin = t;
+      }
     }
-    public void SetX(int x)
+    public int Y
     {
-      Thickness t = img_.Margin;
-      t.Left = x;
-      img_.Margin = t;
+      get { return (int)img_.Margin.Top; }
+      set
+      {
+        Thickness t = img_.Margin;
+        t.Top = value;
+        img_.Margin = t;
+      }
     }
-    public void SetXIndex(int xIndex)
+    public int YIndex
     {
-      Thickness t = img_.Margin;
-      t.Left = xIndex * kTipXSize;
-      img_.Margin = t;
-    }
-    public int GetY()
-    {
-      return (int)img_.Margin.Top;
-    }
-    public int GetCenterY()
-    {
-      return (int)img_.Margin.Top + kTipYSize / 2;
-    }
-    public void SetY(int y)
-    {
-      Thickness t = img_.Margin;
-      t.Top = y;
-      img_.Margin = t;
-    }
-    public void SetYIndex(int yIndex)
-    {
-      Thickness t = img_.Margin;
-      t.Top = yIndex * kTipYSize;
-      img_.Margin = t;
+      set
+      {
+        Thickness t = img_.Margin;
+        t.Top = value * kTipYSize;
+        img_.Margin = t;
+      }
     }
     //public void UpdateWalktipImg(tagId, imageId, x, y, step = 0)
     public void BlockSync(int blockX, int blockY)

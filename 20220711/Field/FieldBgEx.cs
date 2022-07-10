@@ -1,11 +1,15 @@
-﻿using System.Linq;
-using Windows.UI.Xaml; // UIElement
-using Windows.UI.Xaml.Controls; // Image
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Windows.UI.Xaml.Media.Imaging; // BitmapImage
+using Windows.UI.Xaml.Controls; // Image
+using Windows.UI.Xaml; // UIElement
 
 namespace Univ
 {
-  internal class FieldBgEx : FieldInclude
+  internal class FieldBgEx : FieldCommon
   {
     BitmapImage[] weeds_;
     BitmapImage water_;
@@ -14,7 +18,7 @@ namespace Univ
     int wholeTipXNum_;
     int wholeTipYNum_;
 
-    public FieldBgEx(Grid monitorBg) : base(monitorBg)
+    public FieldBgEx()
     {
       weeds_ = new BitmapImage[2];
       weeds_[0] = UnivLib.BitmapImageFromAssets("tipf/w1.png");
@@ -66,13 +70,16 @@ namespace Univ
       }
       else
       {
-        var uiec = monitor_.Children.ToArray();
+        var uiec = s_monitor_.Children.ToArray();
         foreach (UIElement weed in uiec)
         {
-          Image i = weed as Image;            
-          if (i != null && i.Tag != null && i.Tag.ToString() == "bg_weed2")
+          if (weed is Image)
           {
-            monitor_.Children.Remove(weed);
+            Image i = (Image)weed;
+            if (i.Tag != null && i.Tag.ToString() == "bg_weed2")
+            {
+              s_monitor_.Children.Remove(weed);
+            }
           }
         }
       }
@@ -96,6 +103,7 @@ namespace Univ
     }*/
     public bool CanMove(int dx, int dy)
     {
+      JsTrans.console_log("");
       if (dx != 0)
       {
         if (dx < 0)
@@ -116,7 +124,7 @@ namespace Univ
         }
         if (dy > 0)
         {
-          //JsTrans.console_log(-moveY_ + " <= " + 0);
+          JsTrans.console_log(-moveY_ + " < " + 0);
           if (-moveY_ <= 0) return false;
         }
       }
@@ -126,18 +134,21 @@ namespace Univ
     {
       moveX_ += x;
       moveY_ += y;
-      foreach (UIElement tip in monitor_.Children)
+      foreach (UIElement weed in s_monitor_.Children)
       {
-        Image i = tip as Image;
-        if (i!= null && i.Tag != null)
+        if (weed is Image)
         {
-          string tag = i.Tag.ToString();
-          if (tag.StartsWith("bg_"))
+          Image i = (Image)weed;
+          if (i.Tag != null)
           {
-            Thickness t = i.Margin;
-            t.Left += x;
-            t.Top += y;
-            i.Margin = t;
+            string tag = i.Tag.ToString();
+            if (tag.StartsWith("bg_"))
+            {
+              Thickness t = i.Margin;
+              t.Left += x;
+              t.Top += y;
+              i.Margin = t;
+            }
           }
         }
       }

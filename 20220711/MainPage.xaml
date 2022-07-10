@@ -10,16 +10,8 @@
 
     <Page.BottomAppBar>
         <CommandBar>
-            <AppBarButton Name="AppBarReset" Click="AppBarReset_Click">
-                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE777;"/>                
-            </AppBarButton>
-            <AppBarButton Name="AppBarPause" Click="AppBarPause_Click">
-                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE769;"/>
-            </AppBarButton>
+            <AppBarButton Name="AppBarStop" Icon="Stop" Click="AppBarStop_Click"/>
             <AppBarButton Name="AppBarPlay" Icon="Play" IsEnabled="False" Click="AppBarPlay_Click"/>
-            <AppBarButton Name="AppBarFastPlay" Click="AppBarFastPlay_Click">
-                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEB9D;"/>
-            </AppBarButton>
             <CommandBar.Content>
                 <TextBlock Text="TextBlock" Margin="12,12" Name="AppBar"/>
             </CommandBar.Content>
@@ -32,12 +24,9 @@
             <Button Content="ZIndex" Margin="11,65,0,0" VerticalAlignment="Top" Click="Button_Click_2"/>
             <Button Content="終了する" Margin="11,115,0,0" VerticalAlignment="Top" Click="Button_Click_3"/>
             <Button Content="画像パス一覧表示" Margin="11,165,0,0" VerticalAlignment="Top" Click="Button_Click_4"/>
-            <TextBox HorizontalAlignment="Center" Margin="0,320,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="270" Width="187" Name="txtConsole"/>
-            <TextBlock HorizontalAlignment="Left" Margin="13,0,0,0" TextWrapping="Wrap" Text="console" VerticalAlignment="Center" RenderTransformOrigin="-1.121,0.526"/>
-            <Button Content="クリアする" Margin="93,290,0,0" VerticalAlignment="Top" Click="Button_Click_Clear"/>
+
         </Grid>
-        <Grid x:Name="idMonitor" Width="800" Height="600" Background="gray" Margin="200,0,0,0" PointerMoved="idMonitor_PointerMoved" PointerPressed="idMonitor_PointerPressed" PointerReleased="idMonitor_PointerReleased">
-            <Grid x:Name="idMonitorBg" Width="800" Height="600"></Grid>
+        <Grid x:Name="idMonitor" Width="800" Height="600" Background="gray" Margin="200,0,0,0">
             <Grid.Clip>
                 <RectangleGeometry Rect="0 0 800 600"/>
             </Grid.Clip>
