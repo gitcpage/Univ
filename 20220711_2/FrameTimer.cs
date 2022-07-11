@@ -10,8 +10,7 @@ using Windows.System; // VirtualKey
 namespace Univ
 {
   // キー押下処理とフレームカウントも行う
-  // CS0051コンパイルエラーを防ぐため、アクセス修飾子を internal から public に変更。
-  public class FrameTimer
+  internal class FrameTimer
   {
     EventHandler<object> handler_ = null;
     Stack<EventHandler<object>> handlerStack_ = new Stack<EventHandler<object>>();
@@ -22,7 +21,7 @@ namespace Univ
     int frameCount_ = 0;
 
     // kOneFrameTimeMs は40で固定する。必要な場合のみ変更する。20220708
-    public const int kOneFrameTimeMs = 40; // from MainPage.FadeOut
+    const int kOneFrameTimeMs = 40;
     bool isFast_ = false;
 
     static bool doSoftReset_ = false;
@@ -70,7 +69,7 @@ namespace Univ
       IRun iRun)
     {
       handlerStack_.Push(handler_);
-      iRun.Run();
+      iRun.Run(mainPage_, this);
     }
     public void PopStackHandler()
     {

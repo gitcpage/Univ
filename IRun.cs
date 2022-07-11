@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace Univ
 {
-  internal interface IRun
+  // 必要な参照はコンストラクタで渡す。
+  // mainPage.BottomTextBySequence("Field");
+  // CS0051コンパイルエラーを防ぐため、アクセス修飾子を internal から public に変更。
+  public interface IRun
   {
-    void Run(MainPage mainPage, FrameTimer frameTimer);
+    void Run();
   }
 }

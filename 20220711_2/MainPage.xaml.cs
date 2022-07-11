@@ -25,7 +25,7 @@ namespace Univ
   /// <summary>
   /// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
   /// </summary>
-  public sealed partial class MainPage : Page, IRun
+  public sealed partial class MainPage : Page
   {
     //private DispatcherTimer timer_ = null;
     FrameTimer frameTimer_;
@@ -45,33 +45,18 @@ namespace Univ
       this.NavigationCacheMode = NavigationCacheMode.Required;
       JsTrans.s_mainPage = this;
 
-      this.idMonitorFade.Background.Opacity = 1.0; // 0.0で透明
-      //Canvas.SetZIndex(this.idMonitorFade, 100000);
-
       // 初期化処理
       frameTimer_ = new FrameTimer(this);
-      //frameTimer_.PushStackHandler(FrameOne, this);
       frameTimer_.setTimeOut(FrameOne);
     }
-    //  △△△シーケンス遷移で渡すオブジェクトへのアクセス△△△
-    public FrameTimer GetFrameTimer()
+    /*public string BottomText
     {
-      return this.frameTimer_;
-    }
-    public Grid GetMonitor()
-    {
-      return this.idMonitor;
-    }
-    public Grid GetMonitorBg()
-    {
-      return this.idMonitorBg;
-    }
-    // ▽▽▽シーケンス遷移で渡すオブジェクトへのアクセス▽▽▽
+      set { this.AppBar.Text = value;  }
+    }*/
     private void Button_Click_Clear(object sender, RoutedEventArgs e)
     {
       ConsoleText = "";
     }
-    //JsTransクラスでconsole_log()などからアクセスられるプロパティ。
     public string ConsoleText
     {
       get { return this.txtConsole.Text; }
@@ -81,69 +66,10 @@ namespace Univ
     {
       //if (frameTimer_.IsKeyDown(VirtualKey.Space))
       {
-        field_ = new Field(this/*frameTimer_, this.idMonitor, monitorBg: this.idMonitorBg*/);
+        field_ = new Field(frameTimer_, this.idMonitor, this.idMonitorBg);
         frameTimer_.PushStackHandler(FrameOne, field_);
       }
     }
-    // △△△モニタアクセス共通処理△△△
-    public void Clear()
-    {
-      this.idMonitor.Children.Clear();
-      this.idMonitorBg.Children.Clear();
-    }
-    // ▽▽▽モニタアクセス共通処理▽▽▽
-    // △△△フェード処理△△△
-    double fade_sum_ = 0;
-    void FrameOneFadeOut(object sender, object e)
-    {
-      frameTimer_.PushStackHandler(FrameOne, field_);
-    }
-    public void Run()
-    {
-      fade_sum_ = 0;
-      //frameTimer_.setTimeOut(FrameOne);
-      if (this.idMonitorFade.Background.Opacity == 1.0)
-      {
-        fade_sum_ = 200;
-        frameTimer_.setTimeOut(FadeIn);
-      }
-      else
-      {
-        fade_sum_ = 0;
-        frameTimer_.setTimeOut(FadeOut);
-      }
-    }
-    void FadeOut(object sender, object e)
-    {
-      int ms = 200;
-      fade_sum_ += FrameTimer.kOneFrameTimeMs;
-      double opacity = (double)fade_sum_ / ms;
-      if (opacity >= 1.0)
-      {
-        this.idMonitorFade.Background.Opacity = 1.0;
-        frameTimer_.PopStackHandler();
-      }
-      else
-      {
-        this.idMonitorFade.Background.Opacity = opacity;
-      }
-    }
-    void FadeIn(object sender, object e)
-    {
-      int ms = 200;
-      fade_sum_ -= FrameTimer.kOneFrameTimeMs;
-      double opacity = (double)fade_sum_ / ms;
-      if (opacity <= 0.0)
-      {
-        this.idMonitorFade.Background.Opacity = 0.0;
-        frameTimer_.PopStackHandler();
-      }
-      else
-      {
-        this.idMonitorFade.Background.Opacity = opacity;
-      }
-    }
-    // ▽▽▽フェード処理▽▽▽
 
     private void Button_Click_1(object sender, RoutedEventArgs e)
     {
