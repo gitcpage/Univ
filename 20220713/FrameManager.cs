@@ -28,12 +28,30 @@ namespace Univ
     bool doSoftReset_ = false;
     MainPage mainPage_;
 
+    private void Update(object sender, object e)
+    {
+      CoreWindow coreWin = CoreWindow.GetForCurrentThread();
+      for (int i = 0; i < jkey_.Length; i++)
+      {
+        var state = coreWin.GetKeyState((VirtualKey)i);
+        if ((state & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down)
+        {
+          jkey_[i]++;
+        }
+        else
+        {
+          jkey_[i] = 0;
+        }
+      }
+      frameCount_++;
+    }
     public FrameManager(MainPage mainPage, EventHandler<object> MainFrameOne)
     {
       mainPage_ = mainPage;
       timer_ = new DispatcherTimer();
       // ChangeSequence()の第１引数より先に実行されてほしいが保証はない。
-      timer_.Tick += (sender, e) => {
+      //timer_.Tick += Update;
+      timer_.Tick += (object sender, object e) => {
         CoreWindow coreWin = CoreWindow.GetForCurrentThread();
         for (int i = 0; i < jkey_.Length; i++)
         {
@@ -48,7 +66,7 @@ namespace Univ
           }
         }
         frameCount_++;
-      }; // timer_.Tick += (object sender, object e) => {
+      };
 
       //■
       sequenceStack_.Push(MainFrameOne);
@@ -109,6 +127,10 @@ namespace Univ
       int oneFrameTimeMs = isFast_ ? kOneFrameTimeMs/2 : kOneFrameTimeMs;
       timer_.Interval = TimeSpan.FromMilliseconds(oneFrameTimeMs);
       timer_.Start();
+    }
+    public bool IsRunning
+    {
+      get { return isRunning; }
     }
 
     // △△△ キー関連処理 △△△

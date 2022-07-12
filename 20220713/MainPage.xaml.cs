@@ -31,9 +31,9 @@ namespace Univ
     public Point mousePoint;
     public bool isMouseLDown = false;
 
-    //Field field_;
-    //RunImplements runImplements_;
-    //RunImplementsFade runImplementsFade_;
+    Field field_;
+    RunImplements runImplements_;
+    RunImplementsFade runImplementsFade_;
 
     string BottomTextFormer = ""; // シーケンス遷移用に使用する
     string BottomTextLatter = ""; // マウス用に使用する
@@ -82,7 +82,12 @@ namespace Univ
     // ■エントリーポイント
     void FrameOne(object sender, object e)
     {
-      frameManager_.EnterSequence(FrameOne, new Battle(this));
+      field_ = new Field(this);
+      frameManager_.EnterSequence(FrameOne, field_);
+      //runImplementsFade_ = new RunImplementsFade(this);
+      //frameManager_.EnterSequence(FrameOne, runImplementsFade_);
+      //runImplements_ = new RunImplements(this);
+      //frameManager_.EnterSequence(FrameOne, runImplements_);
     }
     // △△△モニタアクセス共通処理△△△
     public void Clear()
