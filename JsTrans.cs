@@ -27,7 +27,6 @@ namespace Univ
       }
       await ApplicationView.GetForCurrentView().TryConsolidateAsync();
     }
-
     static public string document_title
     {
       get { 
@@ -63,17 +62,26 @@ namespace Univ
     }
 
     //
-    static public void console_log(string log/*, bool useBottom = false*/)
-    {
-      /*if (useBottom) s_mainPage.BottomText = log;
-      else*/ s_mainPage.ConsoleText += log + "\n";
+    static public void console_log(string log)
+    { s_mainPage.ConsoleText += log + "\n";
     }
     static public void console_clear(string log)
     {
       s_mainPage.ConsoleText = "";
     }
-    static public int clientX { get { return (int)s_mainPage.mousePoint.X; } }
-    static public int clientY { get { return (int)s_mainPage.mousePoint.Y; } }
-    static public bool isMouseLDown { get { return s_mainPage.isMouseLDown; } }
+
+    // 独自の関数
+    static public async void Assert(bool cond, string msg)
+    {
+      if (!cond)
+      {
+        if (msg != null)
+        {
+          MessageDialog md = new MessageDialog(msg);
+          await md.ShowAsync();
+        }
+        await ApplicationView.GetForCurrentView().TryConsolidateAsync();
+      }
+    }
   }
 }

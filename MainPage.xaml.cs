@@ -25,14 +25,15 @@ namespace Univ
   /// <summary>
   /// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
   /// </summary>
-  public sealed partial class MainPage : Page, IRun
+  public sealed partial class MainPage : Page
   {
-    //private DispatcherTimer timer_ = null;
-    FrameTimer frameTimer_;
+    FrameManager frameManager_;
     public Point mousePoint;
     public bool isMouseLDown = false;
 
     Field field_;
+    RunImplements runImplements_;
+    RunImplementsFade runImplementsFade_;
 
     string BottomTextFormer = ""; // シーケンス遷移用に使用する
     string BottomTextLatter = ""; // マウス用に使用する
@@ -45,18 +46,19 @@ namespace Univ
       this.NavigationCacheMode = NavigationCacheMode.Required;
       JsTrans.s_mainPage = this;
 
-      this.idMonitorFade.Background.Opacity = 1.0; // 0.0で透明
-      //Canvas.SetZIndex(this.idMonitorFade, 100000);
+      // 1.0でidMonitorは見えなくなる。フェードインスタートの場合は1.0にする。
+      this.idMonitorFade.Background.Opacity = 1.0; 
 
-      // 初期化処理
-      frameTimer_ = new FrameTimer(this);
-      //frameTimer_.PushStackHandler(FrameOne, this);
-      frameTimer_.setTimeOut(FrameOne);
+      // 初期化処理。
+      // FrameManager で FrameOne を呼び出すのは整合性として気持ち悪いので、
+      // MainPageコンストラクタで呼び出している。
+      frameManager_ = new FrameManager(this, FrameOne);
+      FrameOne(null, null);
     }
     //  △△△シーケンス遷移で渡すオブジェクトへのアクセス△△△
-    public FrameTimer GetFrameTimer()
+    public FrameManager GetFrameTimer()
     {
-      return this.frameTimer_;
+      return this.frameManager_;
     }
     public Grid GetMonitor()
     {
@@ -77,13 +79,15 @@ namespace Univ
       get { return this.txtConsole.Text; }
       set { this.txtConsole.Text = value; }
     }
+    // ■エントリーポイント
     void FrameOne(object sender, object e)
     {
-      //if (frameTimer_.IsKeyDown(VirtualKey.Space))
-      {
-        field_ = new Field(this/*frameTimer_, this.idMonitor, monitorBg: this.idMonitorBg*/);
-        frameTimer_.PushStackHandler(FrameOne, field_);
-      }
+      field_ = new Field(this);
+      frameManager_.EnterSequence(FrameOne, field_);
+      //runImplementsFade_ = new RunImplementsFade(this);
+      //frameManager_.EnterSequence(FrameOne, runImplementsFade_);
+      //runImplements_ = new RunImplements(this);
+      //frameManager_.EnterSequence(FrameOne, runImplements_);
     }
     // △△△モニタアクセス共通処理△△△
     public void Clear()
@@ -94,49 +98,46 @@ namespace Univ
     // ▽▽▽モニタアクセス共通処理▽▽▽
     // △△△フェード処理△△△
     double fade_sum_ = 0;
-    void FrameOneFadeOut(object sender, object e)
+    public void RunFadeOut()
     {
-      frameTimer_.PushStackHandler(FrameOne, field_);
-    }
-    public void Run()
-    {
+      if (this.idMonitorFade.Background.Opacity != 0.0) JsTrans.Assert(false,
+        "フェードアウトできません。\nthis.idMonitorFade.Background.Opacityが0.0であることを確認してください。" +
+        this.idMonitorFade.Background.Opacity.ToString());
       fade_sum_ = 0;
-      //frameTimer_.setTimeOut(FrameOne);
-      if (this.idMonitorFade.Background.Opacity == 1.0)
-      {
-        fade_sum_ = 200;
-        frameTimer_.setTimeOut(FadeIn);
-      }
-      else
-      {
-        fade_sum_ = 0;
-        frameTimer_.setTimeOut(FadeOut);
-      }
+      frameManager_.ChangeSequence(FadeOut);
     }
     void FadeOut(object sender, object e)
     {
       int ms = 200;
-      fade_sum_ += FrameTimer.kOneFrameTimeMs;
+      fade_sum_ += FrameManager.kOneFrameTimeMs;
       double opacity = (double)fade_sum_ / ms;
       if (opacity >= 1.0)
       {
         this.idMonitorFade.Background.Opacity = 1.0;
-        frameTimer_.PopStackHandler();
+        frameManager_.ExitSequence();
       }
       else
       {
         this.idMonitorFade.Background.Opacity = opacity;
       }
     }
+    public void RunFadeIn()
+    {
+      if (this.idMonitorFade.Background.Opacity != 1.0) JsTrans.Assert(false,
+        "フェードインできません。\nthis.idMonitorFade.Background.Opacityが1.0であることを確認してください。\n" +
+        this.idMonitorFade.Background.Opacity.ToString());
+      fade_sum_ = 200;
+      frameManager_.ChangeSequence(FadeIn);
+    }
     void FadeIn(object sender, object e)
     {
       int ms = 200;
-      fade_sum_ -= FrameTimer.kOneFrameTimeMs;
+      fade_sum_ -= FrameManager.kOneFrameTimeMs;
       double opacity = (double)fade_sum_ / ms;
       if (opacity <= 0.0)
       {
         this.idMonitorFade.Background.Opacity = 0.0;
-        frameTimer_.PopStackHandler();
+        frameManager_.ExitSequence();
       }
       else
       {
@@ -163,11 +164,11 @@ namespace Univ
 
     private void AppBarReset_Click(object sender, RoutedEventArgs e)
     {
-      frameTimer_.Reset();
+      frameManager_.Reset();
     }
     private void AppBarPause_Click(object sender, RoutedEventArgs e)
     {
-      frameTimer_.Pause();
+      frameManager_.Pause();
       this.AppBarPause.IsEnabled = false;
       this.AppBarPlay.IsEnabled = true;
       this.AppBarFastPlay.IsEnabled = true;
@@ -178,14 +179,14 @@ namespace Univ
       this.AppBarPause.IsEnabled = true;
       this.AppBarPlay.IsEnabled = false;
       this.AppBarFastPlay.IsEnabled = true;
-      frameTimer_.Start();
+      frameManager_.Start();
     }
     private void AppBarFastPlay_Click(object sender, RoutedEventArgs e)
     {
       this.AppBarPause.IsEnabled = true;
       this.AppBarPlay.IsEnabled = true;
       this.AppBarFastPlay.IsEnabled = false;
-      frameTimer_.Start(true);
+      frameManager_.Start(true);
     }
     public void BottomTextBySequence(string name)
     {

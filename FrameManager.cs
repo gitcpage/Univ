@@ -11,21 +11,21 @@ namespace Univ
 {
   // キー押下処理とフレームカウントも行う
   // CS0051コンパイルエラーを防ぐため、アクセス修飾子を internal から public に変更。
-  public class FrameTimer
+  public class FrameManager
   {
     EventHandler<object> handler_ = null;
-    Stack<EventHandler<object>> handlerStack_ = new Stack<EventHandler<object>>();
+    Stack<EventHandler<object>> sequenceStack_ = new Stack<EventHandler<object>>();
     DispatcherTimer timer_;
     bool isRunning = false;
 
-    public byte[] jkey_ = new byte[256];
+    byte[] jkey_ = new byte[256];
     int frameCount_ = 0;
 
     // kOneFrameTimeMs は40で固定する。必要な場合のみ変更する。20220708
     public const int kOneFrameTimeMs = 40; // from MainPage.FadeOut
     bool isFast_ = false;
 
-    static bool doSoftReset_ = false;
+    bool doSoftReset_ = false;
     MainPage mainPage_;
 
     private void Update(object sender, object e)
@@ -45,17 +45,37 @@ namespace Univ
       }
       frameCount_++;
     }
-    public FrameTimer(MainPage mainPage)
+    public FrameManager(MainPage mainPage, EventHandler<object> MainFrameOne)
     {
       mainPage_ = mainPage;
       timer_ = new DispatcherTimer();
-      // setTimeOut()の第１引数より先に実行されてほしいが保証はない。
-      timer_.Tick += Update;
+      // ChangeSequence()の第１引数より先に実行されてほしいが保証はない。
+      //timer_.Tick += Update;
+      timer_.Tick += (object sender, object e) => {
+        CoreWindow coreWin = CoreWindow.GetForCurrentThread();
+        for (int i = 0; i < jkey_.Length; i++)
+        {
+          var state = coreWin.GetKeyState((VirtualKey)i);
+          if ((state & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down)
+          {
+            jkey_[i]++;
+          }
+          else
+          {
+            jkey_[i] = 0;
+          }
+        }
+        frameCount_++;
+      };
+
+      //■
+      sequenceStack_.Push(MainFrameOne);
     }
-    public void setTimeOut(EventHandler<object> handler)
+    //public void setTimeOut(EventHandler<object> method)
+    public void ChangeSequence(EventHandler<object> method)
     {
       timer_.Tick -= handler_;
-      handler_ = handler;
+      handler_ = method;
       timer_.Tick += handler_;
       int oneFrameTimeMs = isFast_ ? kOneFrameTimeMs / 2 : kOneFrameTimeMs;
       timer_.Interval = TimeSpan.FromMilliseconds(oneFrameTimeMs);
@@ -65,23 +85,31 @@ namespace Univ
         timer_.Start();
       }
     }
-    public void PushStackHandler(
-      EventHandler<object> handler_,
-      IRun iRun)
+    internal void EnterSequence(EventHandler<object> returnMethod,IRun iRun)
     {
-      handlerStack_.Push(handler_);
+      sequenceStack_.Push(returnMethod);
       iRun.Run();
     }
-    public void PopStackHandler()
+    public void EnterSequenceFadeIn(EventHandler<object> returnMethod)
     {
-      EventHandler<object> e = handlerStack_.Pop();
-      setTimeOut(e);
+      sequenceStack_.Push(returnMethod);
+      mainPage_.RunFadeIn();
+    }
+    public void EnterSequenceFadeOut(EventHandler<object> returnMethod)
+    {
+      sequenceStack_.Push(returnMethod);
+      mainPage_.RunFadeOut();
+    }
+    public void ExitSequence()
+    {
+      EventHandler<object> e = sequenceStack_.Pop();
+      ChangeSequence(e);
     }
     public void Reset()
     {
       doSoftReset_ = true;
     }
-    static public bool ResettingOnce()
+    public bool ResettingOnce()
     {
       bool ret = doSoftReset_;
       doSoftReset_ = false;
@@ -105,7 +133,7 @@ namespace Univ
       get { return isRunning; }
     }
 
-    // ▲▲▲ キー関連処理 ▲▲▲
+    // △△△ キー関連処理 △△△
     public bool IsKeyDown(char keyCode)
     {
       if (jkey_[keyCode] > 0)
@@ -165,7 +193,12 @@ namespace Univ
       }
       return false;
     }
-    // ▼▼▼ キー関連処理 ▼▼▼
+    // ▽▽▽ キー関連処理 ▽▽▽
+
+    // マウス関連処理
+    public int clientX { get { return (int)mainPage_.mousePoint.X; } }
+    public int clientY { get { return (int)mainPage_.mousePoint.Y; } }
+    public bool isMouseLDown { get { return mainPage_.isMouseLDown; } }
 
     // フレームカウント
     public int FrameCount

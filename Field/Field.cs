@@ -12,10 +12,10 @@ using Windows.System; //VirtualKey
 
 namespace Univ
 {
-  internal partial class Field : FieldInclude, IRun
+  internal class Field : FieldInclude, IRun
   {
     MainPage mainPage_;
-    FrameTimer frameTimer_;
+    FrameManager frameManager_;
 
     FieldBlock obj_;
     FieldBlock player_;
@@ -27,18 +27,19 @@ namespace Univ
     int moveDirectionX_ = 0;
     int moveDirectionY_ = 0;
 
-    public Field(MainPage mainPage/*, FrameTimer frameTimer, Grid monitor, Grid monitorBg*/) : base(mainPage.GetMonitorBg())
+    int fieldFrameCount_ = 0;
+
+    public Field(MainPage mainPage) : base(mainPage.GetMonitorBg())
     {
       mainPage_ = mainPage;
-      frameTimer_ = mainPage.GetFrameTimer();
-      //s_frameTimer_ = mainPage.GetFrameTimer();
+      frameManager_ = mainPage.GetFrameTimer();
       monitor_ = mainPage.GetMonitor();
 
       bg_ = new FieldBgEx(mainPage.GetMonitorBg());
       obj_ = new FieldBlock("char/t5040walkt.png", monitor_);
       player_ = new FieldBlock("char/char1p", FieldBlock.DirectionSlot.DownUp, monitor_);
     }
-    public void Run()//MainPage mainPage, FrameTimer frameTimer)
+    public void Run()
     {
       mainPage_.BottomTextBySequence("Field");
       // 初期化
@@ -47,53 +48,46 @@ namespace Univ
       player_.Image = AppendXyIndex(0, 0, player_.Bitmap, "imgBox", "box", 0);
       player_.BlockSync(kTipXNum / 2 - 1, kTipYNum / 2 - 1);
 
-      //フレームループ開始
-      frameTimer_.PushStackHandler(FrameOne, mainPage_);
-      //frameTimer_.setTimeOut(FrameOne);
+      //フェードイン後、フレームループ開始
+      frameManager_.EnterSequenceFadeIn(FrameOne);
     }
-    public void OnFadeOuted(
-      object sender, // DispatcherTimer型
-      object e) // null
+    public void OnFadeOuted(object senderDispatcherTimer, object eNull)
     {
       mainPage_.Clear();
-      frameTimer_.PopStackHandler();
+      frameManager_.ExitSequence();
     }
-    public void FrameOne(
-      object sender, // DispatcherTimer型
-      object e) // null
+    public void FrameOne(object senderDispatcherTimer, object eNull)
     {
-      if (FrameTimer.ResettingOnce())
+      if (frameManager_.ResettingOnce())
       {
-        JsTrans.console_log("FrameTimer.ResettingOnce()");
-        //mainPage_.Clear();
-        //frameTimer_.PopStackHandler();
-        frameTimer_.PushStackHandler(OnFadeOuted, mainPage_);
+        JsTrans.console_log("ソフトリセット");
+        frameManager_.EnterSequenceFadeOut(OnFadeOuted);
         return;
       }
 
-      if (frameTimer_.FrameCount % 50 == 0)
+      if (frameManager_.FrameCount % 50 == 0)
       {
         bg_.ChangeBg(0);
       }
-      else if(frameTimer_.FrameCount % 25 == 0)
+      else if(frameManager_.FrameCount % 25 == 0)
       {
         bg_.ChangeBg(1);
       }
 
       //右に延々動くやつ
-      obj_.SetXIndex(frameTimer_.FrameCount % kTipXNum);
+      obj_.SetXIndex(fieldFrameCount_++ % kTipXNum);
 
       //▲▲▲プレイヤー移動処理▲▲▲
       if (player_moving_ == PlayerMoving.None)
       {
         //▲▲移動操作を調べる▲▲
         moveDirectionX_ = moveDirectionY_ = 0;
-        bool existMoveOperation = frameTimer_.KeyDirection(out moveDirectionX_, out moveDirectionY_);
-        if (!existMoveOperation && JsTrans.isMouseLDown)
+        bool existMoveOperation = frameManager_.KeyDirection(out moveDirectionX_, out moveDirectionY_);
+        if (!existMoveOperation && frameManager_.isMouseLDown)
         {
           int max;
-          int mouseX = JsTrans.clientX;
-          int mouseY = JsTrans.clientY;
+          int mouseX = frameManager_.clientX;
+          int mouseY = frameManager_.clientY;
           max = player_.GetX() - mouseX;
           moveDirectionX_ = -1;
           if (mouseX - player_.GetX() > max)

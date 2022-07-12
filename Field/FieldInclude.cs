@@ -24,7 +24,6 @@ namespace Univ
     protected const int kMoveYStep = 8;
     protected const int kMoveTime = 5;
 
-    //static protected FrameTimer s_frameTimer_;
     protected Grid monitor_;
 
     public FieldInclude(Grid grid)
