@@ -47,7 +47,9 @@ namespace Univ
       JsTrans.s_mainPage = this;
 
       // 1.0でidMonitorは見えなくなる。フェードインスタートの場合は1.0にする。
-      this.idMonitorFade.Background.Opacity = 1.0; 
+      this.idMonitorFade.Background.Opacity = 1.0;
+      // Visibility.Collapsedのときは this.idMonitor要素にマウスイベントが発生する。
+      this.idMonitorFade.Visibility = Visibility.Visible;
 
       // 初期化処理。
       // FrameManager で FrameOne を呼び出すのは整合性として気持ち悪いので、
@@ -99,6 +101,7 @@ namespace Univ
         "フェードアウトできません。\nthis.idMonitorFade.Background.Opacityが0.0であることを確認してください。" +
         this.idMonitorFade.Background.Opacity.ToString());
       fade_sum_ = 0;
+      this.idMonitorFade.Visibility = Visibility.Visible;
       frameManager_.ChangeSequence(FadeOut);
     }
     void FadeOut(object sender, object e)
@@ -132,6 +135,7 @@ namespace Univ
       if (opacity <= 0.0)
       {
         this.idMonitorFade.Background.Opacity = 0.0;
+        this.idMonitorFade.Visibility = Visibility.Collapsed;
         frameManager_.ExitSequence();
       }
       else

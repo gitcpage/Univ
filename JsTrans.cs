@@ -83,5 +83,17 @@ namespace Univ
         await ApplicationView.GetForCurrentView().TryConsolidateAsync();
       }
     }
+    static public async void Assert(int v ,int min, int max, string msg)
+    {
+      if (!(min <= v && v <= max))
+      {
+        if (msg != null)
+        {
+          MessageDialog md = new MessageDialog(msg);
+          await md.ShowAsync();
+        }
+        await ApplicationView.GetForCurrentView().TryConsolidateAsync();
+      }
+    }
   }
 }

@@ -36,7 +36,7 @@
             <TextBlock HorizontalAlignment="Left" Margin="13,0,0,0" TextWrapping="Wrap" Text="console" VerticalAlignment="Center" RenderTransformOrigin="-1.121,0.526"/>
             <Button Content="クリアする" Margin="93,290,0,0" VerticalAlignment="Top" Click="Button_Click_Clear"/>
         </Grid>
-        <Grid Width="800" Height="600" Background="gray" Margin="200,0,0,0" PointerMoved="idMonitor_PointerMoved" PointerPressed="idMonitor_PointerPressed" PointerReleased="idMonitor_PointerReleased">
+        <Grid Width="800" Height="600" Background="gray" Margin="200,0,0,0" PointerMoved="idMonitor_PointerMoved" PointerPressed="idMonitor_PointerPressed" PointerReleased="idMonitor_PointerReleased" >
             <Grid x:Name="idMonitorBg" Width="800" Height="600"></Grid>
             <Grid x:Name="idMonitor" Width="800" Height="600"></Grid>
             <Grid x:Name="idMonitorFade" Width="800" Height="600" Background="gray"></Grid>
