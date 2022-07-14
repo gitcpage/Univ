@@ -38,6 +38,8 @@ namespace Univ
     string BottomTextFormer = ""; // シーケンス遷移用に使用する
     string BottomTextLatter = ""; // マウス用に使用する
 
+    Data.CharsWritable[] chars_;
+
     public MainPage()
     {
       this.InitializeComponent();
@@ -51,7 +53,10 @@ namespace Univ
       // Visibility.Collapsedのときは this.idMonitor要素にマウスイベントが発生する。
       this.idMonitorFade.Visibility = Visibility.Visible;
 
-      // 初期化処理。
+      // データインスタンス化処理
+      chars_ = Data.CharsWritable.Instances(5);
+
+      // フレーム初期化処理。
       // FrameManager で FrameOne を呼び出すのは整合性として気持ち悪いので、
       // MainPageコンストラクタで呼び出している。
       frameManager_ = new FrameManager(this, FrameOne);
@@ -84,7 +89,17 @@ namespace Univ
     // ■エントリーポイント
     void FrameOne(object sender, object e)
     {
-      frameManager_.EnterSequence(FrameOne, new Battle(this));
+      chars_[0].name("ホーン");
+      chars_[0].hp(24);
+      chars_[1].name("サンナン");
+      chars_[1].hp(27);
+      chars_[2].name("ナル");
+      chars_[2].hp(21);
+      chars_[3].name("リゼッタ");
+      chars_[3].hp(22);
+      chars_[4].name("アスラa");
+      chars_[4].hp(9999);
+      frameManager_.EnterSequence(FrameOne, new Battle(this, chars_));
     }
     // △△△モニタアクセス共通処理△△△
     public void Clear()
