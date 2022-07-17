@@ -18,7 +18,6 @@ using Windows.UI.Core; // CoreVirtualKeyStates
 using Windows.System;
 using Windows.UI.ViewManagement; // ApplicationView
 using Windows.UI.Input; //PointerPoint
-using Windows.Storage; // StorageFolder, StorageFile
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x411 を参照してください
 
 namespace Univ
@@ -39,24 +38,10 @@ namespace Univ
     string BottomTextFormer = ""; // シーケンス遷移用に使用する
     string BottomTextLatter = ""; // マウス用に使用する
 
-    //データ関連
-    //private string text = "";
-    //public int setup { get; private set; } = 0;
-    Data.Loader loader;
-    MainData mainData_;
+    Data.CharsWritable[] chars_;
 
     public MainPage()
     {
-      /*async void Load()
-      {
-        StorageFolder installedLocation = Windows.ApplicationModel.Package.Current.InstalledLocation;
-        //JsTrans.console_log(installedLocation.Path);
-        StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Const.txt"));
-        Data.Loader.DataOfSetup = await FileIO.ReadTextAsync(file);
-        Data.Loader.UpdateLoadingState(Data.LoadingState.Loading);
-      }*/
-      Data.Loader.Load();
-
       this.InitializeComponent();
 
       //https://social.msdn.microsoft.com/Forums/en-US/97556dc2-b01c-43a4-8c6a-9a3fd51d9151/updating-imagesource-causes-flickering?forum=wpdevelop
@@ -68,12 +53,8 @@ namespace Univ
       // Visibility.Collapsedのときは this.idMonitor要素にマウスイベントが発生する。
       this.idMonitorFade.Visibility = Visibility.Visible;
 
-      // ファイルデータの読み込み
-      //loader = Data.Loader.Instance;
-
       // データインスタンス化処理
-      mainData_ = new MainData();
-      //mainData_.chars[0].Equip(Data.EquipCategory.Weapon, 0);
+      chars_ = Data.CharsWritable.Instances(5);
 
       // フレーム初期化処理。
       // FrameManager で FrameOne を呼び出すのは整合性として気持ち悪いので、
@@ -108,21 +89,17 @@ namespace Univ
     // ■エントリーポイント
     void FrameOne(object sender, object e)
     {
-      if (Data.Loader.LoadingState_ == Data.LoadingState.Loading)
-      {
-        frameManager_.EnterSequence(FrameOne, new Loading(this));
-        return;
-      }
-      else if (Data.Loader.LoadingState_ == Data.LoadingState.Loaded)
-      {
-        loader = Data.Loader.Setup();
-        mainData_.chars[0].Equip(Data.EquipCategory.Weapon, 0);
-        //setup = 2;
-      }
-      else
-      {
-        frameManager_.EnterSequence(FrameOne, new Battle(this, mainData_.chars));
-      }
+      chars_[0].name("ホーン");
+      chars_[0].hp(24);
+      chars_[1].name("サンナン");
+      chars_[1].hp(27);
+      chars_[2].name("ナル");
+      chars_[2].hp(21);
+      chars_[3].name("リゼッタ");
+      chars_[3].hp(22);
+      chars_[4].name("アスラa");
+      chars_[4].hp(9999);
+      frameManager_.EnterSequence(FrameOne, new Battle(this, chars_));
     }
     // △△△モニタアクセス共通処理△△△
     public void Clear()

@@ -1,7 +1,7 @@
 ﻿
 using Windows.System; // VirtualKey
 using Windows.UI.Xaml.Controls; // Grid
-/*
+
 namespace Univ
 {
   internal class RunImplementsFade : IRun
@@ -52,4 +52,3 @@ namespace Univ
     }
   }
 }
-*/

@@ -63,8 +63,7 @@ namespace Univ
 
     //
     static public void console_log(string log)
-    {
-      s_mainPage.ConsoleText += log + "\n";
+    { s_mainPage.ConsoleText += log + "\n";
     }
     static public void console_clear(string log)
     {
@@ -72,10 +71,6 @@ namespace Univ
     }
 
     // 独自の関数
-    static public void Assert(string msg)
-    {
-      Assert(false, msg);
-    }
     static public async void Assert(bool cond, string msg)
     {
       if (!cond)

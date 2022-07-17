@@ -1,17 +1,21 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Windows.System; // VirtualKey
 using Windows.UI.Xaml.Controls; // Grid
-/*
+
 namespace Univ
 {
-  internal class RunImplements : IRun
+  internal class Loading : IRun
   {
     MainPage mainPage_;
     FrameManager frameManager_;
     Grid monitor_;   // 描画用
     Grid monitorBg_; //背景描画用
 
-    public RunImplements(MainPage mainPage)
+    public Loading(MainPage mainPage)
     {
       mainPage_ = mainPage;
       frameManager_ = mainPage.GetFrameTimer();
@@ -32,21 +36,11 @@ namespace Univ
     }
     public void FrameOne(object senderDispatcherTimer, object eNull)
     {
-      if (frameManager_.ResettingOnce())
-      {
-        JsTrans.console_log("ソフトリセット");
-        mainPage_.Clear();
-        frameManager_.ExitSequence();
-        return;
-      }
-
       // スペースキーで戻る
-      if (frameManager_.IsKeyDownFirst(VirtualKey.Space))
+      if (Data.Loader.LoadingState_ == Data.LoadingState.Loaded)
       {
-        mainPage_.Clear();
         frameManager_.ExitSequence();
       }
     }
   }
 }
-*/

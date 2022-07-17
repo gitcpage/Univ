@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-/*
+
 namespace Univ.Data
 {
   internal class SeveralDataWritable : SeveralData
@@ -23,14 +23,9 @@ namespace Univ.Data
         s_num = instanceNumber;
         s_instances = insts = new SeveralDataWritable[instanceNumber];
         for (int i = 0; i < instanceNumber; i++)
-        {
-          StatusWritable sw = new StatusWritable(uniques[i]);
-          sw.name("Initial name"); // s_instances[i].name("Initial name");ではアクセスできない。
-          s_instances[i] = sw;
-        }
+          s_instances[i] = new SeveralDataWritable();
       }
       return insts;
     }
   }
 }
-*/

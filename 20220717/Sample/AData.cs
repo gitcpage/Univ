@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-/*
+
 namespace Univ.Data
 {
   internal class AData
@@ -21,4 +21,3 @@ namespace Univ.Data
     public static AData Instance { get { return instance; } }
   }
 }
-*/

@@ -31,9 +31,9 @@ namespace Univ
     BattleUI ui_;
     BattleNotify battleNotify_;
 
-    Data.StatusWritable[] charsWritable_;
+    Data.CharsWritable[] charsWritable_;
 
-    public Battle(MainPage mainPage, Data.StatusWritable[] charsWritable)
+    public Battle(MainPage mainPage, Data.CharsWritable[] charsWritable)
     {
       mainPage_ = mainPage;
       charsWritable_ = charsWritable;
@@ -98,16 +98,15 @@ namespace Univ
 
       //▲▲キャラクター一覧▲▲
       Grid charsGrid = ui_.RunUnderGrid(341, 330);
-      Data.Status[] dchars = Data.Status.Instances;
+      Data.Chars[] dchars = Data.Chars.Instances;
       //string[] charStrings = new string[5] {
       //  dchars[0].name(), dchars[1].name(), dchars[2].name(), dchars[3].name(), dchars[4].name() };
         //"ホーン", "サンナン", "ナル", "リゼッタ", "アスラ" };
       //charsGrid.Children.Add(ui_.RunStringPanel(charStrings));
-      charsGrid.Children.Add(ui_.RunStringPanel(Data.Status.names()));
-      /*string[] charHpStrings = new string[5] {
+      charsGrid.Children.Add(ui_.RunStringPanel(Data.Chars.names()));
+      string[] charHpStrings = new string[5] {
         "24", "27", "21", "22", "9999" };
-      charsGrid.Children.Add(ui_.RunStringPanelRightAlignment(charHpStrings, 90, 50));*/
-      charsGrid.Children.Add(ui_.RunStringPanelRightAlignment(Data.Status.hpStrings(), 90, 50));
+      charsGrid.Children.Add(ui_.RunStringPanelRightAlignment(charHpStrings, 90, 50));
       underGrid.Children.Add(charsGrid);
 
       underGrid.Children.Add(ui_.RunSliderPanel());

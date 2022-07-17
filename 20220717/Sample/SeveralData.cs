@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-/*
+
 namespace Univ.Data
 {
   internal class SeveralData
@@ -28,4 +28,3 @@ namespace Univ.Data
     static public SeveralData[] Instances { get { return s_instances; } }
   }
 }
-*/
