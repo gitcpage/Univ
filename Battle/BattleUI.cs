@@ -12,7 +12,7 @@ using Windows.UI.Xaml.Input; // PointerRoutedEventArgs
 
 namespace Univ.NsBattle
 {
-  delegate void BattleNotify(Battle.NotifyCode a);
+  delegate void BattleNotify(Battle.NotifyCode notifyCode);
   internal class BattleUI
   {
     Grid monitor_;   // 描画用

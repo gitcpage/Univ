@@ -8,6 +8,7 @@ using Windows.UI.Xaml.Media; // Stretch, Brush
 using Windows.UI; // Color
 using Windows.UI.Xaml.Controls; // Image
 using Windows.UI.Xaml; // Thickness
+using Windows.UI.Text; // FontWeight
 
 namespace Univ
 {
@@ -83,6 +84,12 @@ namespace Univ
       string name, string tag = "", int z = 0)
     {
       return ImageInstance(0, 0, BitmapImageFromAssets(path), name, tag, z);
+    }
+    static public FontWeight FontWeightBold()
+    {
+      FontWeight fw = new FontWeight();
+      fw.Weight = 700;
+      return fw;
     }
   }
 }

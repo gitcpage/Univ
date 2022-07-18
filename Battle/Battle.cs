@@ -25,9 +25,6 @@ namespace Univ
     Grid monitor_;   // 描画用
     Grid monitorBg_; // 背景描画用
 
-    Grid[] charsGrid_ = new Grid[5];
-    TextBlock[] charsArrow_ = new TextBlock[5];
-    Image[] chars_ = new Image[5];
     BattleUI ui_;
     BattleNotify battleNotify_;
 
@@ -55,7 +52,7 @@ namespace Univ
     }
     public void Run()
     {
-      mainPage_.BottomTextBySequence("IRunImplementsFade");
+      mainPage_.BottomTextBySequence("Battle");
 
       //初期化処理
       /*TextBlock tb_ = new TextBlock();

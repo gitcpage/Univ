@@ -66,7 +66,17 @@ namespace Univ
     {
       s_mainPage.ConsoleText += log + "\n";
     }
-    static public void console_clear(string log)
+    static public void console_log(Grid g)
+    {
+      Thickness t = g.Margin;
+      s_mainPage.ConsoleText += "Margin("+t.Left.ToString()+", "+t.Top.ToString()+", "+t.Right.ToString()
+        + ", " + t.Bottom.ToString() +")" + "\n";
+      t = g.Padding;
+      s_mainPage.ConsoleText += "Padding(" + t.Left.ToString() + ", " + t.Top.ToString() + ", " + t.Right.ToString()
+        + ", " + t.Bottom.ToString() + ")" + "\n";
+      s_mainPage.ConsoleText += "Width: " + g.Width + " Height:" + g.Height+"\n\n";
+    }
+    static public void console_clear()
     {
       s_mainPage.ConsoleText = "";
     }

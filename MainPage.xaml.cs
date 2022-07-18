@@ -12,13 +12,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Windows.UI.Popups;
-using Windows.UI.Xaml.Media.Imaging; // BitmapImage
-using Windows.UI.Core; // CoreVirtualKeyStates
-using Windows.System;
-using Windows.UI.ViewManagement; // ApplicationView
 using Windows.UI.Input; //PointerPoint
-using Windows.Storage; // StorageFolder, StorageFile
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x411 を参照してください
 
 namespace Univ
@@ -40,21 +34,12 @@ namespace Univ
     string BottomTextLatter = ""; // マウス用に使用する
 
     //データ関連
-    //private string text = "";
-    //public int setup { get; private set; } = 0;
     Data.Loader loader;
     MainData mainData_;
 
     public MainPage()
     {
-      /*async void Load()
-      {
-        StorageFolder installedLocation = Windows.ApplicationModel.Package.Current.InstalledLocation;
-        //JsTrans.console_log(installedLocation.Path);
-        StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Const.txt"));
-        Data.Loader.DataOfSetup = await FileIO.ReadTextAsync(file);
-        Data.Loader.UpdateLoadingState(Data.LoadingState.Loading);
-      }*/
+      // ファイルデータの非同期読み込み
       Data.Loader.Load();
 
       this.InitializeComponent();
@@ -67,9 +52,6 @@ namespace Univ
       this.idMonitorFade.Background.Opacity = 1.0;
       // Visibility.Collapsedのときは this.idMonitor要素にマウスイベントが発生する。
       this.idMonitorFade.Visibility = Visibility.Visible;
-
-      // ファイルデータの読み込み
-      //loader = Data.Loader.Instance;
 
       // データインスタンス化処理
       mainData_ = new MainData();
@@ -110,19 +92,19 @@ namespace Univ
     {
       if (Data.Loader.LoadingState_ == Data.LoadingState.Loading)
       {
+        // データロード中
         frameManager_.EnterSequence(FrameOne, new Loading(this));
         return;
       }
       else if (Data.Loader.LoadingState_ == Data.LoadingState.Loaded)
       {
+        // データロード完了
         loader = Data.Loader.Setup();
         mainData_.chars[0].Equip(Data.EquipCategory.Weapon, 0);
-        //setup = 2;
       }
-      else
-      {
-        frameManager_.EnterSequence(FrameOne, new Battle(this, mainData_.chars));
-      }
+
+      frameManager_.EnterSequence(FrameOne, new Menu(this, mainData_.chars));
+      //frameManager_.EnterSequence(FrameOne, new Battle(this, mainData_.chars));
     }
     // △△△モニタアクセス共通処理△△△
     public void Clear()

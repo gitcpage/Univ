@@ -8,18 +8,6 @@ namespace Univ.Data
 {
   internal class StatusWritable : Status
   {
-    // キャラクター固有ステータスは値で保持。
-    ConstStatus unique;
-
-    // 装備はインデックスで保持。
-    // file:///D:/dospara/%E8%87%AA%E5%AE%85%E3%82%B5%E3%83%BC%E3%83%90/html/d7/menudata/st1equip.js
-    int idWeapon = -1;
-    int idBody = -1;
-    int idHead = -1;
-    int idArm = -1;
-    int idExterior = -1;
-    int idAccessory = -1;
-
     // 書き込みアクセサ
     public void name(string name) { name_ = name; }
     public void hp(int hp) { hp_ = hp; }
@@ -60,6 +48,12 @@ namespace Univ.Data
       matk_ = l * this.unique.matk / 101;
       mdef_ = l * this.unique.mdef / 101;
       spd_ = l * this.unique.spd / 101;
+      fire_ = l * this.unique.fire / 101;
+      water_ = l * this.unique.water / 101;
+      wind_ = l * this.unique.wind / 101;
+      earth_ = l * this.unique.earth / 101;
+      light_ = l * this.unique.light / 101;
+      dark_ = l * this.unique.dark / 101;
     }
     public void ResetStatus()
     {
@@ -92,6 +86,7 @@ namespace Univ.Data
     }
     public void experience(int experience) { experience_ = experience; }
 
+    // ▲▲▲装備▲▲▲
     public int Equip(EquipCategory category, int equipId)
     {
       int ret = -1;
@@ -129,11 +124,11 @@ namespace Univ.Data
       ResetStatus();
       return ret;
     }
+    // ▼▼▼装備▼▼▼
 
 
 
-
-
+    // ▲▲▲派生クラス シングルトンパターン▲▲▲
     private StatusWritable(ConstStatus unique)
     {
       this.unique = unique;
@@ -159,5 +154,6 @@ namespace Univ.Data
       }
       return insts;
     }
+    // ▼▼▼派生クラス シングルトンパターン▼▼▼
   }
 }

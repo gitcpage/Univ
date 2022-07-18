@@ -24,12 +24,7 @@ namespace Univ
     }
     public void Run()
     {
-      mainPage_.BottomTextBySequence("IRunImplements");
-
-      //初期化処理
-      TextBlock tb_ = new TextBlock();
-      tb_.Text = "RunImplements";
-      monitor_.Children.Add(tb_);
+      mainPage_.BottomTextBySequence("Loading");
 
       //フレームループ開始
       frameManager_.ChangeSequence(FrameOne);
