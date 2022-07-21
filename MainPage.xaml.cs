@@ -13,6 +13,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Input; //PointerPoint
+using Windows.Storage; // StorageFolder, ApplicationData, StorageFile, CreationCollisionOption, FileIO
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x411 を参照してください
 
 namespace Univ
@@ -35,7 +36,6 @@ namespace Univ
 
     //データ関連
     Data.Loader loader;
-    MainData mainData_;
 
     public MainPage()
     {
@@ -54,8 +54,6 @@ namespace Univ
       this.idMonitorFade.Visibility = Visibility.Visible;
 
       // データインスタンス化処理
-      mainData_ = new MainData();
-      //mainData_.chars[0].Equip(Data.EquipCategory.Weapon, 0);
 
       // フレーム初期化処理。
       // FrameManager で FrameOne を呼び出すのは整合性として気持ち悪いので、
@@ -100,11 +98,10 @@ namespace Univ
       {
         // データロード完了
         loader = Data.Loader.Setup();
-        mainData_.chars[0].Equip(Data.EquipCategory.Weapon, 0);
+        loader.chars[0].Equip(Data.EquipCategory.Weapon, 0);
       }
 
-      frameManager_.EnterSequence(FrameOne, new Menu(this, mainData_.chars));
-      //frameManager_.EnterSequence(FrameOne, new Battle(this, mainData_.chars));
+      frameManager_.EnterSequence(FrameOne, new Menu(this, loader.chars));
     }
     // △△△モニタアクセス共通処理△△△
     public void Clear()
@@ -165,12 +162,22 @@ namespace Univ
     }
     // ▽▽▽フェード処理▽▽▽
 
-    private void Button_Click_1(object sender, RoutedEventArgs e)
+    private async void Button_Click_1(object sender, RoutedEventArgs e)
     {
+      StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
+      StorageFile sampleFile = await storageFolder.CreateFileAsync("Save.txt", CreationCollisionOption.ReplaceExisting);
+      /*Windows.Storage.ApplicationData　ad = new Windows.Storage.ApplicationData()
+      Windows.Storage.StorageFile sampleFile = new Windows.Storage.StorageFile();*/
+      await FileIO.WriteTextAsync(sampleFile, "データです");
     }
 
-    private void Button_Click_2(object sender, RoutedEventArgs e)
+    private async void Button_Click_2(object sender, RoutedEventArgs e)
     {
+      StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
+      StorageFile sampleFile = await storageFolder.GetFileAsync("sample.txt");
+      string text = await FileIO.ReadTextAsync(sampleFile);
+      JsTrans.console_log(sampleFile.Path);
+      JsTrans.console_log(text);
     }
     private void Button_Click_3(object sender, RoutedEventArgs e)
     {

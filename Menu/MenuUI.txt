@@ -1,46 +1,20 @@
-﻿    public void RunMenuBorder(int top, string str, Grid parent, Menu.NotifyCode notifyCode)
-    {
-      Border btn = new Border();
-      btn.Margin = new Thickness(0, top, 0, 0);
-      btn.HorizontalAlignment = HorizontalAlignment.Left;
-      btn.VerticalAlignment = VerticalAlignment.Top;
-      btn.Background = UnivLib.GetBrush(Colors.White);
-      btn.Width = 85;
-      btn.Height = 55;
-      btn.PointerEntered += (Object obj, PointerRoutedEventArgs e) =>
-      {
-        Border o = obj as Border;
-        TextBlock t = o.Child as TextBlock;
-        t.TextDecorations = TextDecorations.Underline;
-        //t.Text = "　 " + str;
-      };
-      btn.PointerExited += (Object obj, PointerRoutedEventArgs e) =>
-      {
-        Border o = obj as Border;
-        TextBlock t = o.Child as TextBlock;
+﻿
 
-        // t.TextDecorations = TextDecorations.None; はバグで効かない。以下回避策。
-        TextBlock txt = new TextBlock();
-        txt.Text = t.Text;
-        txt.VerticalAlignment = VerticalAlignment.Center;
-        txt.HorizontalAlignment = HorizontalAlignment.Left;
-        txt.FontSize = 18;
-        //txt.Text = "➤ " + str;
-        o.Child = txt;
-      };
-      btn.Tapped += (Object sender, TappedRoutedEventArgs e) =>
-      {
-        Border o = sender as Border;
-        TextBlock t = o.Child as TextBlock;
-        t.Text = "➤ " + str;
-        notify_(notifyCode);
-      };
-      TextBlock tb = new TextBlock();
-      tb.Text = "　 " + str;// "➤ 特技";
-      tb.VerticalAlignment = VerticalAlignment.Center;
-      tb.HorizontalAlignment = HorizontalAlignment.Left;
-      tb.FontSize = 18;
-      btn.Child = tb;
+MainChars.cs
 
-      parent.Children.Add(btn);
-    }
+Menu.cs
+
+MenuEquip.cs
+
+MenuInclude.cs
+
+MenuStatus.cs
+
+MenuUI.cs
+
+
+やりたいこと2022/0719
+　リファクタリング
+　　Appコード
+　　App抽象化（RunMainLeftItem）
+　　Appライブラリ（RunLavel）

@@ -13,7 +13,8 @@ namespace Univ.NsMenu
   {
     Left, Up, Right, Down, Top, Bottom, Escape, Next, Ok, Cancel,
     Skill, Equip, Item, Alignment, Strategy, Status, Custom, Save, Load,
-    Char0, Char1, Char2, Char3
+    Char0, Char1, Char2, Char3,
+    None
   }
   internal class MenuInclude
   {

@@ -63,6 +63,29 @@ namespace Univ.Data
     { // file:///D:/dospara/%E8%87%AA%E5%AE%85%E3%82%B5%E3%83%BC%E3%83%90/html/d7/menudata/st1bare.js
       return 5 * level_ * (5 * level_ - 2) - experience_;
     }
+    public int Value(int i)
+    {
+      switch(i)
+      {
+        case 0: return hp_;
+        case 1: return mp_;
+        case 2: return atk_;
+        case 3: return def_;
+        case 4: return matk_;
+        case 5: return mdef_;
+        case 6: return spd_;
+        case 7: return fire_;
+        case 8: return water_;
+        case 9: return wind_;
+        case 10: return earth_;
+        case 11: return light_;
+        case 12: return dark_;
+        default:
+          JsTrans.Assert("Status.cs Value i=" + i);
+          return 0;
+      }
+    }
+
     public string[] Hp_SpdStrings()
     {
       string[] ss= new string[7];
@@ -73,6 +96,42 @@ namespace Univ.Data
       ss[4] = matk().ToString();
       ss[5] = mdef().ToString();
       ss[6] = spd().ToString();
+      return ss;
+    }
+    public int[] Hp_Spd(ConstStatus plus)
+    {
+      int[] ss = new int[7];
+      ss[0] = hp() + plus.hp;
+      ss[1] = mp() + plus.mp;
+      ss[2] = atk() + plus.atk;
+      ss[3] = def() + plus.def;
+      ss[4] = matk() + plus.matk;
+      ss[5] = mdef() + plus.mdef;
+      ss[6] = spd() + plus.spd;
+      return ss;
+    }
+    public int[] Hp_SpdWithMinus(ConstStatus minus)
+    {
+      int[] ss = new int[7];
+      ss[0] = hp() - minus.hp;
+      ss[1] = mp() - minus.mp;
+      ss[2] = atk() - minus.atk;
+      ss[3] = def() - minus.def;
+      ss[4] = matk() - minus.matk;
+      ss[5] = mdef() - minus.mdef;
+      ss[6] = spd() - minus.spd;
+      return ss;
+    }
+    public int[] Hp_Spd(ConstStatus plus, ConstStatus minus)
+    {
+      int[] ss = new int[7];
+      ss[0] = hp() + plus.hp - minus.hp;
+      ss[1] = mp() + plus.mp - minus.mp;
+      ss[2] = atk() + plus.atk - minus.atk;
+      ss[3] = def() + plus.def - minus.def;
+      ss[4] = matk() + plus.matk - minus.matk;
+      ss[5] = mdef() + plus.mdef - minus.mdef;
+      ss[6] = spd() + plus.spd - minus.spd;
       return ss;
     }
     public string[] Hp_SpdBareStrings()
@@ -88,6 +147,7 @@ namespace Univ.Data
       ss[6] = (l * this.unique.spd / 101).ToString();
       return ss;
     }
+    
     public string[] Fire_DarkStrings()
     {
       string[] ss = new string[6];
@@ -97,6 +157,39 @@ namespace Univ.Data
       ss[3] = earth().ToString();
       ss[4] = light().ToString();
       ss[5] = dark().ToString();
+      return ss;
+    }
+    public int[] Fire_Dark(ConstStatus plus)
+    {
+      int[] ss = new int[6];
+      ss[0] = fire() + plus.fire;
+      ss[1] = water() + plus.water;
+      ss[2] = wind() + plus.wind;
+      ss[3] = earth() + plus.earth;
+      ss[4] = light() + plus.light;
+      ss[5] = dark() + plus.dark;
+      return ss;
+    }
+    public int[] Fire_DarkWithMinus(ConstStatus minus)
+    {
+      int[] ss = new int[6];
+      ss[0] = fire() - minus.fire;
+      ss[1] = water() - minus.water;
+      ss[2] = wind() - minus.wind;
+      ss[3] = earth() - minus.earth;
+      ss[4] = light() - minus.light;
+      ss[5] = dark() - minus.dark;
+      return ss;
+    }
+    public int[] Fire_Dark(ConstStatus plus, ConstStatus minus)
+    {
+      int[] ss = new int[6];
+      ss[0] = fire() + plus.fire - minus.fire;
+      ss[1] = water() + plus.water - minus.water;
+      ss[2] = wind() + plus.wind - minus.wind;
+      ss[3] = earth() + plus.earth - minus.earth;
+      ss[4] = light() + plus.light - minus.light;
+      ss[5] = dark() + plus.dark - minus.dark;
       return ss;
     }
     public string[] Fire_DarkBareStrings()
@@ -137,6 +230,20 @@ namespace Univ.Data
       if (idAccessory != -1) ss[5] = l.accessory[idAccessory].name;
 
       return ss;
+    }
+    public int GetEquipId(EquipCategory equipCategory)
+    {
+      switch(equipCategory)
+      {
+        case EquipCategory.Weapon: return idWeapon;
+        case EquipCategory.Body: return idBody;
+        case EquipCategory.Head: return idHead;
+        case EquipCategory.Arm: return idArm;
+        case EquipCategory.Exterior: return idExterior;
+        case EquipCategory.Accessory: return idAccessory;
+      }
+      JsTrans.Assert("Status.cs EquipId");
+      return -1;
     }
     // ▼▼▼装備▼▼▼
 

@@ -28,8 +28,8 @@
 
     <Grid x:Name="grid" Width="1000" Height="600">
         <Grid Name="idNavi" Width="200" Height="600" Background="LightGreen" Margin="0,0,800,0">
-            <Button Name="idNaviButton" Content="画像を出す" Margin="11,15,0,0" VerticalAlignment="Top" Click="Button_Click_1"/>
-            <Button Content="ZIndex" Margin="11,65,0,0" VerticalAlignment="Top" Click="Button_Click_2"/>
+            <Button Name="idNaviButton" Content="savedataを保存する" Margin="11,15,0,0" VerticalAlignment="Top" Click="Button_Click_1"/>
+            <Button Content="savedataをロードする" Margin="11,65,0,0" VerticalAlignment="Top" Click="Button_Click_2"/>
             <Button Content="終了する" Margin="11,115,0,0" VerticalAlignment="Top" Click="Button_Click_3"/>
             <Button Content="画像パス一覧表示" Margin="11,165,0,0" VerticalAlignment="Top" Click="Button_Click_4"/>
             <TextBox HorizontalAlignment="Center" Margin="0,320,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="270" Width="187" Name="txtConsole"/>

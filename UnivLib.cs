@@ -85,11 +85,60 @@ namespace Univ
     {
       return ImageInstance(0, 0, BitmapImageFromAssets(path), name, tag, z);
     }
-    static public FontWeight FontWeightBold()
+    static public FontWeight FontWeightBold(bool b = true)
     {
       FontWeight fw = new FontWeight();
-      fw.Weight = 700;
+      fw.Weight = (ushort)(b ? 700 : 400);
       return fw;
+    }
+    // アンダーラインを消すためのコピーに使用する。
+    static public TextBlock GetTextBlock(TextBlock from)
+    {
+      TextBlock txt = new TextBlock();
+      Thickness t = from.Margin;
+      txt.Margin = new Thickness(t.Left, t.Top, t.Right, t.Bottom);
+      txt.HorizontalAlignment = from.HorizontalAlignment;
+      txt.VerticalAlignment = from.VerticalAlignment;
+      t = from.Padding;
+      txt.Padding = new Thickness(t.Left, t.Top, t.Right, t.Bottom);
+      txt.FontSize = from.FontSize;
+      txt.Foreground = from.Foreground;
+      txt.Text = from.Text;
+      txt.FontFamily = from.FontFamily;
+      txt.FontWeight = from.FontWeight;
+      return txt;
+    }
+    // TextDecorations.None; はバグで効かないので、回避策として使う関数。
+    // アンダーラインを引かないのであれば、TextBlock() のみでよい。
+    static public Border WrapBorder(TextBlock tb, Panel parent)
+    {
+      Border bdr = new Border();
+      bdr.Child = tb;
+      bdr.PointerEntered += (Object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e) =>
+      {
+        Border bdrTmp = sender as Border;
+        TextBlock o = bdrTmp.Child as TextBlock;
+        o.TextDecorations = Windows.UI.Text.TextDecorations.Underline;
+      };
+      bdr.PointerExited += (Object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e) =>
+      {
+        Border bdrTmp = sender as Border;
+        TextBlock old = bdrTmp.Child as TextBlock;
+        bdr.Child = UnivLib.GetTextBlock(old);
+      };
+      if (parent != null) parent.Children.Add(bdr);
+      return bdr;
+    }
+    // TextDecorations.Noneバグ回避に加えて、ワイドなTappedイベント検出をおこなう
+    static public Border WrapBorder(TextBlock tb, Panel parent, int width, int x = 0, int y = 0)
+    {
+      Border bdr = WrapBorder(tb, parent);
+      bdr.Margin = new Thickness(x, y, 0, 0);
+      bdr.Width = width;
+      bdr.Background = UnivLib.GetBrush(0, 128, 128, 128);//Tappedイベント検出のため
+      bdr.HorizontalAlignment = HorizontalAlignment.Left;
+      bdr.VerticalAlignment = VerticalAlignment.Top;
+      return bdr;
     }
   }
 }

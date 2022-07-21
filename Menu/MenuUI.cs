@@ -47,7 +47,7 @@ namespace Univ.NsMenu
       btn.Margin = new Thickness(0, top, 0, 0);
       btn.HorizontalAlignment = HorizontalAlignment.Left;
       btn.VerticalAlignment = VerticalAlignment.Top;
-      //btn.Background = UnivLib.GetBrush(Colors.White);
+      btn.Background = UnivLib.GetBrush(0, 157, 181, 183);//Tappedイベント検出のため
       btn.Width = 85;
       btn.Height = 55;
       btn.PointerEntered += (Object sender, PointerRoutedEventArgs e) =>
@@ -110,7 +110,8 @@ namespace Univ.NsMenu
       parent.Children.Add(btn);
       return btn;
     }
-    static public void RunLavel(Grid parent, int x, int y, string text, bool useMeiryo = false, int fontSize = 19, bool useBold = false)
+    static public TextBlock RunLavel(Grid parent, int x, int y, string text, 
+      bool useMeiryo = false, int fontSize = 19, bool useBold = false)
     {
       TextBlock textBlock = new TextBlock();
       textBlock.HorizontalAlignment = HorizontalAlignment.Left;
@@ -121,9 +122,10 @@ namespace Univ.NsMenu
       textBlock.Foreground = UnivLib.GetBrush(14, 77, 108);
       if (useMeiryo) textBlock.FontFamily = new FontFamily("メイリオ");
       if (useBold) textBlock.FontWeight = UnivLib.FontWeightBold();
-      parent.Children.Add(textBlock);
+      if (parent != null) parent.Children.Add(textBlock);
+      return textBlock;
     }
-    static public void RunLavelCenterAligned(Grid parent, int x, int y, int width, string text, int fontSize = 19, bool useBold = false)
+    static public TextBlock RunLavelCenterAligned(Grid parent, int x, int y, int width, string text, int fontSize = 19, bool useBold = false)
     {
       TextBlock textBlock = new TextBlock();
       textBlock.HorizontalAlignment = HorizontalAlignment.Left;
@@ -136,8 +138,9 @@ namespace Univ.NsMenu
       textBlock.Foreground = UnivLib.GetBrush(14, 77, 108);
       if (useBold) textBlock.FontWeight = UnivLib.FontWeightBold();
       parent.Children.Add(textBlock);
+      return textBlock;
     }
-    static public void RunLavelRightAligned(Grid parent, int x, int y, int width, string text, int fontSize = 19)
+    static public TextBlock RunLavelRightAligned(Grid parent, int x, int y, int width, string text, int fontSize = 19)
     {
       TextBlock textBlock = new TextBlock();
       textBlock.HorizontalAlignment = HorizontalAlignment.Left;
@@ -149,6 +152,7 @@ namespace Univ.NsMenu
       textBlock.FontSize = fontSize;
       textBlock.Foreground = UnivLib.GetBrush(14, 77, 108);
       parent.Children.Add(textBlock);
+      return textBlock;
     }
     public void RunButton(int left, int top, string str, Grid parent, NotifyCode notifyCode)
     {

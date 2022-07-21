@@ -15,7 +15,7 @@ namespace Univ.Data
     public void mp(int mp) { mp_ = mp; }
     public void PlusMp(int mp) { mp_ += mp; }
     public void atk(int atk) { atk_ = atk; }
-    public void PlusAtk(int hp) { hp_ += hp; }
+    public void PlusAtk(int atk) { atk_ += atk; }
     public void def(int def) { def_ = def; }
     public void PlusDef(int def) { def_ += def; }
     public void matk(int matk) { matk_ = matk; }
@@ -97,11 +97,11 @@ namespace Univ.Data
           idWeapon = equipId;
           break;
         case EquipCategory.Body:
-          ret = idWeapon;
+          ret = idBody;
           idBody = equipId;
           break;
         case EquipCategory.Head:
-          ret = idWeapon;
+          ret = idHead;
           idHead = equipId;
           break;
         case EquipCategory.Arm:

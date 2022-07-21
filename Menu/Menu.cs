@@ -29,6 +29,12 @@ namespace Univ
     readonly Grid[] mainLeftItems_ = new Grid[kMainLeftStringsNum];
     readonly MainChar[] mainChar_ = new MainChar[kMainCenterNum];
 
+    MenuStatus menuStatus_;
+
+    NotifyCode leftItemSelected_;
+
+    MenuEquip menuEquip_;
+    
     public Menu(MainPage mainPage, Data.StatusWritable[] charsWritable)
     {
       mainPage_ = mainPage;
@@ -40,9 +46,12 @@ namespace Univ
       menuNotify_ = new MenuNotify(Notify);
 
       ui_ = new MenuUI(monitor_, menuNotify_);
+      menuEquip_ = null;
     }
     void Notify(NotifyCode notifyCode)
     {
+      if (menuEquip_ != null) menuEquip_.Notify(notifyCode);
+
       void MainLeftArrowClear()
       {
         foreach (Grid item in mainLeftItems_)
@@ -66,6 +75,7 @@ namespace Univ
         {
           c.TapLeftMenu();
         }
+        leftItemSelected_ = notifyCode;
       }
       else if (NotifyCode.Char0 <= notifyCode && notifyCode <= NotifyCode.Char3)
       {
@@ -73,6 +83,17 @@ namespace Univ
         foreach (MainChar c in mainChar_)
         {
           c.TapOtherChar();
+        }
+        menuStatus_.Change(notifyCode - NotifyCode.Char0);
+        leftItemSelected_ = NotifyCode.None;
+      }
+      else if (notifyCode == NotifyCode.Ok)
+      {
+        switch (leftItemSelected_)
+        {
+          case NotifyCode.Equip:
+            menuEquip_.Create();
+            break;
         }
       }
       JsTrans.console_log("NotifyCode: " + notifyCode.ToString());
@@ -84,10 +105,10 @@ namespace Univ
       monitorBg_.Background = UnivLib.GetBrush(11, 70, 100);
 
       //▲▲▲▲メインウィンドウ▲▲▲▲
-      Grid mainGrid = ui_.RunGrid(0, 0, 1000, 529, 0, 0, monitor_, false, UnivLib.GetBrush(Colors.Orange));
+      Grid mainGrid = ui_.RunGrid(0, 0, 1000, 529, 5, 5, monitor_, false, UnivLib.GetBrush(Colors.Orange));
 
       //▲▲▲左のグリッド▲▲▲
-      Grid leftGrid = ui_.RunGrid(5, 5, 100, 519, 10, 0, mainGrid);
+      Grid leftGrid = ui_.RunGrid(0, 0, 100, 519, 10, 0, mainGrid);
       for (int i = 0; i < kMainLeftStrings.Length; i++)
       {
         mainLeftItems_[i] = ui_.RunMainLeftItem(56*i, kMainLeftStrings[i], leftGrid, kMainLeftNotifies[i]);
@@ -97,16 +118,16 @@ namespace Univ
       //▲▲▲各キャラクターのグリッド▲▲▲
       for (int i = 0; i < kMainCenterNum; i++)
       {
-        Grid charGrid = ui_.RunGrid(115, 5 + 131 * i, 420, 125, 10, 15, mainGrid);
+        Grid charGrid = ui_.RunGrid(108, 131 * i, 420, 125, 10, 15, mainGrid);
         charGrid.Padding = new Thickness(10, 10, 10, 10);
         mainChar_[i] = new MainChar(charGrid, i, Notify, NotifyCode.Char0+i);
       }
       //▼▼▼各キャラクターのグリッド▼▼▼
       
       //▲▲▲右のグリッド▲▲▲
-      Grid rightGrid = ui_.RunGrid(540, 5, 255, 519, 5, 15, mainGrid);
-      MenuStatus ms = new MenuStatus();
-      ms.Create(rightGrid);
+      Grid rightGrid = ui_.RunGrid(535, 0, 255, 519, 5, 15, mainGrid);
+      menuStatus_ = new MenuStatus();
+      menuStatus_.Create(rightGrid);
       //▼▼▼右のグリッド▼▼▼
 
       //▼▼▼▼メインウィンドウ▼▼▼▼
@@ -116,7 +137,13 @@ namespace Univ
       ui_.RunButton(111, 530, "戻る", monitor_, NotifyCode.Cancel);
       //▼▼▼下のウィンドウ▼▼▼
 
+      // 最初は Char0 が選択された状態にする。
+      Notify(NotifyCode.Char0);
+      mainChar_[0].Tap();
 
+      //■
+      menuEquip_ = new MenuEquip(mainGrid, menuStatus_, charsWritable_);
+      menuEquip_.Create();
 
       //フェードイン後、フレームループ開始
       frameManager_.EnterSequenceFadeIn(FrameOne);

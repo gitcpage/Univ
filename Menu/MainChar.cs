@@ -21,7 +21,7 @@ namespace Univ.NsMenu
       notify_ = menuNotify;
       Data.Status st = Data.Status.Instances[charId];
 
-      //▲▲▲Top▲▲▲
+      //▲▲▲Left▲▲▲
       left_ = new Grid();
 
       left_.HorizontalAlignment = HorizontalAlignment.Left;
@@ -37,7 +37,7 @@ namespace Univ.NsMenu
       left_.Children.Add(img);
 
       parent.Children.Add(left_);
-      //▼▼▼Top▼▼▼
+      //▼▼▼Left▼▼▼
 
       //▲▲▲Center▲▲▲
       Grid center = new Grid();
