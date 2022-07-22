@@ -1,0 +1,180 @@
+﻿
+XAMLもんちゃん
+https://docs.google.com/spreadsheets/d/1Rck2gbi6Yrmaj3p-ieQd5b7jcXE9nr8zMtWuY0Nvigw/edit#gid=0
+
+汎用処理コード
+https://docs.google.com/spreadsheets/d/1k--7HpFsWxI63tJaxpbG2xReoh_vMbCVHpdodkomLzQ/edit#gid=2089416080
+
+field/base1.html
+file:///W:/public_html20220531/history/h20220602/monchandemo/%E6%95%B4%E7%90%86/field/base1.html
+http://cpage.xsrv.jp/history/h20220602/monchandemo/%E6%95%B4%E7%90%86/field/base1.html
+
+Loader.cs
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Windows.Foundation;
+using Windows.Storage; // StorageFolder, StorageFile
+
+namespace Univ.Data
+{
+  // シングルトンパターン
+  internal class Loader
+  {
+    public readonly ConstStatus[] weapons = { };
+    public readonly ConstStatus[] body = { };
+    public readonly ConstStatus[] head = { };
+    public readonly ConstStatus[] arm = { };
+    public readonly ConstStatus[] exterior = { };
+    public readonly ConstStatus[] accessory = { };
+
+    private async Task<string> func1()
+    {
+      StorageFolder installedLocation = Windows.ApplicationModel.Package.Current.InstalledLocation;
+      JsTrans.console_log(installedLocation.Path);
+      IAsyncOperation<StorageFile> file = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Const.txt"));
+      IAsyncOperation<string> str = FileIO.ReadTextAsync(file.GetResults());
+      return str.GetResults();
+      //JsTrans.console_log("▲▲▲コメント▲▲▲\n" + text + "▼▼▼コメント▼▼▼\n");
+      //await Task.Delay(0).ConfigureAwait(false);
+      //return ret;
+    }
+    private Loader()
+    {
+      ConstStatus[] tmpWeapons = { };
+      Task<string> str = func1();
+      //str.Start();
+      //str.Wait();;
+      Thread.Sleep(10);
+      string text = str.Result;// "";
+      /*SemaphoreSlim mutex = new SemaphoreSlim(1);
+
+      int value;
+
+      Task<string> GetNextValueAsync(int current)
+      {
+        StorageFolder installedLocation = Windows.ApplicationModel.Package.Current.InstalledLocation;
+        JsTrans.console_log(installedLocation.Path);
+        StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Const.txt"));
+        return await FileIO.ReadTextAsync(file);
+      }
+
+      async Task UpdateValueAsync()
+
+      {
+
+        await mutex.WaitAsync().ConfigureAwait(false);
+
+        try
+
+        {
+
+          value = await GetNextValueAsync(value);
+
+        }
+
+        finally
+
+        {
+
+          mutex.Release();
+
+        }
+
+      }*/
+      //try
+      /*{
+        async void Load()
+        {
+          StorageFolder installedLocation = Windows.ApplicationModel.Package.Current.InstalledLocation;
+          JsTrans.console_log(installedLocation.Path);
+          StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Const.txt"));
+          text = await FileIO.ReadTextAsync(file);
+          //JsTrans.console_log("▲▲▲コメント▲▲▲\n" + text + "▼▼▼コメント▼▼▼\n");
+          //await Task.Delay(0).ConfigureAwait(false);
+          //return ret;
+        }
+        Load();
+      }*/
+      /**finally
+      {
+        //JsTrans.console_log("▲▲▲コメント▲▲▲\n" + text + "▼▼▼コメント▼▼▼\n");
+
+      }*/
+      while (text == "")
+      {
+        Thread.Sleep(10);
+      }
+      JsTrans.console_log("▲▲▲コメント▲▲▲\n" + text + "▼▼▼コメント▼▼▼\n");
+      //text = Load().Result;
+      //JsTrans.console_log("▲▲▲コメント▲▲▲\n" + text+ "▼▼▼コメント▼▼▼\n");
+
+      /*string[] dem = new string[1];
+      dem[0] = Environment.NewLine;
+      string[] rows = text.Split(dem, StringSplitOptions.RemoveEmptyEntries);
+
+      ConstStatus[] current = { };
+      bool TrySelectArray(string row, string kind, ref ConstStatus[] refObj, ConstStatus[] obj)
+      {
+        if (row.StartsWith(kind))
+        {
+          JsTrans.Assert(obj.Length == 0, kind + " is already loaded.");
+          refObj = obj;
+          return true;
+        }
+        return false;
+      }
+      foreach (string row in rows)
+      {
+        if (TrySelectArray(row, "Weapon", ref current, weapons))
+        {
+          //current = tmpWeapons;
+        }
+        else if(TrySelectArray(row, "Body", ref current, body))
+        {
+        }
+        else if (TrySelectArray(row, "Head", ref current, head))
+        {
+
+        }
+        else if (TrySelectArray(row, "Arm", ref current, arm))
+        {
+
+        }
+        else if (TrySelectArray(row, "Exterior", ref current, exterior))
+        {
+
+        }
+        else if (TrySelectArray(row, "Accessory", ref current, accessory))
+        {
+        }
+        else
+        {
+          // https://docs.google.com/spreadsheets/d/1Rck2gbi6Yrmaj3p-ieQd5b7jcXE9nr8zMtWuY0Nvigw/edit#gid=1704841509
+          if (row.Length >= 15)
+          {
+            JsTrans.Assert(tmpWeapons != null, "current not selected.");
+            Array.Resize(ref tmpWeapons, tmpWeapons.Length + 1);
+            tmpWeapons[tmpWeapons.Length - 1] = new ConstStatus(row.Remove(0, 1));
+          }
+        }
+      }
+      weapons = tmpWeapons;*/
+    }
+    static private Loader instance = null;
+    static public Loader Instance
+    {
+      get
+      {
+        if (instance == null)
+        {
+          instance = new Loader();
+        }
+        return instance;
+      }
+    }
+  }
+}

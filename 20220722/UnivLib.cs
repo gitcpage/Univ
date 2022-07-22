@@ -9,7 +9,6 @@ using Windows.UI; // Color
 using Windows.UI.Xaml.Controls; // Image
 using Windows.UI.Xaml; // Thickness
 using Windows.UI.Text; // FontWeight
-using Windows.Foundation; // Size, Rect
 
 namespace Univ
 {
@@ -140,36 +139,6 @@ namespace Univ
       bdr.HorizontalAlignment = HorizontalAlignment.Left;
       bdr.VerticalAlignment = VerticalAlignment.Top;
       return bdr;
-    }
-
-    static public void MeasureWidth(TextBlock[] inTbs, StackPanel container)
-    {
-      Size size = new Size(Double.PositiveInfinity, Double.PositiveInfinity);
-      Rect rect = new Rect(0, 0, container.Width, 500);
-      double sum = 0;
-      foreach (TextBlock tb in inTbs)
-      {
-        tb.Measure(size);
-        tb.Arrange(rect);
-        sum += tb.ActualWidth;
-      }
-      double padding = (container.Width - sum) / 2 - 5;
-      Thickness t = container.Padding;
-      container.Padding = new Thickness(padding, t.Top, padding, t.Bottom);
-    }
-    static public void MeasureWidth(TextBlock inTb, Grid container)
-    {
-      Size size = new Size(Double.PositiveInfinity, Double.PositiveInfinity);
-      Rect rect = new Rect(0, 0, container.Width, 500);
-      inTb.Measure(size);
-      inTb.Arrange(rect);
-      double padding = (container.Width - inTb.ActualWidth) / 2 - 5;
-      Thickness t = container.Padding;
-      container.Padding = new Thickness(padding, t.Top, padding, t.Bottom);
-    }
-    static public void Array2DimensionInit(int[,] array, int value = 0)
-    {
-      Buffer.BlockCopy(Enumerable.Repeat(value, array.Length).ToArray(), 0, array, 0, array.Length * sizeof(int));
     }
   }
 }

@@ -116,7 +116,7 @@ namespace Univ.NsMenu
         tbEquips_[i].Text = stEquipStrings[i];
       }
     }
-    public void SetTitle(string left = "前", string right = "後")
+    public void Title(string left = "前", string right = "後")
     {
       titleBaseLeft_.Text = left;
       titleBaseRight_.Text = right;

@@ -20,7 +20,6 @@ namespace Univ
     FrameManager frameManager_;
     Grid monitor_;   // 描画用
     Grid monitorBg_; //背景描画用
-    Grid mainGrid_;
 
     MenuUI ui_;
     MenuNotify menuNotify_;
@@ -33,7 +32,6 @@ namespace Univ
     MenuStatus menuStatus_;
 
     NotifyCode leftItemSelected_;
-    int charSelected03_;
 
     MenuEquip menuEquip_;
     
@@ -49,33 +47,10 @@ namespace Univ
 
       ui_ = new MenuUI(monitor_, menuNotify_);
       menuEquip_ = null;
-      charSelected03_ = 0;
     }
     void Notify(NotifyCode notifyCode)
     {
-      if (menuEquip_ != null)
-      {
-        if (menuEquip_.Notify(notifyCode))
-        {
-          // ■装備画面を閉じる。
-          charSelected03_ = menuEquip_.Destroy();
-          menuStatus_.SetTitle();
-          if (charSelected03_ > 3)
-            charSelected03_ = 0;
-          for (int i = 0; i < mainChar_.Length; i++)
-          {
-            if (i == charSelected03_)
-            {
-              mainChar_[i].Tap();
-              mainChar_[i].TapLeftMenu();
-            }
-            else
-            {
-              mainChar_[i].TapOtherChar();
-            }
-          }
-        }
-      }
+      if (menuEquip_ != null) menuEquip_.Notify(notifyCode);
 
       void MainLeftArrowClear()
       {
@@ -111,19 +86,17 @@ namespace Univ
         }
         menuStatus_.Change(notifyCode - NotifyCode.Char0);
         leftItemSelected_ = NotifyCode.None;
-        charSelected03_ = notifyCode - NotifyCode.Char0;
       }
       else if (notifyCode == NotifyCode.Ok)
       {
         switch (leftItemSelected_)
         {
           case NotifyCode.Equip:
-            // ■装備画面を表示
-            menuEquip_ = new MenuEquip(mainGrid_, menuStatus_, charsWritable_);
-            menuEquip_.Create(charSelected03_);
+            menuEquip_.Create();
             break;
         }
       }
+      JsTrans.console_log("NotifyCode: " + notifyCode.ToString());
     }
     public void Run()
     {
@@ -132,10 +105,10 @@ namespace Univ
       monitorBg_.Background = UnivLib.GetBrush(11, 70, 100);
 
       //▲▲▲▲メインウィンドウ▲▲▲▲
-      mainGrid_ = ui_.RunGrid(0, 0, 1000, 529, 5, 5, monitor_, false, UnivLib.GetBrush(Colors.Orange));
+      Grid mainGrid = ui_.RunGrid(0, 0, 1000, 529, 5, 5, monitor_, false, UnivLib.GetBrush(Colors.Orange));
 
       //▲▲▲左のグリッド▲▲▲
-      Grid leftGrid = ui_.RunGrid(0, 0, 100, 519, 10, 0, mainGrid_);
+      Grid leftGrid = ui_.RunGrid(0, 0, 100, 519, 10, 0, mainGrid);
       for (int i = 0; i < kMainLeftStrings.Length; i++)
       {
         mainLeftItems_[i] = ui_.RunMainLeftItem(56*i, kMainLeftStrings[i], leftGrid, kMainLeftNotifies[i]);
@@ -145,34 +118,17 @@ namespace Univ
       //▲▲▲各キャラクターのグリッド▲▲▲
       for (int i = 0; i < kMainCenterNum; i++)
       {
-        Grid charGrid = ui_.RunGrid(108, 131 * i, 420, 125, 10, 15, mainGrid_);
+        Grid charGrid = ui_.RunGrid(108, 131 * i, 420, 125, 10, 15, mainGrid);
         charGrid.Padding = new Thickness(10, 10, 10, 10);
         mainChar_[i] = new MainChar(charGrid, i, Notify, NotifyCode.Char0+i);
       }
       //▼▼▼各キャラクターのグリッド▼▼▼
       
-      //▲▲▲右上のグリッド▲▲▲
-      //Grid rightTopGrid = ui_.RunGrid(535, 0, 255, 519, 5, 15, mainGrid_);
-      Grid rightTopGrid = ui_.RunGrid(535, 0, 255, 450, 5, 15, mainGrid_);
+      //▲▲▲右のグリッド▲▲▲
+      Grid rightGrid = ui_.RunGrid(535, 0, 255, 519, 5, 15, mainGrid);
       menuStatus_ = new MenuStatus();
-      menuStatus_.Create(rightTopGrid);
-      //▼▼▼右上のグリッド▼▼▼
-      
-      //▲▲▲右下のグリッド▲▲▲
-      Grid rightBottom1Grid = ui_.RunGrid(535, 458, 125, 60, 5, 5, mainGrid_);
-      //TextBlock tb = MenuUI.RunLavelCenterAligned(rightBottom1Grid, 0, 10, 125, "1 G");
-      Data.Basic basic = Data.Basic.Instance;
-      TextBlock tb = MenuUI.RunLavel(rightBottom1Grid, 0, 10, basic.gold().ToString() + " G");
-      UnivLib.MeasureWidth(tb, rightBottom1Grid);
-
-      Grid rightBottom2Grid = ui_.RunGrid(665, 458, 125, 60, 5, 5, mainGrid_);
-      //tb = MenuUI.RunLavelCenterAligned(rightBottom2Grid, 0, 10, 125, "TIME 00:00");
-      long minutes = basic.msTimeMinutes();
-      long hour = minutes / 60;
-      minutes %= 60;
-      tb = MenuUI.RunLavel(rightBottom2Grid, 0, 10, "TIME "+hour+":"+minutes);
-      UnivLib.MeasureWidth(tb, rightBottom2Grid);
-      //▼▼▼右下のグリッド▼▼▼
+      menuStatus_.Create(rightGrid);
+      //▼▼▼右のグリッド▼▼▼
 
       //▼▼▼▼メインウィンドウ▼▼▼▼
 
@@ -181,12 +137,13 @@ namespace Univ
       ui_.RunButton(111, 530, "戻る", monitor_, NotifyCode.Cancel);
       //▼▼▼下のウィンドウ▼▼▼
 
-      // キャラクター選択状態を設定する。
-      Notify(NotifyCode.Char0 + charSelected03_);
-      mainChar_[charSelected03_].Tap();
+      // 最初は Char0 が選択された状態にする。
+      Notify(NotifyCode.Char0);
+      mainChar_[0].Tap();
 
       //■
-      //menuEquip_.Create();
+      menuEquip_ = new MenuEquip(mainGrid, menuStatus_, charsWritable_);
+      menuEquip_.Create();
 
       //フェードイン後、フレームループ開始
       frameManager_.EnterSequenceFadeIn(FrameOne);

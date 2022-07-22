@@ -49,7 +49,6 @@ namespace Univ.Data
     // ▲▲▲ロード関連▲▲▲
     static string ConstDataOfSetup = "";
     static string SaveBagDataOfSetup = "";
-    static string SaveEventDataOfSetup = "";
     static public LoadingState LoadingState_ { get; private set; } = LoadingState.None;
     static public void UpdateLoadingState(LoadingState next)
     {
@@ -67,11 +66,8 @@ namespace Univ.Data
 
         // SaveBagDataOfSetup
         StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-        file = await storageFolder.GetFileAsync("Bag.txt");
-        SaveBagDataOfSetup = await FileIO.ReadTextAsync(file);
-
-        file = await storageFolder.GetFileAsync("Basic.txt");
-        SaveEventDataOfSetup = await FileIO.ReadTextAsync(file);
+        StorageFile bagFile = await storageFolder.GetFileAsync("Bag.txt");
+        SaveBagDataOfSetup = await FileIO.ReadTextAsync(bagFile);
 
         // Setup() まで記述すれば、LoadingState.Success まで進む。
         // ただし、その場合 Setup() 引数でのカスタマイズや、ロード直後の処理を記述しにくくなる。
@@ -79,99 +75,6 @@ namespace Univ.Data
       LoadBody();
     }
 
-    public void NewGame()
-    {
-      // ▲▲▲持ち物の初期化▲▲▲
-      Bag bag = Bag.Instance;
-      for (int i = 0; i < (int)Data.EquipCategory.Number; i++)
-      {
-        Data.ConstStatus[] eqs = EquipArray((Data.EquipCategory)i);
-        for (int j = 0; j < eqs.Length; j++)
-        {
-          int have = bag.equip((Data.EquipCategory)i, j);
-          bag.equipPlus((Data.EquipCategory)i, j, -have);
-        }
-      }
-      // ▼▼▼持ち物の初期化▼▼▼
-
-      // ▲▲▲キャラクターの装備を初期化▲▲▲
-      foreach (var c in chars)
-      {
-        c.experience(0);
-        for (int i = 0; i < (int)Data.EquipCategory.Number; i++)
-          c.Equip((Data.EquipCategory)i, -1);
-      }
-      // ▼▼▼キャラクターの装備を初期化▼▼▼
-      Basic basic = Basic.Instance;
-      basic.gold(0);
-      basic.msTime(0);
-    }
-    private void ReloadInside()
-    {
-      string[] dem = new string[1];
-      dem[0] = Environment.NewLine;
-
-      // ▲▲SaveBagDataOfSetup▲▲
-      string[] groupNames = { "CharsUnique", "Weapon", "Body", "Head", "Arm", "Exterior", "Accessory" };
-      string[] rows = SaveBagDataOfSetup.Split(dem, StringSplitOptions.RemoveEmptyEntries);
-      Bag bag = Bag.Instance;
-      for (int i = 0; i < rows.Length; i++)
-      {
-        string row = rows[i];
-        for (int j = 1; j < groupNames.Length; j++)
-        {
-          int id = 0;
-          if (row == groupNames[j])
-          {
-            for (i++; i < rows.Length; i++)
-            {
-              row = rows[i];
-              int have;
-              if (!int.TryParse(row, out have))
-              {
-                i--;
-                goto Next;
-              }
-              bag.equipPlus((Data.EquipCategory)(j - 1), id, have);
-              id++;
-            }
-            goto Next;
-          }
-        }
-      Next:;
-      }
-      // ▼▼SaveBagDataOfSetup▼▼
-
-      // ▲▲SaveEventDataOfSetup▲▲
-      rows = SaveEventDataOfSetup.Split(dem, StringSplitOptions.RemoveEmptyEntries);
-      Basic basic = Basic.Instance;
-      string[] demTab = new string[1];
-      demTab[0] = "\t";
-      for (int i = 0; i < rows.Length; i++)
-      {
-        //string row = rows[i];
-        string[] cells = rows[i].Split("\t");
-        switch (cells[0])
-        {
-          case "Gold":
-            basic.gold(int.Parse(cells[1]));
-            break;
-          case "Time":
-            basic.msTime(long.Parse(cells[1]));
-            break;
-        }
-      }
-      // ▼▼SaveEventDataOfSetup▼▼
-    }
-    public void Reload()
-    {
-      if (instance == null)
-      {
-        JsTrans.window_close("セットアップ前にLoader.Reloadが呼び出されました。");
-        return;
-      }
-      ReloadInside();
-    }
     private Loader()
     {
       // ▲▲ConstData▲▲
@@ -222,10 +125,8 @@ namespace Univ.Data
       Bag.Setup(weapons.Length, body.Length, head.Length, arm.Length, exterior.Length, accessory.Length);
       // ▼▼ConstData▼▼
 
-      Basic.Setup();
-      ReloadInside();
       // ▲▲SaveBagDataOfSetup▲▲
-      /*rows = SaveBagDataOfSetup.Split(dem, StringSplitOptions.RemoveEmptyEntries);
+      rows = SaveBagDataOfSetup.Split(dem, StringSplitOptions.RemoveEmptyEntries);
       Bag bag = Bag.Instance;
       for (int i = 0; i < rows.Length; i++)
       {
@@ -253,27 +154,6 @@ namespace Univ.Data
       Next:;
       }
       // ▼▼SaveBagDataOfSetup▼▼
-
-      // ▲▲SaveEventDataOfSetup▲▲
-      rows = SaveEventDataOfSetup.Split(dem, StringSplitOptions.RemoveEmptyEntries);
-      Basic basic = Basic.Setup();
-      string[] demTab = new string[1];
-      demTab[0] = "\t";
-      for (int i = 0; i < rows.Length; i++)
-      {
-        string row = rows[i];
-        string[] cells = rows[i].Split("\t");
-        switch (cells[0])
-        {
-          case "Gold":
-            basic.gold(int.Parse(cells[1]));
-            break;
-          case "Time":
-            basic.msTime(long.Parse(cells[1]));
-            break;
-        }
-      }*/
-      // ▼▼SaveEventDataOfSetup▼▼
 
       UpdateLoadingState(LoadingState.Success);
     }

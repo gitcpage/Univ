@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Windows.UI.Xaml; // UIElement
 using Windows.UI.Xaml.Controls; // Image
 using Windows.UI.Xaml.Media.Imaging; // BitmapImage
@@ -14,7 +13,6 @@ namespace Univ
     int moveY_ = 0;
     int wholeTipXNum_;
     int wholeTipYNum_;
-    int[,] what;
 
     public FieldBgEx(Grid monitorBg) : base(monitorBg)
     {
@@ -27,9 +25,8 @@ namespace Univ
 
     public void Run()
     {
-      System.Random r1 = new System.Random();
-      /*for (var y = 0; y < kTipYNum; y++)
-      { //左上
+      for (var y = 0; y < kTipYNum; y++)
+      {
         var y00 = string.Format("{0:D2}", y);
         for (var x = 0; x < kTipXNum; x++)
         {
@@ -39,7 +36,7 @@ namespace Univ
         }
       }
       for (var y = kTipYNum; y < kTipYNum*2; y++)
-      { //左下
+      {
         var y00 = string.Format("{0:D2}", y);
         for (var x = 0; x < kTipXNum; x++)
         {
@@ -48,38 +45,8 @@ namespace Univ
           AppendXyIndex(x, y, water_, id, "bg_water");
         }
       }
-      for (var y = 0; y < kTipYNum * 2; y++)
-      { //右
-        var y00 = string.Format("{0:D2}", y);
-        for (var x = kTipXNum; x < kTipXNum*2; x++)
-        {
-          var x00 = string.Format("{0:D2}", x);
-          var id = "idMapTip" + x00 + y00;
-          AppendXyIndex(x, y, water_, id, "bg_water");
-        }
-      }*/
-      wholeTipXNum_ = kTipXNum * 2;
-      wholeTipYNum_ = kTipYNum * 2;
-      what = new int[wholeTipYNum_, wholeTipXNum_];
-      UnivLib.Array2DimensionInit(what);
-      for (var y = 0; y < kTipYNum * 2; y++)
-      { //右
-        var y00 = string.Format("{0:D2}", y);
-        for (var x = 0; x < kTipXNum * 2; x++)
-        {
-          var x00 = string.Format("{0:D2}", x);
-          var id = "idMapTip" + x00 + y00;
-          if (r1.Next(2) == 0)
-          {
-            AppendXyIndex(x, y, weeds_[0], id, "bg_weed1");
-            what[y, x] = 1;
-          }
-          else
-          {
-            AppendXyIndex(x, y, water_, id, "bg_water");
-          }
-        }
-      }
+      wholeTipXNum_ = kTipXNum;
+      wholeTipYNum_ = kTipYNum*2;
     }
 
     public void ChangeBg(int no)
@@ -91,12 +58,9 @@ namespace Univ
           var y00 = string.Format("{0:D2}", y);
           for (var x = 0; x < kTipXNum; x++)
           {
-            if (what[y, x] == 1)
-            {
-              var x00 = string.Format("{0:D2}", x);
-              var id = "idMapTip" + x00 + y00;
-              Append(x * kTipXSize + moveX_, y * kTipYSize + moveY_, weeds_[no], id, "bg_weed2", 1);
-            }
+            var x00 = string.Format("{0:D2}", x);
+            var id = "idMapTip" + x00 + y00;
+            Append(x * kTipXSize + moveX_, y * kTipYSize + moveY_, weeds_[no], id, "bg_weed2", 1);
           }
         }
       }
@@ -148,11 +112,11 @@ namespace Univ
       {
         if (dy < 0)
         {
-          if (-moveY_ + dy >=
-            kTipYSize * (wholeTipYNum_ - kTipYNum - 1)) return false;
+          if (-moveY_ + dy >= kTipYSize * (wholeTipYNum_ - kTipYNum - 1)) return false;
         }
         if (dy > 0)
         {
+          //JsTrans.console_log(-moveY_ + " <= " + 0);
           if (-moveY_ <= 0) return false;
         }
       }

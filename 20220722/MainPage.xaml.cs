@@ -27,7 +27,6 @@ namespace Univ
     public Point mousePoint;
     public bool isMouseLDown = false;
 
-    Opening opening_ = null;
     //Field field_;
     //RunImplements runImplements_;
     //RunImplementsFade runImplementsFade_;
@@ -102,34 +101,7 @@ namespace Univ
         loader.chars[0].Equip(Data.EquipCategory.Weapon, 0);
       }
 
-
-      frameManager_.EnterSequence(FrameOne, new Field(this));
-      /*if (opening_ == null || opening_.Selected == -1)
-      {
-        frameManager_.EnterSequence(FrameOne, opening_ = new Opening(this));
-      }
-      else
-      {
-        if (opening_.Selected == 0 || opening_.Selected == 1)
-        {
-          if (opening_.Selected == 0)
-          { // はじめから
-            loader.NewGame();
-          }
-          else
-          { // つづきから
-            loader.Reload();
-          }
-          opening_ = null;
-          Field field = new Field(this);
-          frameManager_.EnterSequence(FrameOne, field);
-        }
-        else
-        {
-          JsTrans.Assert("「はじめから」でも「つづきから」でもありません。");
-        }
-      }*/
-      //frameManager_.EnterSequence(FrameOne, new Menu(this, loader.chars));
+      frameManager_.EnterSequence(FrameOne, new Menu(this, loader.chars));
     }
     // △△△モニタアクセス共通処理△△△
     public void Clear()
@@ -138,7 +110,6 @@ namespace Univ
       this.idMonitorBg.Children.Clear();
     }
     // ▽▽▽モニタアクセス共通処理▽▽▽
-
     // △△△フェード処理△△△
     double fade_sum_ = 0;
     public void RunFadeOut()

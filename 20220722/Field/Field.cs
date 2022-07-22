@@ -17,7 +17,7 @@ namespace Univ
     MainPage mainPage_;
     FrameManager frameManager_;
 
-    //FieldBlock obj_;
+    FieldBlock obj_;
     FieldBlock player_;
     FieldBgEx bg_;
 
@@ -36,7 +36,7 @@ namespace Univ
       monitor_ = mainPage.GetMonitor();
 
       bg_ = new FieldBgEx(mainPage.GetMonitorBg());
-      //obj_ = new FieldBlock("char/t5040walkt.png", monitor_);
+      obj_ = new FieldBlock("char/t5040walkt.png", monitor_);
       player_ = new FieldBlock("char/char1p", FieldBlock.DirectionSlot.DownUp, monitor_);
     }
     public void Run()
@@ -44,7 +44,7 @@ namespace Univ
       mainPage_.BottomTextBySequence("Field");
       // 初期化
       bg_.Run();
-      //AppendXyIndex(0, 1, obj_, "imgObj", "obj", 0);
+      AppendXyIndex(0, 1, obj_, "imgObj", "obj", 0);
       player_.Image = AppendXyIndex(0, 0, player_.Bitmap, "imgBox", "box", 0);
       player_.BlockSync(kTipXNum / 2 - 1, kTipYNum / 2 - 1);
 
@@ -75,7 +75,7 @@ namespace Univ
       }
 
       //右に延々動くやつ
-      //obj_.SetXIndex(fieldFrameCount_++ % kTipXNum);
+      obj_.SetXIndex(fieldFrameCount_++ % kTipXNum);
 
       //▲▲▲プレイヤー移動処理▲▲▲
       if (player_moving_ == PlayerMoving.None)
@@ -85,28 +85,29 @@ namespace Univ
         bool existMoveOperation = frameManager_.KeyDirection(out moveDirectionX_, out moveDirectionY_);
         if (!existMoveOperation && frameManager_.isMouseLDown)
         {
+          int max;
           int mouseX = frameManager_.clientX;
           int mouseY = frameManager_.clientY;
-          int max = player_.GetCenterX() - mouseX;
-          moveDirectionX_ = -1; // 仮左方向移動
-          if (mouseX - player_.GetCenterX() > max)
-          { //右方向移動
-            max = mouseX - player_.GetCenterX();
+          max = player_.GetX() - mouseX;
+          moveDirectionX_ = -1;
+          if (mouseX - player_.GetX() > max)
+          {
+            max = mouseX - player_.GetX();
             moveDirectionX_ = 1;
           }
-          if (player_.GetCenterY() - mouseY > max)
-          { //上方向移動
-            max = player_.GetCenterY() - mouseY;
+          if (player_.GetY() - mouseY > max)
+          {
+            max = player_.GetY() - mouseY;
             moveDirectionY_ = -1;
             moveDirectionX_ = 0;
           }
-          if (mouseY - player_.GetCenterY() > max)
-          { //下方向移動
-            max = mouseY - player_.GetCenterY();
+          if (mouseY - player_.GetY() > max)
+          {
+            max = mouseY - player_.GetY();
             moveDirectionY_ = 1;
             moveDirectionX_ = 0;
           }
-          if (max > kTipXSize/2) existMoveOperation = true;
+          if (max > kTipYSize) existMoveOperation = true;
         }
         //▼▼移動操作を調べる▼▼
         if (existMoveOperation)
@@ -117,7 +118,7 @@ namespace Univ
             {
               if (player_.blockX > kTipXNum / 2 - 1)
                 player_moving_ = PlayerMoving.Player;
-              else if (bg_.CanMove(-moveDirectionX_, 0))
+              else if (bg_.CanMove(moveDirectionX_, 0))
                 player_moving_ = PlayerMoving.Bg;
               else
                 player_moving_ = PlayerMoving.Player;
@@ -129,7 +130,7 @@ namespace Univ
             {
               if (player_.blockX < kTipXNum / 2 - 1)
                 player_moving_ = PlayerMoving.Player;
-              else if (bg_.CanMove(-moveDirectionX_, 0))
+              else if (bg_.CanMove(moveDirectionX_, 0))
                 player_moving_ = PlayerMoving.Bg;
               else
                 player_moving_ = PlayerMoving.Player;

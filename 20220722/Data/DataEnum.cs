@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Univ.Data
 {
-  public enum EquipCategory { Weapon, Body, Head, Arm, Exterior, Accessory, Number }
+  public enum EquipCategory { Weapon, Body, Head, Arm, Exterior, Accessory }
 
   public enum LoadingState { 
     None,

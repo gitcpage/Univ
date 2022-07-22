@@ -65,14 +65,5 @@ namespace Univ
         }
       }
     }
-    public bool CanMove(int dx, int dy)
-    {
-      return false;
-    }
-    public void Move(int x, int y)
-    {
-      JsTrans.Assert("FieldBg.cs Move このメソッドは使用" +
-        "しない");
-    }
   }
 }
