@@ -1,0 +1,20 @@
+﻿
+
+MainChars.cs
+
+Menu.cs
+
+MenuEquip.cs
+
+MenuInclude.cs
+
+MenuStatus.cs
+
+MenuUI.cs
+
+
+やりたいこと2022/0719
+　リファクタリング
+　　Appコード
+　　App抽象化（RunMainLeftItem）
+　　Appライブラリ（RunLavel）

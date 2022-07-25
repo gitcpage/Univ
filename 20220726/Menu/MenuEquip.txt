@@ -1,0 +1,192 @@
+﻿using System;
+using System.Collections.Generic;
+//using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Windows.Foundation;
+using Windows.UI;
+using Windows.UI.Xaml; // VerticalAlignment, HorizontalAlignment
+using Windows.UI.Xaml.Controls; // TextBlock
+using Windows.UI.Xaml.Media; // FontFamily
+
+namespace Univ.NsMenu
+{
+  internal class MenuEquip
+  {
+    Grid parent_;
+    public MenuEquip(Grid parent)
+    {
+      parent_ = parent;
+    }
+    private StackPanel GetStackPanel(Panel parent, int margin, int marginTop, Brush border, 
+      int width, int height, Brush bg)
+    {
+      StackPanel g = new StackPanel();
+      g.HorizontalAlignment = HorizontalAlignment.Left;
+      g.VerticalAlignment = VerticalAlignment.Top;
+      g.Margin = new Thickness(margin, marginTop, margin, margin);
+      g.Width = width;
+      g.Height = height;
+      if (border != null)
+      {
+        g.BorderThickness = new Thickness(2, 2, 2, 2);
+        g.BorderBrush = border;
+      }
+      g.Background = bg;
+      parent.Children.Add(g);
+      return g;
+    }
+    public void Create()
+    {
+      void MeasureWidth(TextBlock[] inTbs, StackPanel container)
+      {
+        Size size = new Size(Double.PositiveInfinity, Double.PositiveInfinity);
+        Rect rect = new Rect(0, 0, container.Width, 500);
+        JsTrans.console_log(container.Width.ToString());
+        double sum = 0;
+        foreach (TextBlock tb in inTbs)
+        {
+          tb.Measure(size);
+          tb.Arrange(rect);
+          JsTrans.console_log(tb.ActualWidth.ToString());
+          sum += tb.ActualWidth;
+        }
+        double padding = (container.Width - sum) / 2 - 5;
+        Thickness t = container.Padding;
+        container.Padding = new Thickness(padding, t.Top, padding, t.Bottom);
+      }
+      StackPanel g = GetStackPanel(parent_, 0, 0, UnivLib.GetBrush(5, 50, 70),
+        529, 519, UnivLib.GetBrush(157, 181, 183));
+
+      //▲▲▲トップ（キャラ選択）▲▲▲
+      StackPanel top = GetStackPanel(g, 5, 15, UnivLib.GetBrush(0x63, 0x42, 0x42),
+        515, 29, UnivLib.GetBrush(0xf3, 0xe4, 0xd5));
+      top.Orientation = Orientation.Horizontal;
+      top.HorizontalAlignment = HorizontalAlignment.Center;
+      top.VerticalAlignment = VerticalAlignment.Center;
+
+      Data.Status[] sts = Data.Status.Instances;
+      TextBlock[] tbs = { };
+      for (int i = 0; i < sts.Length; i++)
+      {
+        TextBlock tbArrow = new TextBlock();
+        tbArrow.VerticalAlignment = VerticalAlignment.Center;
+        tbArrow.Text = "➤";
+        tbArrow.Foreground = UnivLib.GetBrush(14, 77, 108);
+        tbArrow.FontSize = 16;
+        top.Children.Add(tbArrow);
+        Array.Resize(ref tbs, tbs.Length + 1);
+        tbs[tbs.Length - 1] = tbArrow;
+
+        TextBlock tbChar = new TextBlock();
+        tbChar.VerticalAlignment = VerticalAlignment.Center;
+        tbChar.Text = sts[i].name() + "　";
+        tbChar.Padding = new Thickness(0, 0, 10, 0);
+        tbChar.Foreground = UnivLib.GetBrush(14, 77, 108);
+        tbChar.FontSize = 16;
+        top.Children.Add(tbChar);
+        Array.Resize(ref tbs, tbs.Length + 1);
+        tbs[tbs.Length - 1] = tbChar;
+        tbChar.PointerEntered += (Object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e) =>
+        {
+          TextBlock o = sender as TextBlock;
+          o.TextDecorations = Windows.UI.Text.TextDecorations.Underline;
+          /*foreach (UIElement uie in o.Children)
+          {
+            Border bdr = uie as Border;
+            if (bdr != null)
+            {
+              TextBlock tb = bdr.Child as TextBlock;
+              if (tb.Text == str)
+              {
+                tb.TextDecorations = TextDecorations.Underline;
+                return;
+              }
+            }
+          }*/
+        };
+        tbChar.PointerExited += (Object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e) =>
+        {
+          TextBlock o = sender as TextBlock;
+          o.TextDecorations = Windows.UI.Text.TextDecorations.None;
+        };
+      }
+      MeasureWidth(tbs, top);
+
+      /*TextBlock textBlock = new TextBlock();
+      //textBlock.HorizontalAlignment = HorizontalAlignment.Center;
+      textBlock.VerticalAlignment = VerticalAlignment.Center;
+      //textBlock.HorizontalTextAlignment = TextAlignment.Center;
+      //textBlock.VerticalAlignment = VerticalAlignment.Top;
+      textBlock.Text = "aaaaaaaaa";
+      textBlock.Foreground = UnivLib.GetBrush(14, 77, 108);
+      top.Children.Add(textBlock);
+
+      /*Grid middle = new Grid();
+      middle.Background = UnivLib.GetBrush(Colors.Black);
+      //middle.HorizontalAlignment = HorizontalAlignment.Center;
+      middle.VerticalAlignment = VerticalAlignment.Center;
+      middle.Width = 100;
+      middle.Height = 20;
+      top.Children.Add(middle);*/
+      
+      /*TextBlock textBlock2 = new TextBlock();
+      //textBlock2.HorizontalAlignment = HorizontalAlignment.Center;
+      textBlock2.VerticalAlignment = VerticalAlignment.Center;
+      //textBlock2.HorizontalTextAlignment = TextAlignment.Center;
+      //textBlock.VerticalAlignment = VerticalAlignment.Top;
+      textBlock2.Text = "fdsafaf";
+      //textBlock2.Width = 200;
+      textBlock2.Foreground = UnivLib.GetBrush(14, 77, 108);
+      //JsTrans.console_log(textBlock2.Width.ToString());
+      top.Children.Add(textBlock2);*/
+
+      /*TextBlock[] tbs = new TextBlock[2];
+      tbs[0] = textBlock;
+      tbs[1] = textBlock2;
+      MeasureWidth(tbs, top);*/
+      //▼▼▼トップ（キャラ選択）▼▼▼
+
+      //▲▲▲セカンド（装備種類選択）▲▲▲
+      StackPanel sec = GetStackPanel(g, 5, 10, UnivLib.GetBrush(0x63, 0x42, 0x42),
+        515, 29, UnivLib.GetBrush(0xf3, 0xe4, 0xd5));
+      //▼▼▼セカンド（装備種類選択）▼▼▼
+
+      //▲▲▲ビュー（装備選択）▲▲▲
+      Grid view = new Grid();
+      view.HorizontalAlignment = HorizontalAlignment.Left;
+      view.VerticalAlignment = VerticalAlignment.Top;
+      view.Margin = new Thickness(5, 10, 5, 5);
+      view.Width = 515;
+      view.Height = 329;
+      view.Background = UnivLib.GetBrush(0xa4, 0xb9, 0xbb);
+      g.Children.Add(view);
+
+      MenuUI.RunLavel(view, 5, 0, "➤");
+      MenuUI.RunLavel(view, 30, 0, "はずす");
+      MenuUI.RunLavelRightAligned(view, 190, 0, 33, "-".ToString());
+      int half = 515 / 2;
+      Data.Loader loader = Data.Loader.Instance;
+      Data.ConstStatus[] eqs = loader.weapons;
+      Data.Bag bag = Data.Bag.Instance;
+      for (int i = 0; i < eqs.Length; i++)
+      {
+        int placeY = (i + 1) / 2;
+        if ((i + 1) % 2 == 0)
+        {
+          MenuUI.RunLavel(view, 5, placeY * 25, "➤");
+          MenuUI.RunLavel(view, 30, placeY * 25, eqs[i].name);
+          MenuUI.RunLavelRightAligned(view, 190, placeY * 25, 33, bag.wepons(i).ToString());
+        }
+        else
+        {
+          MenuUI.RunLavel(view, half+5, placeY * 25, "➤");
+          MenuUI.RunLavel(view, half+30, placeY * 25, eqs[i].name);
+          MenuUI.RunLavelRightAligned(view, half+190, placeY * 25, 33, bag.wepons(i).ToString());
+        }
+      }
+      //▼▼▼ビュー（装備選択）▼▼▼
+    }
+  }
+}
