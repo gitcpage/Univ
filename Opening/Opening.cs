@@ -26,7 +26,7 @@ namespace Univ
     public Opening(MainPage mainPage)
     {
       mainPage_ = mainPage;
-      frameManager_ = mainPage.GetFrameTimer();
+      frameManager_ = mainPage.GetFrameManager();
       monitor_ = mainPage.GetMonitor();
       monitorBg_ = mainPage.GetMonitorBg();
     }
@@ -96,13 +96,6 @@ namespace Univ
           frameManager_.EnterSequenceFadeOut(OnFadeOuted);
           return;
         }
-      }
-
-      if (frameManager_.ResettingOnce())
-      {
-        JsTrans.console_log("ソフトリセット");
-        frameManager_.EnterSequenceFadeOut(OnFadeOuted);
-        return;
       }
 
       // スペースキーで戻る

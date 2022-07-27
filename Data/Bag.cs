@@ -72,6 +72,37 @@ namespace Univ.Data
           return -1;
       }
     }
+    public void equipSubstitution(EquipCategory equipCategory, int id, int num = 1)
+    {
+      switch (equipCategory)
+      {
+        case EquipCategory.Weapon: s_weapons[id] = num; break;
+        case EquipCategory.Body: s_body[id] = num; break;
+        case EquipCategory.Head: s_head[id] = num; break;
+        case EquipCategory.Arm: s_arm[id] = num; break;
+        case EquipCategory.Exterior: s_exterior[id] = num; break;
+        case EquipCategory.Accessory: s_accessory[id] = num; break;
+        default:
+          JsTrans.Assert("Bag.cs equipSubstitution");
+          break;
+      }
+    }
+    public int[] GetArrayByCategory(EquipCategory equipCategory)
+    {
+      switch (equipCategory)
+      {
+        case EquipCategory.Weapon: return s_weapons;
+        case EquipCategory.Body: return s_body;
+        case EquipCategory.Head: return s_head;
+        case EquipCategory.Arm: return s_arm;
+        case EquipCategory.Exterior: return s_exterior;
+        case EquipCategory.Accessory: return s_accessory;
+        default:
+          JsTrans.Assert("Bag.cs GetArrayByCategory");
+          return null;
+      }
+    }
+
     static private Bag instance = null;
     static public Bag Instance
     {

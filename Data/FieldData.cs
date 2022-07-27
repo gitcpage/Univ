@@ -39,12 +39,50 @@ using System.Threading.Tasks;
 */
 namespace Univ.Data
 {
+  internal class FieldMoveData
+  {
+    int fromX;
+    int fromY;
+
+    string toName;
+    int toX;
+    int toY;
+
+    FieldMoveData(string txt)
+    {
+      string[] items = txt.Split(",");
+      fromX = int.Parse(items[0]);
+      fromY = int.Parse(items[1]);
+      toName = items[2];
+      toX = int.Parse(items[3]);
+      toY = int.Parse(items[4]);
+    }
+
+    static public FieldMoveData[] Create(string txt)
+    {
+      FieldMoveData[] datas = { };
+      string[] rows = txt.Split(";");
+      JsTrans.Assert(rows.Length != 0, "FieldData.cs FieldMoveData.Create() rows.Length != 0");
+      if (rows[0] == "-")
+        return datas;
+      
+      datas = new FieldMoveData[rows.Length];
+      for (int i = 0; i < rows.Length; i++)
+      {
+        datas[i] = new FieldMoveData(rows[i]);
+      }
+      return datas;
+    }
+  }
   internal class FieldData
   {
     public string Name;
     public int Width;
     public int Height;
     public int[,] Data;
+
+    FieldMoveData[] MoveWall;
+    FieldMoveData[] MovePosision;
 
     // コンストラクタは*を取り除くこと("*"でsplitする)。
     public FieldData(string txt)
@@ -55,10 +93,13 @@ namespace Univ.Data
       Name = heads[0];
       Width = int.Parse(heads[1]);
       Height = int.Parse(heads[2]);
-      JsTrans.Assert(rows.Length == Height + 1, "Data FieldData.cs rows.Length == Height + 1");
+      JsTrans.Assert(rows.Length == Height + 3, "Data FieldData.cs rows.Length == Height + 3");
+
+      MoveWall = FieldMoveData.Create(rows[1]);
+      MovePosision = FieldMoveData.Create(rows[2]);
 
       //Array.Copy(rows, 1, rows, 0, Height);
-      rows = rows.Where((item, index) => index != 0).ToArray();
+      rows = rows.Where((item, index) => index >= 3).ToArray();
       Data = new int[Height, Width];
       for (int y = 0; y < rows.Length; y++)
       {
@@ -68,6 +109,19 @@ namespace Univ.Data
           Data[y, x] = int.Parse(row[x].ToString());
         }
       }
+    }
+
+    static public FieldData Instance(string name)
+    {
+      Data.Loader loader = Loader.Instance;
+      Data.FieldData[] fData = loader.fieldData;
+      foreach (var f in fData)
+      {
+        if (f.Name == name)
+          return f;
+      }
+      JsTrans.Assert("FieldData.cs Instance");
+      return null;
     }
   }
 }

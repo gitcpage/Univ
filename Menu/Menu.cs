@@ -36,12 +36,14 @@ namespace Univ
     int charSelected03_;
 
     MenuEquip menuEquip_;
+
+    MenuSaveLoad menuSaveLoad_;
     
     public Menu(MainPage mainPage, Data.StatusWritable[] charsWritable)
     {
       mainPage_ = mainPage;
       charsWritable_ = charsWritable;
-      frameManager_ = mainPage.GetFrameTimer();
+      frameManager_ = mainPage.GetFrameManager();
       monitor_ = mainPage.GetMonitor();
       monitorBg_ = mainPage.GetMonitorBg();
 
@@ -50,6 +52,8 @@ namespace Univ
       ui_ = new MenuUI(monitor_, menuNotify_);
       menuEquip_ = null;
       charSelected03_ = 0;
+
+      menuSaveLoad_ = new MenuSaveLoad(frameManager_, monitor_, FrameOne);
     }
     void Exit()
     {
@@ -60,6 +64,8 @@ namespace Univ
     }
     void Notify(NotifyCode notifyCode)
     {
+      if (menuSaveLoad_.IsShowing) return;
+
       if (menuEquip_ != null)
       {
         if (menuEquip_.Notify(notifyCode))
@@ -75,14 +81,17 @@ namespace Univ
             {
               mainChar_[i].Tap();
               mainChar_[i].TapLeftMenu();
+              menuStatus_.Change(charSelected03_);
             }
             else
             {
               mainChar_[i].TapOtherChar();
             }
           }
+          menuStatus_.SetTitle();
+          menuStatus_.ResetColorBold();
+          menuEquip_ = null;
         }
-        menuEquip_ = null;
         return;
       }
 
@@ -118,9 +127,9 @@ namespace Univ
         {
           c.TapOtherChar();
         }
-        menuStatus_.Change(notifyCode - NotifyCode.Char0);
-        leftItemSelected_ = NotifyCode.None;
         charSelected03_ = notifyCode - NotifyCode.Char0;
+        menuStatus_.Change(charSelected03_);
+        leftItemSelected_ = NotifyCode.None;
       }
       else if (notifyCode == NotifyCode.Ok)
       {
@@ -130,6 +139,14 @@ namespace Univ
             // ■装備画面を表示
             menuEquip_ = new MenuEquip(mainGrid_, menuStatus_, charsWritable_);
             menuEquip_.Create(charSelected03_);
+            break;
+          case NotifyCode.Save:
+            // ■セーブ
+            menuSaveLoad_.Save();
+            break;
+          case NotifyCode.Load:
+            // ■ロード
+            menuSaveLoad_.Load();
             break;
         }
       }
@@ -212,13 +229,6 @@ namespace Univ
     }
     public void FrameOne(object senderDispatcherTimer, object eNull)
     {
-      if (frameManager_.ResettingOnce())
-      {
-        JsTrans.console_log("ソフトリセット");
-        frameManager_.EnterSequenceFadeOut(OnFadeOuted);
-        return;
-      }
-
       // スペースキーで戻る
       if (frameManager_.IsKeyDownFirst(VirtualKey.Space))
       {

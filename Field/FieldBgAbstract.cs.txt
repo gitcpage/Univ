@@ -9,10 +9,14 @@ namespace Univ.NsField
 {
   internal abstract class FieldBgAbstract : FieldInclude
   {
-    public int tWholeXNum_ { get; protected set; } = kTipXNum;
-    public int tWholeYNum_ { get; protected set; } = kTipYNum;
-    public FieldBgAbstract(Grid grid) : base(grid)
+    public int tWholeXNum_ { get; private set; } = kTipXNum;
+    public int tWholeYNum_ { get; private set; } = kTipYNum;
+    protected Data.FieldData fieldData_;
+    public FieldBgAbstract(Grid grid, Data.FieldData data) : base(grid)
     {
+      fieldData_ = data;
+      tWholeXNum_ = fieldData_.Width;
+      tWholeYNum_ = fieldData_.Height;
     }
     public abstract void Run();
     public abstract void ChangeBg(int no);

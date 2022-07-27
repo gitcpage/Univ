@@ -6,19 +6,17 @@ using Windows.UI.Xaml.Media.Imaging; // BitmapImage
 
 namespace Univ.NsField
 {
-  internal class FieldBgEx : FieldBgAbstract // : FieldInclude
+  internal class FieldBgEx : FieldBg
   {
     BitmapImage[] weeds_;
     BitmapImage water_;
     int rMoveX_ = 0;
     int rMoveY_ = 0;
-    //int wholeTipXNum_;
-    //int wholeTipYNum_;
     int[,] what;
     Image[,] foreImages_;
-    Image[,] backImages_;
+    //Image[,] backImages_;
 
-    public FieldBgEx(Grid monitorBg) : base(monitorBg)
+    public FieldBgEx(Grid monitorBg, Data.FieldData data) : base(monitorBg, data)
     {
       weeds_ = new BitmapImage[2];
       weeds_[0] = UnivLib.BitmapImageFromAssets("tipf/w1.png");
@@ -29,51 +27,17 @@ namespace Univ.NsField
 
     public override void Run()
     {
-      /*for (var y = 0; y < kTipYNum; y++)
-      { //左上
-        var y00 = string.Format("{0:D2}", y);
-        for (var x = 0; x < kTipXNum; x++)
-        {
-          var x00 = string.Format("{0:D2}", x);
-          var id = "idMapTip" + x00 + y00;
-          AppendXyIndex(x, y, weeds_[0], id, "bg_weed1");
-        }
-      }
-      for (var y = kTipYNum; y < kTipYNum*2; y++)
-      { //左下
-        var y00 = string.Format("{0:D2}", y);
-        for (var x = 0; x < kTipXNum; x++)
-        {
-          var x00 = string.Format("{0:D2}", x);
-          var id = "idMapTip" + x00 + y00;
-          AppendXyIndex(x, y, water_, id, "bg_water");
-        }
-      }
-      for (var y = 0; y < kTipYNum * 2; y++)
-      { //右
-        var y00 = string.Format("{0:D2}", y);
-        for (var x = kTipXNum; x < kTipXNum*2; x++)
-        {
-          var x00 = string.Format("{0:D2}", x);
-          var id = "idMapTip" + x00 + y00;
-          AppendXyIndex(x, y, water_, id, "bg_water");
-        }
-      }*/
       System.Text.StringBuilder sbForLog = new System.Text.StringBuilder();
-      tWholeXNum_ = kTipXNum * 2;
-      tWholeYNum_ = kTipYNum * 2;
       what = new int[tWholeYNum_, tWholeXNum_];
       foreImages_ = new Image[tWholeYNum_, tWholeXNum_];
       backImages_ = new Image[tWholeYNum_, tWholeXNum_];
       UnivLib.Array2DimensionInit(what);
 
-      Data.Loader loader = Data.Loader.Instance;
-      Data.FieldData[] fData = loader.fieldData;
-      int[,] d = fData[0].Data;
-      for (var y = 0; y < kTipYNum * 2; y++)
+      int[,] d = fieldData_.Data;
+      for (var y = 0; y < tWholeYNum_; y++)
       { //右
         var y00 = string.Format("{0:D2}", y);
-        for (var x = 0; x < kTipXNum * 2; x++)
+        for (var x = 0; x < tWholeXNum_; x++)
         {
           var x00 = string.Format("{0:D2}", x);
           var id = "idMapTip" + x00 + y00;
@@ -99,9 +63,9 @@ namespace Univ.NsField
     {
       if (no == 1)
       {
-        for (var y = 0; y < kTipYNum*2; y++)
+        for (var y = 0; y < tWholeYNum_; y++)
         {
-          for (var x = 0; x < kTipXNum*2; x++)
+          for (var x = 0; x < tWholeXNum_; x++)
           {
             if (what[y, x] == 1)
             {
@@ -112,9 +76,9 @@ namespace Univ.NsField
       }
       else
       {
-        for (var y = 0; y < kTipYNum * 2; y++)
+        for (var y = 0; y < tWholeYNum_; y++)
         {
-          for (var x = 0; x < kTipXNum * 2; x++)
+          for (var x = 0; x < tWholeXNum_; x++)
           {
             if (what[y, x] == 1)
             {

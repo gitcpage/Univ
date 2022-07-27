@@ -14,8 +14,10 @@ using Univ.NsField;
 
 
 // 変数名規則
-// チップ単位で扱われる変数には、先頭に t をつける。
+// 背景チップ単位で扱われる変数には、先頭に t をつける。
+// 前景チップ単位で扱われる変数には、先頭に block をつける。
 // ピクセル単位のチップはつけない。
+
 // 背景で座標を逆移動する変数には、先頭に r をつける。
 // t と r が被った場合は r を先につける
 // 背景の英単語は Background と長いので Bg と略する。
@@ -30,9 +32,11 @@ namespace Univ
 
     //FieldBlock obj_;
     FieldBlock player_;
-    FieldBgAbstract bg_;
+    FieldBg bg_;
 
-    enum WhatDoing { None, PlayerMove, PlayerMoveByBg, Talk };
+    Data.FieldData fieldData_;
+
+    enum WhatDoing { None, PlayerMove, PlayerMoveByBg, Talk, MapChange };
     WhatDoing whatDoing_ = WhatDoing.None;
     int moveStep_ = 0;
     int moveDirectionX_ = 0;
@@ -41,6 +45,7 @@ namespace Univ
     //int fieldFrameCount_ = 0;
     Lib.Talk talk_ = null;
 
+    string name_;
     int tPosX_;
     int tPosY_;
 
@@ -48,13 +53,8 @@ namespace Univ
     {
       mainPage_ = mainPage;
       charsWritable_ = charsWritable;
-      frameManager_ = mainPage.GetFrameTimer();
+      frameManager_ = mainPage.GetFrameManager();
       monitor_ = mainPage.GetMonitor();
-
-      //bg_ = new FieldBg(mainPage.GetMonitorBg());
-      bg_ = new FieldBgEx(mainPage.GetMonitorBg());
-      //obj_ = new FieldBlock("char/t5040walkt.png", monitor_);
-      player_ = new FieldBlock("char/char1p", FieldBlock.DirectionSlot.DownUp, monitor_);
     }
     
     void ResetPosition(int tx, int ty)
@@ -98,6 +98,18 @@ namespace Univ
     public void Run()
     {
       mainPage_.BottomTextBySequence("Field");
+
+      //string name;
+      //int tx, ty;
+      Data.Basic basic = Data.Basic.Instance;
+      basic.GetField(out name_, out tPosX_, out tPosY_);
+
+      fieldData_ = Data.FieldData.Instance(name_);// "初期フィールド");
+      //bg_ = new FieldBg(mainPage.GetMonitorBg());
+      bg_ = new FieldBgEx(mainPage_.GetMonitorBg(), fieldData_);
+      //obj_ = new FieldBlock("char/t5040walkt.png", monitor_);
+      player_ = new FieldBlock("char/char1p", FieldBlock.DirectionSlot.DownUp, monitor_);
+
       // 初期化
       bg_.Run();
       //AppendXyIndex(0, 1, obj_, "imgObj", "obj", 0);
@@ -105,7 +117,7 @@ namespace Univ
       //player_.SetBlockPosition(kTipXNum / 2 - 1, kTipYNum / 2 - 1);
 
       //■位置情報を決定
-      ResetPosition(kTipXNum / 2 - 1, kTipYNum / 2 - 1);
+      ResetPosition(tPosX_, tPosY_);//kTipXNum / 2 - 1, kTipYNum / 2 - 1);
 
       //フェードイン後、フレームループ開始
       frameManager_.EnterSequenceFadeIn(FrameOne);
@@ -113,6 +125,7 @@ namespace Univ
     public void OnFadeOuted(object senderDispatcherTimer, object eNull)
     {
       mainPage_.Clear();
+      Data.Basic.Instance.SetField(ref name_, ref tPosX_, ref tPosY_);
       frameManager_.ExitSequence();
     }
     public void OnFadeOutedToMenu(object senderDispatcherTimer, object eNull)
@@ -124,6 +137,7 @@ namespace Univ
       player_.GetBlockPosition(out px, out py);
       this.tPosX_ = -rtPosX + px;
       this.tPosY_ = -rtPosY + py;
+      Data.Basic.Instance.SetField(ref name_, ref tPosX_, ref tPosY_);
       frameManager_.EnterSequence(FrameReturn, new Menu(mainPage_, charsWritable_));
     }
     void JudgeMoving()
@@ -175,6 +189,8 @@ namespace Univ
               else
                 whatDoing_ = WhatDoing.PlayerMove;
             }
+            //else
+              //whatDoing_ = WhatDoing.MapChange;
           }
           if (moveDirectionX_ == 1)
           {
@@ -218,12 +234,12 @@ namespace Univ
     }
     public void FrameOne(object senderDispatcherTimer, object eNull)
     {
-      if (frameManager_.ResettingOnce())
+      /*if (frameManager_.ResettingOnce())
       {
         JsTrans.console_log("ソフトリセット");
         frameManager_.EnterSequenceFadeOut(OnFadeOuted);
         return;
-      }
+      }*/
 
       if (frameManager_.FrameCount % 50 == 0)
       {
@@ -274,7 +290,10 @@ namespace Univ
       }
       //▼▼▼プレイヤー移動処理▼▼▼
 
-      if (whatDoing_ == WhatDoing.None || whatDoing_ == WhatDoing.Talk)
+
+      if ((whatDoing_ == WhatDoing.None &&
+        (frameManager_.IsKeyDownFirst(VirtualKey.Space) || frameManager_.isMouseLDownFirst))
+         || whatDoing_ == WhatDoing.Talk)
       {
         //bool yes;
         if (Lib.Talk.TalkMsg(ref talk_, monitor_, frameManager_,// out yes, 

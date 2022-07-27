@@ -116,6 +116,26 @@ namespace Univ.NsMenu
         tbEquips_[i].Text = stEquipStrings[i];
       }
     }
+    public void ResetColorBold()
+    {
+      Data.Status[] sts = Data.Status.Instances;
+      Data.Status st = sts[0];
+      Brush normal = UnivLib.GetBrush(14, 77, 108);
+      FontWeight nBold = UnivLib.FontWeightBold(false);
+
+      string[] h_sBare = st.Hp_SpdBareStrings();
+      for (int i = 0; i<h_sBare.Length; i++)
+      {
+        tbHp_SpdAfter_[i].Foreground = normal;
+        tbHp_SpdAfter_[i].FontWeight = nBold;
+      }
+      string[] f_dBare = st.Fire_DarkBareStrings();
+      for (int i = 0; i<f_dBare.Length; i++)
+      {
+        tbFire_DarkAfter_[i].Foreground = normal;
+        tbFire_DarkAfter_[i].FontWeight = nBold;
+      }
+    }
     public void SetTitle(string left = "前", string right = "後")
     {
       titleBaseLeft_.Text = left;

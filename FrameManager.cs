@@ -15,8 +15,10 @@ namespace Univ
   {
     EventHandler<object> handler_ = null;
     Stack<EventHandler<object>> sequenceStack_ = new Stack<EventHandler<object>>();
-    DispatcherTimer timer_;
-    bool isRunning = false;
+    DispatcherTimer timer_ = null;
+    //bool isRunning = false;
+
+    EventHandler<object> mainFrameOne_;
 
     byte[] jkey_ = new byte[256];
     int frameCount_ = 0;
@@ -25,16 +27,20 @@ namespace Univ
     public const int kOneFrameTimeMs = 40; // from MainPage.FadeOut
     bool isFast_ = false;
 
-    bool doSoftReset_ = false;
+    //bool doSoftReset_ = false;
     MainPage mainPage_;
 
     bool enableFadeOut = true;
     
     int isMouseLDownCount = 0;
 
-    public FrameManager(MainPage mainPage, EventHandler<object> MainFrameOne)
+    void Initialize()
     {
-      mainPage_ = mainPage;
+      if (timer_ != null)
+      {
+        timer_.Stop();
+      }
+
       timer_ = new DispatcherTimer();
       // ChangeSequence()の第１引数より先に実行されてほしいが保証はない。
       timer_.Tick += (sender, e) => {
@@ -65,7 +71,15 @@ namespace Univ
       }; // timer_.Tick += (object sender, object e) => {
 
       //■
-      sequenceStack_.Push(MainFrameOne);
+      sequenceStack_.Push(mainFrameOne_);
+      ChangeSequence(mainFrameOne_);
+    }
+
+    public FrameManager(MainPage mainPage, EventHandler<object> MainFrameOne)
+    {
+      mainPage_ = mainPage;
+      mainFrameOne_ = MainFrameOne;
+      Initialize();
     }
     public void FadeOutEnable(bool enable = true)
     {
@@ -79,9 +93,9 @@ namespace Univ
       timer_.Tick += handler_;
       int oneFrameTimeMs = isFast_ ? kOneFrameTimeMs / 2 : kOneFrameTimeMs;
       timer_.Interval = TimeSpan.FromMilliseconds(oneFrameTimeMs);
-      if (!isRunning)
+      //if (!isRunning)
       {
-        isRunning = true;
+        //isRunning = true;
         timer_.Start();
       }
     }
@@ -110,22 +124,24 @@ namespace Univ
     }
     public void Reset()
     {
-      doSoftReset_ = true;
+      JsTrans.console_log("ソフトリセット");
+      mainPage_.Clear(true);
+      Initialize();
     }
-    public bool ResettingOnce()
+    /*public bool ResettingOnce()
     {
       bool ret = doSoftReset_;
       doSoftReset_ = false;
       return ret;
-    }
+    }*/
     public void Pause()
     {
       timer_.Stop();
-      isRunning = false;
+      //isRunning = false;
     }
     public void Start(bool isFast = false)
     {
-      isRunning = true;
+      //isRunning = true;
       isFast_ = isFast;
       int oneFrameTimeMs = isFast_ ? kOneFrameTimeMs/2 : kOneFrameTimeMs;
       timer_.Interval = TimeSpan.FromMilliseconds(oneFrameTimeMs);

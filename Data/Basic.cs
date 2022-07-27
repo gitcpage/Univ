@@ -28,6 +28,12 @@ namespace Univ.Data
     //static IntXY s_fieldchar;
     //static IntXY s_field;
 
+    //Field>Field.csファイルの Run()メソッドで使用される。
+    static string s_fieldName;
+    static int s_fieldX;
+    static int s_fieldY;
+
+
     public int gold() { return s_gold; }
     public void gold(int num) { s_gold = num; }
     public int goldPlus(int num = 1) { s_gold += num; JsTrans.Assert(s_gold >= 0, "gold"); return s_gold; }
@@ -35,7 +41,68 @@ namespace Univ.Data
     public long msTimeMinutes() { return s_msTime/1000/60; }
     public void msTime(long ms) { s_msTime = ms; }
     public long msTimePlus(long ms = 1) { s_msTime += ms; JsTrans.Assert(s_msTime >= 0, "msTime"); return s_msTime; }
-    
+
+    public void SetField(ref string name, ref int x, ref int y)
+    {
+      s_fieldName = name;
+      s_fieldX = x;
+      s_fieldY = y;
+    }
+    public void GetField(out string name, out int x, out int y)
+    {
+      name = s_fieldName;
+      x = s_fieldX;
+      y = s_fieldY;
+    }
+    public void Initialize()
+    {
+      gold(0);
+      msTime(0);
+      s_fieldName = "初期フィールド";
+      s_fieldX = 7;
+      s_fieldY = 6;
+    }
+    public void Load(string txt)
+    {
+      string[] rows = txt.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+      string[] demTab = new string[1];
+      demTab[0] = "\t";
+      for (int i = 0; i < rows.Length; i++)
+      {
+        //string row = rows[i];
+        string[] cells = rows[i].Split("\t");
+        switch (cells[0])
+        {
+          case "Gold":
+            gold(int.Parse(cells[1]));
+            break;
+          case "Time":
+            msTime(long.Parse(cells[1]));
+            break;
+          case "FieldName":
+            s_fieldName = cells[1];
+            break;
+          case "FieldX":
+            s_fieldX = int.Parse(cells[1]);
+            break;
+          case "FieldY":
+            s_fieldY = int.Parse(cells[1]);
+            break;
+        }
+      }
+    }
+
+    public string TextForSave()
+    {
+      string s = "";
+      s += "Gold\t" + gold().ToString() + Environment.NewLine;
+      s += "Time\t" + msTime().ToString() + Environment.NewLine;
+      s += "FieldName\t" + s_fieldName + Environment.NewLine;
+      s += "FieldX\t" + s_fieldX + Environment.NewLine;
+      s += "FieldY\t" + s_fieldY + Environment.NewLine;
+      return s;
+    }
+
     // ▲▲▲シングルトンパターン▲▲▲
     static private Basic instance = null;
     static public Basic Instance

@@ -126,6 +126,25 @@ namespace Univ.Data
     }
     // ▼▼▼装備▼▼▼
 
+    public string TextOfSave()
+    {
+      return level_.ToString() + "," + experience_.ToString() + "," + idWeapon.ToString() + "," +
+        idBody.ToString() + "," + idHead.ToString() + "," + idArm.ToString() + "," +
+        idExterior.ToString() + "," + idAccessory.ToString();
+    }
+    public void Load(string text)
+    {
+      string[] ss = text.Split(",");
+      level_ = int.Parse(ss[0]);
+      experience_ = int.Parse(ss[1]);
+      idWeapon = int.Parse(ss[2]);
+      idBody = int.Parse(ss[3]);
+      idHead = int.Parse(ss[4]);
+      idArm = int.Parse(ss[5]);
+      idExterior = int.Parse(ss[6]);
+      idAccessory = int.Parse(ss[7]);
+    }
+
 
 
     // ▲▲▲派生クラス シングルトンパターン▲▲▲

@@ -58,10 +58,10 @@ namespace Univ
       // FrameManager で FrameOne を呼び出すのは整合性として気持ち悪いので、
       // MainPageコンストラクタで呼び出している。
       frameManager_ = new FrameManager(this, FrameOne);
-      FrameOne(null, null);
+      //FrameOne(null, null);
     }
     //  △△△シーケンス遷移で渡すオブジェクトへのアクセス△△△
-    public FrameManager GetFrameTimer()
+    public FrameManager GetFrameManager()
     {
       return this.frameManager_;
     }
@@ -97,7 +97,7 @@ namespace Univ
       {
         // データロード完了
         loader = Data.Loader.Setup();
-        loader.chars[0].Equip(Data.EquipCategory.Weapon, 0);
+        //loader.chars[0].Equip(Data.EquipCategory.Weapon, 0);
       }
 
       frameManager_.EnterSequence(FrameOne, new Field(this, loader.chars));
@@ -129,10 +129,17 @@ namespace Univ
       //frameManager_.EnterSequence(FrameOne, new Menu(this, loader.chars));
     }
     // △△△モニタアクセス共通処理△△△
-    public void Clear()
+    public void Clear(bool doDataReload = false)
     {
       this.idMonitor.Children.Clear();
       this.idMonitorBg.Children.Clear();
+      if (doDataReload)
+      {
+        //■データをリセットする
+        loader.Reload();
+      }
+      this.idMonitorFade.Background.Opacity = 1.0;
+      this.idMonitorFade.Visibility = Visibility.Visible;
     }
     // ▽▽▽モニタアクセス共通処理▽▽▽
 
@@ -164,11 +171,12 @@ namespace Univ
     }
     public void RunFadeIn()
     {
+      this.idMonitorFade.Background.Opacity = 1.0;
       if (this.idMonitorFade.Background.Opacity != 1.0)
       {
-        /*JsTrans.Assert(false,
+        JsTrans.Assert(false,
         "フェードインできません。\nthis.idMonitorFade.Background.Opacityが1.0であることを確認してください。\n" +
-        this.idMonitorFade.Background.Opacity.ToString());*/
+        this.idMonitorFade.Background.Opacity.ToString());
         frameManager_.ExitSequence();
         return;
       }
@@ -195,21 +203,15 @@ namespace Univ
 
     private void Button_Click_1(object sender, RoutedEventArgs e)
     {
-      /*StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-      StorageFile sampleFile = await storageFolder.CreateFileAsync("Save.txt", CreationCollisionOption.ReplaceExisting);
-      await FileIO.WriteTextAsync(sampleFile, "データです");*/
     }
 
     private void Button_Click_2(object sender, RoutedEventArgs e)
     {
-      /*StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-      StorageFile sampleFile = await storageFolder.GetFileAsync("sample.txt");
-      string text = await FileIO.ReadTextAsync(sampleFile);
-      JsTrans.console_log(sampleFile.Path);
-      JsTrans.console_log(text);*/
     }
     private void Button_Click_3(object sender, RoutedEventArgs e)
     {
+      StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
+      JsTrans.console_log("[Data Loader.cs]" + storageFolder.Path);
     }
 
     private void Button_Click_4(object sender, RoutedEventArgs e)

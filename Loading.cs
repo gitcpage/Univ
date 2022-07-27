@@ -18,7 +18,7 @@ namespace Univ
     public Loading(MainPage mainPage)
     {
       mainPage_ = mainPage;
-      frameManager_ = mainPage.GetFrameTimer();
+      frameManager_ = mainPage.GetFrameManager();
       monitor_ = mainPage.GetMonitor();
       monitorBg_ = mainPage.GetMonitorBg();
     }

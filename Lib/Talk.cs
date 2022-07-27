@@ -13,6 +13,7 @@ namespace Univ.Lib
 {
   internal class Talk
   {
+    static Grid s_GridOvelap_ = null;
     static StackPanel gTalk_ = null;
     static StackPanel gTalkYesNo_ = null;
     static TextBlock[] msgs_ = new TextBlock[3];
@@ -172,6 +173,16 @@ namespace Univ.Lib
         parent.Children.Remove(gTalkYesNo_);
     }
 
+    static private void OverlapGrid(Grid parent, Brush brush)
+    {
+      if (s_GridOvelap_ == null)
+      {
+        s_GridOvelap_ = new Grid();
+        s_GridOvelap_.Width = parent.Width;
+        s_GridOvelap_.Height = parent.Height;
+      }
+      s_GridOvelap_.Background = brush;
+    }
     // Talk を簡略化して使えるようにした静的メソッド。
     // 戻り値：消去時にtrue
     // 以下使用例。
@@ -187,17 +198,16 @@ namespace Univ.Lib
     //    whatDoing_ = WhatDoing.Talk;
     //  }
     //}
-    static public bool TalkYesNo(ref Talk talk, Grid parent, FrameManager frameManager, out bool yes,
+    static public bool TalkYesNoOverlap(ref Talk talk, Grid parent, FrameManager frameManager, out bool yes,
       string s0, string s1 = "", string s2 = "")
     {
       yes = false;
       if (talk == null)
       {
-        if (frameManager.IsKeyDownFirst(VirtualKey.Space) || frameManager.isMouseLDownFirst)
-        {
-          talk = new Lib.Talk();
-          talk.Add(parent, s0, s1, s2, true);
-        }
+        OverlapGrid(parent, UnivLib.GetBrush(126, 0, 0, 0));
+        parent.Children.Add(s_GridOvelap_);
+        talk = new Lib.Talk();
+        talk.Add(parent, s0, s1, s2, true);
       }
       else
       {
@@ -205,6 +215,7 @@ namespace Univ.Lib
         {
           talk.Remove(parent);
           talk = null;
+          parent.Children.Remove(s_GridOvelap_);
           return true;
         }
         else
@@ -216,6 +227,7 @@ namespace Univ.Lib
             yes = talk.IsYes();
             talk.Remove(parent);
             talk = null;
+            parent.Children.Remove(s_GridOvelap_);
             return true;
           }
         }
@@ -227,11 +239,8 @@ namespace Univ.Lib
     {
       if (talk == null)
       {
-        if (frameManager.IsKeyDownFirst(VirtualKey.Space) || frameManager.isMouseLDownFirst)
-        {
-          talk = new Lib.Talk();
-          talk.Add(parent, s0, s1, s2);
-        }
+        talk = new Lib.Talk();
+        talk.Add(parent, s0, s1, s2);
       }
       else
       {
@@ -245,6 +254,61 @@ namespace Univ.Lib
         }
       }
       return false;
+    }
+    static public bool TalkMsgOverlap(ref Talk talk, Grid parent, FrameManager frameManager,
+      string s0, string s1 = "", string s2 = "")
+    {
+      if (talk == null)
+      {
+        OverlapGrid(parent, UnivLib.GetBrush(126, 0, 0, 0));
+        parent.Children.Add(s_GridOvelap_);
+        talk = new Lib.Talk();
+        talk.Add(parent, s0, s1, s2);
+      }
+      else
+      {
+        if (frameManager.IsKeyDownFirst(VirtualKey.Space) ||
+          frameManager.isMouseLDownFirst ||
+          frameManager.IsKeyDownFirst(VirtualKey.Enter))
+        {
+          talk.Remove(parent);
+          talk = null;
+          parent.Children.Remove(s_GridOvelap_);
+          return true;
+        }
+      }
+      return false;
+    }
+    static public void TalkWait(ref Talk talk, Grid parent, bool showEnd,
+      string s0, string s1 = "", string s2 = "")
+    {
+      if (talk == null)
+      {
+          talk = new Lib.Talk();
+          talk.Add(parent, s0, s1, s2);
+      }
+      if(showEnd)
+      {
+        talk.Remove(parent);
+        talk = null;
+      }
+    }
+    static public void TalkWaitOverlap(ref Talk talk, Grid parent, bool showEnd,
+      string s0, string s1 = "", string s2 = "")
+    {
+      if (talk == null)
+      {
+        OverlapGrid(parent, UnivLib.GetBrush(126, 0, 0, 0));
+        parent.Children.Add(s_GridOvelap_);
+        talk = new Lib.Talk();
+        talk.Add(parent, s0, s1, s2);
+      }
+      if (showEnd)
+      {
+        talk.Remove(parent);
+        talk = null;
+        parent.Children.Remove(s_GridOvelap_);
+      }
     }
   }
 }

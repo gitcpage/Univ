@@ -34,7 +34,7 @@ namespace Univ
     {
       mainPage_ = mainPage;
       charsWritable_ = charsWritable;
-      frameManager_ = mainPage.GetFrameTimer();
+      frameManager_ = mainPage.GetFrameManager();
       monitor_ = mainPage.GetMonitor();
       monitorBg_ = mainPage.GetMonitorBg();
 
@@ -153,13 +153,6 @@ namespace Univ
     }
     public void FrameOne(object senderDispatcherTimer, object eNull)
     {
-      if (frameManager_.ResettingOnce())
-      {
-        JsTrans.console_log("ソフトリセット");
-        frameManager_.EnterSequenceFadeOut(OnFadeOuted);
-        return;
-      }
-
       // スペースキーで戻る
       if (frameManager_.IsKeyDownFirst(VirtualKey.Space))
       {
