@@ -59,8 +59,6 @@ namespace Univ
       // MainPageコンストラクタで呼び出している。
       frameManager_ = new FrameManager(this, FrameOne);
       //FrameOne(null, null);
-
-      Univ.Fade.Constructor(this.idMonitorFade, this.frameManager_);
     }
     //  △△△シーケンス遷移で渡すオブジェクトへのアクセス△△△
     public FrameManager GetFrameManager()
@@ -89,7 +87,6 @@ namespace Univ
     // ■エントリーポイント
     void FrameOne(object sender, object e)
     {
-      //this.idProgress.Value = frameManager_.FrameCount;
       if (Data.Loader.LoadingState_ == Data.LoadingState.Loading)
       {
         // データロード中
@@ -103,8 +100,7 @@ namespace Univ
         //loader.chars[0].Equip(Data.EquipCategory.Weapon, 0);
       }
 
-      frameManager_.EnterSequence(FrameOne, new BattleDebug(this, loader.chars));
-      //frameManager_.EnterSequence(FrameOne, new Field(this, loader.chars));
+      frameManager_.EnterSequence(FrameOne, new Field(this, loader.chars));
       /*if (opening_ == null || opening_.Selected == -1)
       {
         frameManager_.EnterSequence(FrameOne, opening_ = new Opening(this));
@@ -147,6 +143,64 @@ namespace Univ
     }
     // ▽▽▽モニタアクセス共通処理▽▽▽
 
+    // △△△フェード処理△△△
+    double fade_sum_ = 0;
+    public void RunFadeOut()
+    {
+      if (this.idMonitorFade.Background.Opacity != 0.0) JsTrans.Assert(false,
+        "フェードアウトできません。\nthis.idMonitorFade.Background.Opacityが0.0であることを確認してください。" +
+        this.idMonitorFade.Background.Opacity.ToString());
+      fade_sum_ = 0;
+      this.idMonitorFade.Visibility = Visibility.Visible;
+      frameManager_.ChangeSequence(FadeOut);
+    }
+    void FadeOut(object sender, object e)
+    {
+      int ms = 200;
+      fade_sum_ += FrameManager.kOneFrameTimeMs;
+      double opacity = (double)fade_sum_ / ms;
+      if (opacity >= 1.0)
+      {
+        this.idMonitorFade.Background.Opacity = 1.0;
+        frameManager_.ExitSequence();
+      }
+      else
+      {
+        this.idMonitorFade.Background.Opacity = opacity;
+      }
+    }
+    public void RunFadeIn()
+    {
+      this.idMonitorFade.Background.Opacity = 1.0;
+      if (this.idMonitorFade.Background.Opacity != 1.0)
+      {
+        JsTrans.Assert(false,
+        "フェードインできません。\nthis.idMonitorFade.Background.Opacityが1.0であることを確認してください。\n" +
+        this.idMonitorFade.Background.Opacity.ToString());
+        frameManager_.ExitSequence();
+        return;
+      }
+      fade_sum_ = 200;
+      frameManager_.ChangeSequence(FadeIn);
+    }
+    void FadeIn(object sender, object e)
+    {
+      int ms = 200;
+      fade_sum_ -= FrameManager.kOneFrameTimeMs;
+      double opacity = (double)fade_sum_ / ms;
+      if (opacity <= 0.0)
+      {
+        this.idMonitorFade.Background.Opacity = 0.0;
+        this.idMonitorFade.Visibility = Visibility.Collapsed;
+        frameManager_.ExitSequence();
+      }
+      else
+      {
+        this.idMonitorFade.Background.Opacity = opacity;
+      }
+    }
+    // ▽▽▽フェード処理▽▽▽
+
     private void Button_Click_1(object sender, RoutedEventArgs e)
     {
     }
@@ -163,11 +217,6 @@ namespace Univ
     private void Button_Click_4(object sender, RoutedEventArgs e)
     {
       UnivLib.MsgBitmapPaths();
-    }
-
-    private void Slider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
-    {
-      throw new NotImplementedException();
     }
 
     private void AppBarReset_Click(object sender, RoutedEventArgs e)

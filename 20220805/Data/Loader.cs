@@ -52,7 +52,7 @@ namespace Univ.Data
     static string kConstDataOfSetup = "";
     static string kFieldDataOfSetup = "";
 
-    // 以下３つの静的文字列はセーブ後のロードに使われるので、セーブ時に上書きする。
+    // 以下の静的文字列はセーブ後のロードに使われるので、セーブ時に上書きする。
     static string SaveBagDataOfSetup = "";
     static string SaveBasicDataOfSetup = "";
     static string SaveCharsDataOfSetup = "";

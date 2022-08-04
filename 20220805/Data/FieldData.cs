@@ -41,12 +41,12 @@ namespace Univ.Data
 {
   internal class FieldMoveData
   {
-    public readonly int fromX;
-    public readonly int fromY;
+    int fromX;
+    int fromY;
 
-    public readonly string toName;
-    public readonly int toX;
-    public readonly int toY;
+    string toName;
+    int toX;
+    int toY;
 
     FieldMoveData(string txt)
     {
@@ -81,8 +81,8 @@ namespace Univ.Data
     public int Height;
     public int[,] Data;
 
-    public readonly FieldMoveData[] Doors;
-    public readonly FieldMoveData[] Stairs;
+    FieldMoveData[] MoveWall;
+    FieldMoveData[] MovePosision;
 
     // コンストラクタは*を取り除くこと("*"でsplitする)。
     public FieldData(string txt)
@@ -95,8 +95,8 @@ namespace Univ.Data
       Height = int.Parse(heads[2]);
       JsTrans.Assert(rows.Length == Height + 3, "Data FieldData.cs rows.Length == Height + 3");
 
-      Doors = FieldMoveData.Create(rows[1]);
-      Stairs = FieldMoveData.Create(rows[2]);
+      MoveWall = FieldMoveData.Create(rows[1]);
+      MovePosision = FieldMoveData.Create(rows[2]);
 
       //Array.Copy(rows, 1, rows, 0, Height);
       rows = rows.Where((item, index) => index >= 3).ToArray();

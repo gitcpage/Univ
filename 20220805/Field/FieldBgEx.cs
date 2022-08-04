@@ -8,14 +8,20 @@ namespace Univ.NsField
 {
   internal class FieldBgEx : FieldBg
   {
+    BitmapImage[] weeds_;
     BitmapImage water_;
     int rMoveX_ = 0;
     int rMoveY_ = 0;
     int[,] what;
     Image[,] foreImages_;
+    //Image[,] backImages_;
 
     public FieldBgEx(Grid monitorBg, Data.FieldData data) : base(monitorBg, data)
     {
+      weeds_ = new BitmapImage[2];
+      weeds_[0] = UnivLib.BitmapImageFromAssets("tipf/w1.png");
+      weeds_[1] = UnivLib.BitmapImageFromAssets("tipf/w2.png");
+
       water_ = UnivLib.BitmapImageFromAssets("tipf/p.png"); //"tipf/p.png");
     }
 

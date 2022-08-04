@@ -18,9 +18,9 @@ namespace Univ.NsMenu
     MenuStatus menuStatus_;
     Data.StatusWritable[] charsWritable_;
 
-    readonly Brush kCurrentBrush_; // fgBrush_
-    readonly Brush kSelectedBrush_;// bgBrush_
-    readonly Brush kErasedBrush_;  // groupBgBrush_
+    Brush currentBrush_; // fgBrush_
+    Brush selectedBrush_;// bgBrush_
+    Brush erasedBrush_;  // groupBgBrush_
 
     TextBlock[] tbTopArrows_;
     int topArrowSelect_;
@@ -43,9 +43,9 @@ namespace Univ.NsMenu
       menuStatus_ = menuStatus;
       charsWritable_ = charsWritable;
 
-      kCurrentBrush_ = UnivLib.GetBrush(14, 77, 108);
-      kSelectedBrush_ = UnivLib.GetBrush(157, 181, 183);
-      kErasedBrush_ = UnivLib.GetBrush(0xf3, 0xe4, 0xd5);
+      currentBrush_ = UnivLib.GetBrush(14, 77, 108);
+      selectedBrush_ = UnivLib.GetBrush(157, 181, 183);
+      erasedBrush_ = UnivLib.GetBrush(0xf3, 0xe4, 0xd5);
       secArrowSelect_ = topArrowSelect_ = 0;
       itemArrowSelect_ = -1;
 
@@ -56,30 +56,30 @@ namespace Univ.NsMenu
       if (id != topArrowSelect_)
         menuStatus_.EquipChange(id);
       topArrowSelect_ = id;
-      tbSecArrows_[secArrowSelect_].Foreground = kSelectedBrush_;
+      tbSecArrows_[secArrowSelect_].Foreground = selectedBrush_;
       if (itemArrowSelect_ >= 0)
       {
         if (itemArrowSelect_ > tbItemArrows_.Length)
-          tbItemArrows_[itemArrowSelect_].Foreground = kErasedBrush_;
+          tbItemArrows_[itemArrowSelect_].Foreground = erasedBrush_;
       }
       UpdateView();
       menuStatus_.EquipChange(topArrowSelect_);
     }
     void NotifySec(int id)
     {
-      tbTopArrows_[topArrowSelect_].Foreground = kSelectedBrush_;
+      tbTopArrows_[topArrowSelect_].Foreground = selectedBrush_;
       if (itemArrowSelect_ >= 0)
       {
         if (itemArrowSelect_ > tbItemArrows_.Length)
-          tbItemArrows_[itemArrowSelect_].Foreground = kErasedBrush_;
+          tbItemArrows_[itemArrowSelect_].Foreground = erasedBrush_;
       }
       UpdateView();
       menuStatus_.EquipChange(topArrowSelect_);
     }
     void NotifyItem(int viewItemId)
     {
-      tbTopArrows_[topArrowSelect_].Foreground = kSelectedBrush_;
-      tbSecArrows_[secArrowSelect_].Foreground = kSelectedBrush_;
+      tbTopArrows_[topArrowSelect_].Foreground = selectedBrush_;
+      tbSecArrows_[secArrowSelect_].Foreground = selectedBrush_;
       menuStatus_.EquipChangeCalc(topArrowSelect_, secArrowSelect_, viewItemId-1);
     }
     // 戻り値：装備ウィンドウを終了する場合は true を返す。
@@ -88,16 +88,16 @@ namespace Univ.NsMenu
       switch (notifyCode)
       {
         case NotifyCode.Ok:
-          if (tbTopArrows_[topArrowSelect_].Foreground == kCurrentBrush_)
+          if (tbTopArrows_[topArrowSelect_].Foreground == currentBrush_)
           {
-            tbTopArrows_[topArrowSelect_].Foreground = kSelectedBrush_;
-            tbSecArrows_[secArrowSelect_].Foreground = kCurrentBrush_;
+            tbTopArrows_[topArrowSelect_].Foreground = selectedBrush_;
+            tbSecArrows_[secArrowSelect_].Foreground = currentBrush_;
           }
-          else if (tbSecArrows_[secArrowSelect_].Foreground == kCurrentBrush_)
+          else if (tbSecArrows_[secArrowSelect_].Foreground == currentBrush_)
           {
-            tbSecArrows_[secArrowSelect_].Foreground = kSelectedBrush_;
+            tbSecArrows_[secArrowSelect_].Foreground = selectedBrush_;
             itemArrowSelect_ = 0;
-            tbItemArrows_[itemArrowSelect_].Foreground = kCurrentBrush_;
+            tbItemArrows_[itemArrowSelect_].Foreground = currentBrush_;
           }
           else
           {
@@ -121,21 +121,21 @@ namespace Univ.NsMenu
               }
               menuStatus_.EquipChange(topArrowSelect_);
               UpdateView();
-              tbSecArrows_[secArrowSelect_].Foreground = kCurrentBrush_;
+              tbSecArrows_[secArrowSelect_].Foreground = currentBrush_;
             }
           }
           break;
         case NotifyCode.Cancel:
           if (itemArrowSelect_ >= 0)
           {
-            tbSecArrows_[secArrowSelect_].Foreground = kCurrentBrush_;
-            tbItemArrows_[itemArrowSelect_].Foreground = kErasedBrush_;
+            tbSecArrows_[secArrowSelect_].Foreground = currentBrush_;
+            tbItemArrows_[itemArrowSelect_].Foreground = erasedBrush_;
             itemArrowSelect_ = -1;
           }
-          else if (tbSecArrows_[secArrowSelect_].Foreground == kCurrentBrush_)
+          else if (tbSecArrows_[secArrowSelect_].Foreground == currentBrush_)
           {
-            tbTopArrows_[topArrowSelect_].Foreground = kCurrentBrush_;
-            tbSecArrows_[secArrowSelect_].Foreground = kSelectedBrush_;
+            tbTopArrows_[topArrowSelect_].Foreground = currentBrush_;
+            tbSecArrows_[secArrowSelect_].Foreground = selectedBrush_;
           }
           else
           {
@@ -176,7 +176,7 @@ namespace Univ.NsMenu
         TextBlock tbArrow = new TextBlock();
         tbArrow.VerticalAlignment = VerticalAlignment.Center;
         tbArrow.Text = "➤";
-        tbArrow.Foreground = kErasedBrush_;
+        tbArrow.Foreground = erasedBrush_;
         tbArrow.FontSize = 16;
         parent.Children.Add(tbArrow);
         arrows[i] = tbArrow;
@@ -186,7 +186,7 @@ namespace Univ.NsMenu
         tbChar.VerticalAlignment = VerticalAlignment.Center;
         tbChar.Text = items[i] + "　";
         tbChar.Padding = new Thickness(0, 0, 10, 0);
-        tbChar.Foreground = kCurrentBrush_;
+        tbChar.Foreground = currentBrush_;
         tbChar.FontSize = 16;
         Border bdrChar = UnivLib.WrapBorder(tbChar, parent);
         //parent.Children.Add(bdrChar);
@@ -196,21 +196,21 @@ namespace Univ.NsMenu
         {
           if (isTop)
           {
-            arrows[topArrowSelect_].Foreground = kErasedBrush_;
-            arrows[hold].Foreground = kCurrentBrush_;
+            arrows[topArrowSelect_].Foreground = erasedBrush_;
+            arrows[hold].Foreground = currentBrush_;
             NotifyTop(hold);
           }
           else
           {
-            arrows[secArrowSelect_].Foreground = kErasedBrush_;
-            arrows[hold].Foreground = kCurrentBrush_;
+            arrows[secArrowSelect_].Foreground = erasedBrush_;
+            arrows[hold].Foreground = currentBrush_;
             secArrowSelect_ = hold;
             NotifySec(hold);
           }
         };
       }
       UnivLib.MeasureWidth(tbs, parent);
-      arrows[isTop ? topArrowSelect_ : secArrowSelect_].Foreground = kCurrentBrush_;
+      arrows[isTop ? topArrowSelect_ : secArrowSelect_].Foreground = currentBrush_;
     }
     void UpdateView()
     {
@@ -221,9 +221,9 @@ namespace Univ.NsMenu
           if (itemArrowSelect_ >= 0)
           {
             if (itemArrowSelect_ < tbItemArrows_.Length)
-              tbItemArrows_[itemArrowSelect_].Foreground = kErasedBrush_;
+              tbItemArrows_[itemArrowSelect_].Foreground = erasedBrush_;
           }
-          tbItemArrows_[viewItemId].Foreground = kCurrentBrush_;
+          tbItemArrows_[viewItemId].Foreground = currentBrush_;
           itemArrowSelect_ = viewItemId;
           NotifyItem(viewItemId);
         };
@@ -236,7 +236,7 @@ namespace Univ.NsMenu
       // ▲▲▲はずす▲▲▲
       tbItemArrows_ = new TextBlock[1];
       tbItemArrows_[0] = MenuUI.RunLavel(view_, 5, 0, "➤");
-      tbItemArrows_[0].Foreground = kErasedBrush_;
+      tbItemArrows_[0].Foreground = erasedBrush_;
       Border bdr = UnivLib.WrapBorder(MenuUI.RunLavel(null, 30, 0, "はずす"), view_, 155, 0, 0);
       SetTapEvent(bdr, 0);
       MenuUI.RunLavelRightAligned(view_, 190, 0, 33, "-".ToString());
@@ -264,7 +264,7 @@ namespace Univ.NsMenu
         }
         Array.Resize(ref tbItemArrows_, tbItemArrows_.Length + 1);
         tbItemArrows_[viewPos] = MenuUI.RunLavel(view_, arrowLeft, placeY * 25, "➤");
-        tbItemArrows_[viewPos].Foreground = kErasedBrush_;
+        tbItemArrows_[viewPos].Foreground = erasedBrush_;
         bdr = UnivLib.WrapBorder(MenuUI.RunLavel(null, 0, 0, eqs[i].name), view_, 155, nameLeft, placeY * 25);
         MenuUI.RunLavelRightAligned(view_, numLeft, placeY * 25, 33, num);
         SetTapEvent(bdr, viewPos);
@@ -281,17 +281,17 @@ namespace Univ.NsMenu
       view.Margin = new Thickness(5, 10, 5, 5);
       view.Width = 515;
       view.Height = 329;
-      view.Background = kErasedBrush_;
+      view.Background = erasedBrush_;
       return view;
     }
     public void Create(int charSelected03)
     {
       equipPanel_ = GetStackPanel(parent_, 0, 0, UnivLib.GetBrush(5, 50, 70),
-        529, 519, kSelectedBrush_);
+        529, 519, selectedBrush_);
 
       //▲▲▲トップ（キャラ選択）▲▲▲
       StackPanel top = GetStackPanel(equipPanel_, 5, 15, UnivLib.GetBrush(0x63, 0x42, 0x42),
-        515, 29, kErasedBrush_);
+        515, 29, erasedBrush_);
       string[] names = new string[statuses_.Length];
       for (int i = 0; i < statuses_.Length; i++)
       {
@@ -304,7 +304,7 @@ namespace Univ.NsMenu
 
       //▲▲▲セカンド（装備種類選択）▲▲▲
       StackPanel sec = GetStackPanel(equipPanel_, 5, 10, UnivLib.GetBrush(0x63, 0x42, 0x42),
-        515, 29, kErasedBrush_);
+        515, 29, erasedBrush_);
       string[] secNames = { "武器", "体", "頭", "腕", "外装", "装飾" };
       tbSecArrows_ = new TextBlock[secNames.Length];
       CreateGroup(sec, secNames, tbSecArrows_, false);

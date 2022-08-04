@@ -13,7 +13,7 @@ namespace Univ.NsField
     public int tWholeXNum_ { get; private set; } = kTipXNum;
     public int tWholeYNum_ { get; private set; } = kTipYNum;
     protected Data.FieldData fieldData_;
-    protected BitmapImage[] weeds_;
+    protected BitmapImage[] weeds;
     //Image[,] foreImages_;
     protected Image[,] backImages_;
 
@@ -23,9 +23,9 @@ namespace Univ.NsField
       tWholeXNum_ = fieldData_.Width;
       tWholeYNum_ = fieldData_.Height;
 
-      weeds_ = new BitmapImage[2];
-      weeds_[0] = UnivLib.BitmapImageFromAssets("tipf/w1.png");
-      weeds_[1] = UnivLib.BitmapImageFromAssets("tipf/w2.png");
+      weeds = new BitmapImage[2];
+      weeds[0] = UnivLib.BitmapImageFromAssets("tipf/w1.png");
+      weeds[1] = UnivLib.BitmapImageFromAssets("tipf/w2.png");
 
       //foreImages_ = new Image[tWholeYNum_, tWholeXNum_];
       backImages_ = new Image[tWholeYNum_, tWholeXNum_];
@@ -39,9 +39,9 @@ namespace Univ.NsField
         {
           var x00 = string.Format("{0:D2}", x);
           var id = "idMapTip" + x00 + y00;
-          AppendXyIndex(x, y, weeds_[0], id);
+          AppendXyIndex(x, y, weeds[0], id);
           var id2 = "idMap2Tip" + x00 + y00;
-          backImages_[y, x] = UnivLib.ImageInstance(x * kTipXSize, y * kTipYSize, weeds_[1], id2, z: 1);
+          backImages_[y, x] = UnivLib.ImageInstance(x * kTipXSize, y * kTipYSize, weeds[1], id2, z: 1);
         }
       }
     }

@@ -99,6 +99,8 @@ namespace Univ
     {
       mainPage_.BottomTextBySequence("Field");
 
+      //string name;
+      //int tx, ty;
       Data.Basic basic = Data.Basic.Instance;
       basic.GetField(out name_, out tPosX_, out tPosY_);
 
@@ -110,10 +112,12 @@ namespace Univ
 
       // 初期化
       bg_.Run();
+      //AppendXyIndex(0, 1, obj_, "imgObj", "obj", 0);
       player_.Image = AppendXyIndex(0, 0, player_.Bitmap, "imgBox", 0);
+      //player_.SetBlockPosition(kTipXNum / 2 - 1, kTipYNum / 2 - 1);
 
       //■位置情報を決定
-      ResetPosition(tPosX_, tPosY_);
+      ResetPosition(tPosX_, tPosY_);//kTipXNum / 2 - 1, kTipYNum / 2 - 1);
 
       //フェードイン後、フレームループ開始
       frameManager_.EnterSequenceFadeIn(FrameOne);
@@ -121,7 +125,7 @@ namespace Univ
     public void OnFadeOuted(object senderDispatcherTimer, object eNull)
     {
       mainPage_.Clear();
-      Data.Basic.Instance.SetField(name_, tPosX_, tPosY_);
+      Data.Basic.Instance.SetField(ref name_, ref tPosX_, ref tPosY_);
       frameManager_.ExitSequence();
     }
     public void OnFadeOutedToMenu(object senderDispatcherTimer, object eNull)
@@ -133,31 +137,8 @@ namespace Univ
       player_.GetBlockPosition(out px, out py);
       this.tPosX_ = -rtPosX + px;
       this.tPosY_ = -rtPosY + py;
-      Data.Basic.Instance.SetField(name_, tPosX_, tPosY_);
+      Data.Basic.Instance.SetField(ref name_, ref tPosX_, ref tPosY_);
       frameManager_.EnterSequence(FrameReturn, new Menu(mainPage_, charsWritable_));
-    }
-    public void OnFade(object senderDispatcherTimer, object eNull)
-    {
-      //▲▲マップ移動処理▲▲
-      mainPage_.Clear();
-
-      Data.Basic basic = Data.Basic.Instance;
-      fieldData_ = Data.FieldData.Instance(name_);
-      bg_ = new FieldBgEx(mainPage_.GetMonitorBg(), fieldData_);
-      //obj_ = new FieldBlock("char/t5040walkt.png", monitor_);
-      player_ = new FieldBlock("char/char1p", FieldBlock.DirectionSlot.DownUp, monitor_);
-
-      // 初期化
-      bg_.Run();
-      player_.Image = AppendXyIndex(0, 0, player_.Bitmap, "imgBox", 0);
-
-      //■位置情報を決定
-      ResetPosition(tPosX_, tPosY_);
-
-      basic.SetField(fieldData_.Doors[0].toName, 0, 0);
-      whatDoing_ = WhatDoing.None;
-      //▼▼マップ移動処理▼▼
-      frameManager_.EnterSequenceFadeIn(FrameOne);
     }
     void JudgeMoving()
     {
@@ -208,6 +189,8 @@ namespace Univ
               else
                 whatDoing_ = WhatDoing.PlayerMove;
             }
+            //else
+              //whatDoing_ = WhatDoing.MapChange;
           }
           if (moveDirectionX_ == 1)
           {
@@ -245,22 +228,9 @@ namespace Univ
                 whatDoing_ = WhatDoing.PlayerMove;
             }
           }
-          foreach (Data.FieldMoveData fmd in fieldData_.Doors)
-          {
-            int toX = player_.blockX_ + moveDirectionX_;
-            int toY = player_.blockY_ + moveDirectionY_;
-            if (fmd.fromX == toX && fmd.fromY == toY)
-            {
-              name_ = fmd.toName;
-              tPosX_ = fmd.toX;
-              tPosY_ = fmd.toY;
-              whatDoing_ = WhatDoing.MapChange;
-              return;
-            }
-          }
-          //▼▼どう移動するか判定する▼▼
         }//if (existMoveOperation)
       }//if (player_moving_ == PlayerMoving.None)
+      //▼▼どう移動するか判定する▼▼
     }
     public void FrameOne(object senderDispatcherTimer, object eNull)
     {
@@ -317,10 +287,6 @@ namespace Univ
           moveStep_ = 0;
           whatDoing_ = WhatDoing.None;
         }
-      }
-      else if (whatDoing_ == WhatDoing.MapChange)
-      {
-        frameManager_.EnterSequenceFadeOut(OnFade);
       }
       //▼▼▼プレイヤー移動処理▼▼▼
 

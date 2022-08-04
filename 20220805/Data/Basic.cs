@@ -42,7 +42,7 @@ namespace Univ.Data
     public void msTime(long ms) { s_msTime = ms; }
     public long msTimePlus(long ms = 1) { s_msTime += ms; JsTrans.Assert(s_msTime >= 0, "msTime"); return s_msTime; }
 
-    public void SetField(string name, int x, int y)
+    public void SetField(ref string name, ref int x, ref int y)
     {
       s_fieldName = name;
       s_fieldX = x;
