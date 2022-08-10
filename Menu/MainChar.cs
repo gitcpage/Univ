@@ -59,10 +59,10 @@ namespace Univ.NsMenu
       right.VerticalAlignment = VerticalAlignment.Top;
       right.Margin = new Thickness(220, 5, 0, 10);
 
-      string fmt = string.Format("HP {0, 4:D1}/{1, 4:D1}", st.hp(), st.hp());
+      string fmt = string.Format("HP {0, 4:D1}/{1, 4:D1}", st.NowHp(), st.hp());
       MenuUI.RunLavel(right, 0, 0, fmt, true);
 
-      fmt = string.Format("MP {0, 4:D1}/{1, 4:D1}", st.mp(), st.mp());
+      fmt = string.Format("MP {0, 4:D1}/{1, 4:D1}", st.NowMp(), st.mp());
       MenuUI.RunLavel(right, 0, 30, fmt, true);
 
       fmt = string.Format("NEXT {0, 6:D1}", st.NeedEexperienceUntilNextLevel());

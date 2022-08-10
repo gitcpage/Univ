@@ -16,6 +16,7 @@ namespace Univ.NsBattle
   {
     Grid gParent_;
 
+    BattleData data_;
     int num_;
     Grid[] grids_;
     TextBlock[] tbs_;
@@ -25,10 +26,11 @@ namespace Univ.NsBattle
 
     BattleTargetNotify targetNotify_;
 
-    public BattleMonsters(Grid parent, BattleTargetNotify targetNotify)
+    public BattleMonsters(Grid parent, BattleTargetNotify targetNotify, BattleData data)
     {
       gParent_ = parent;
       targetNotify_ = targetNotify;
+      data_ = data;
 
       grids_ = new Grid[5];
       tbs_ = new TextBlock[5];
@@ -62,11 +64,11 @@ namespace Univ.NsBattle
     {
       for (int i = 0; i < 5; i++) adjusts_[i] = 0;
 
-      void CreateOne(int idx, int width, int x, int y, string path, string name)
+      void CreateOne(int idx, int width, int x, int y, string path)//, string name)
       {
         grids_[idx] = new Grid();
         grids_[idx].Margin = new Thickness(x, y, 0, 0);
-        images_[idx] = UnivLib.ImageInstance(0, 0, path, name);
+        images_[idx] = UnivLib.ImageInstance(0, 0, path);//, "");// name);
         images_[idx].Stretch = Stretch.Uniform;
         images_[idx].Width = width;
         grids_[idx].Children.Add(images_[idx]);
@@ -82,22 +84,30 @@ namespace Univ.NsBattle
         {
           if (atb.state == BattleAtb.State.TargetSelect)
           {
-            Target(idx, true);
+            if (data_.MonsInfo(idx).hp > 0)
+              Target(idx, true);
           }
         };
 
         gParent_.Children.Add(grids_[idx]);
       }
-      CreateOne(0, 200, 160, 110, "battle/mon1.png", "mon1");
-      CreateOne(1, 200, 160, 280, "battle/mon2.png", "mon2");
 
-      num_ = 2;
+      num_ = data_.MonsterNumber();
+      for (int i = 0; i < num_; i++)
+      {
+        Data.ConstMonsArrangement arr = data_.MonsArrangement(i);
+        CreateOne(i, data_.Monster(i).Width, arr.x, arr.y, arr.path);
+      }
+      //CreateOne(0, monss[0].Width, 160, 110, "battle/mon1.png", "mon1");
+      //CreateOne(1, monss[1].Width, 160, 280, "battle/mon2.png", "mon2");
+      //CreateOne(0, 200, 160, 110, "battle/mon1.png", "mon1");
+      //CreateOne(1, 200, 160, 280, "battle/mon2.png", "mon2");
     }
     public void ShowTarget(bool doShow = true)
     {
       if (doShow)
       {
-        target_ = 0;
+        target_ = data_.MonsFirstAlive();//0;
         Target(target_, false);
       }
       else

@@ -24,7 +24,9 @@ namespace Univ
     FrameManager frameManager_;
     Grid monitor_;   // 描画用
     Grid monitorBg_; // 背景描画用
+    bool isMouseBeforeDown;
 
+    protected BattleData data_; // 派生先でHP操作を行うことが可能。
     BattleUI ui_;
     BattleNotify battleNotify_;
     BattleCommand battleCommand_;
@@ -34,15 +36,16 @@ namespace Univ
 
     BattleMonsters monsters_;
 
-    protected BattleAtb atb_;
+    protected BattleAtb atb_; // 派生先で初期ゲージフルにすることが可能。
     BattleEffect effect_;
 
-    //Data.StatusWritable[] charsWritable_;
+    BattleUIExWindow exWindow_;
+    int sumExp_;
+    int sumGold_;
 
-    public Battle(MainPage mainPage, Data.StatusWritable[] charsWritable)
+    public Battle(MainPage mainPage, Data.StatusWritable[] charsWritable, int monsGroupId)
     {
       mainPage_ = mainPage;
-      //charsWritable_ = charsWritable;
       frameManager_ = mainPage.GetFrameManager();
       monitor_ = mainPage.GetMonitor();
       monitorBg_ = mainPage.GetMonitorBg();
@@ -51,13 +54,17 @@ namespace Univ
       commandNotify_ = new BattleCommandNotify(CommandNotify);
       targetNotify_ = new BattleTargetNotify(TargetNotify);
 
+      data_ = new BattleData(charsWritable, monsGroupId);
       ui_ = new BattleUI(monitor_, battleNotify_);
       battleCommand_ = null;
 
-      monsters_ = new BattleMonsters(monitor_, targetNotify_);
+      monsters_ = new BattleMonsters(monitor_, targetNotify_, data_);
 
       atb_ = new BattleAtb(ui_);
       effect_ = new BattleEffect();
+
+      exWindow_ = new BattleUIExWindow(monitor_);
+      sumExp_ = sumGold_ = 0;
     }
     void Notify(NotifyCode notifyCode)
     {
@@ -82,12 +89,20 @@ namespace Univ
     }
     void TargetNotify(int target)
     {
-      JsTrans.console_log("Attack: " + target.ToString());
+      //battleCommand_.Show(false);
       atb_.state = BattleAtb.State.Doing;
-      Data.Status[] dchars = Data.Status.Instances;
-      int damage = dchars[cmdChar_].atk();
+      int damage = data_.Friend(cmdChar_).atk();
+      UnitInfo info = data_.MonsInfo(target);
+      info.hp -= damage;
+      JsTrans.console_log("Atk: from("+cmdChar_+") to("+target+") " + damage + ":" + info.hp);
+      if (info.hp <= 0)
+      {
+        sumExp_ += data_.Monster(target).Exp;
+        sumGold_ += data_.Monster(target).Gold;
+      }
       //■
-      effect_.Ready(monitor_, monsters_.GetThickness(target), monsters_.GetImage(target), damage);
+      effect_.Ready(monitor_, monsters_.GetThickness(target), monsters_.GetImage(target), damage, info.hp <= 0);
+      battleCommand_.Show(false);
     }
     public virtual void Run()
     {
@@ -130,7 +145,7 @@ namespace Univ
       Grid charsGrid = BattleUI.RunUnderGrid(341, 330);
       Data.Status[] dchars = Data.Status.Instances;
       charsGrid.Children.Add(BattleUI.RunStringPanel(Data.Status.names()));
-      charsGrid.Children.Add(ui_.RunStringPanelRightAlignment(Data.Status.hpStrings(), 90, 50));
+      charsGrid.Children.Add(ui_.RunStringPanelRightAlignment(Data.Status.NowHpStrings(), 90, 50));
       underGrid.Children.Add(charsGrid);
 
       underGrid.Children.Add(ui_.RunSliderPanel(atb_));
@@ -161,6 +176,10 @@ namespace Univ
       monitor_.Children.Add(underGrid);
       //▼▼▼下のウィンドウ▼▼▼
 
+      //▲▲▲上のウィンドウ▲▲▲
+      //exWindow_.ShowTop("こころないてんし", false); //"たたかいにかった", false);
+      //▼▼▼上のウィンドウ▼▼▼
+
       atb_.state = BattleAtb.State.None;
 
       //フェードイン後、フレームループ開始
@@ -176,10 +195,26 @@ namespace Univ
       monsters_.Adjust();
       switch (atb_.state)
       {
+        case BattleAtb.State.None:
+          int charId = atb_.BarFullId();
+          if (charId >= 0)
+          {
+            atb_.state = BattleAtb.State.Command;
+            battleCommand_.Show();
+            cmdChar_ = charId;
+            ui_.SetActiveMark(charId, true);
+          }
+          else
+          {
+            atb_.Accumulate();
+          }
+          break;
+        case BattleAtb.State.Command:
+          break;
         case BattleAtb.State.TargetSelect:
           break;
         case BattleAtb.State.Doing:
-          if (effect_.EffectFrameOne())
+          if (effect_.FrameOne())
           {
             atb_.state = BattleAtb.State.Done;
           }
@@ -187,37 +222,45 @@ namespace Univ
         case BattleAtb.State.Done:
           ui_.SetActiveMark(cmdChar_, false);
           atb_.SetVarValue(cmdChar_, 0);
-          //JsTrans.console_log("State.Doing to None cmdChar:" + cmdChar);
-          atb_.state = BattleAtb.State.None;
-          battleCommand_.Show(false);
+          if (data_.MonsFirstAlive() == -1)
+          {
+            atb_.state = BattleAtb.State.Win;
+            Queue<string> ss = new Queue<string>();
+            ss.Enqueue("たたかいにかった！");
+            if (sumExp_ > 0)
+            {
+              ss.Enqueue("経験値" + sumExp_ + "かくとく！");
+            }
+            if (sumGold_ > 0)
+            {
+              ss.Enqueue(sumGold_.ToString() + "ゴールドてにいれた！");
+            }
+            exWindow_.SetTopStrings(ss);
+          }
+          else
+          {
+            atb_.state = BattleAtb.State.None;
+          }
+          break;
+        case BattleAtb.State.Win:
+          if (exWindow_.IsShowTop())
+          {
+            if (mainPage_.isMouseLDown)
+            {
+              if (!isMouseBeforeDown)
+              {
+                exWindow_.HiddenTop();
+              }
+            }
+          }
+          else
+          {
+            if (!exWindow_.NextTopStringsShow())
+              frameManager_.EnterSequenceFadeOut(OnFadeOuted);
+          }
           break;
       }
-
-      if (battleCommand_.IsShowing)
-      {
-
-      }
-      else
-      {
-        int charId = atb_.BarFullId();
-        if (charId >= 0)
-        {
-          atb_.state = BattleAtb.State.Command;
-          battleCommand_.Show();
-          cmdChar_ = charId;
-          ui_.SetActiveMark(charId, true);
-        }
-        else
-        {
-          atb_.Accumulate();
-        }
-      }
-
-      // スペースキーで戻る
-      if (frameManager_.IsKeyDownFirst(VirtualKey.Space))
-      {
-        frameManager_.EnterSequenceFadeOut(OnFadeOuted);
-      }
+      isMouseBeforeDown = mainPage_.isMouseLDown;
     }
   }
 }

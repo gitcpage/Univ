@@ -57,7 +57,7 @@ namespace Univ
     }
 
     static public Image ImageInstance(int x, int y, BitmapImage bitmapImage,
-      string name, int z = 0, string tag = "")
+      string name, int z = 0/*, string tag = ""*/)
     {
       Image image = new Image();
       image.Source = bitmapImage;
@@ -66,25 +66,25 @@ namespace Univ
       image.HorizontalAlignment = HorizontalAlignment.Left;
       image.VerticalAlignment = VerticalAlignment.Top;
       image.Stretch = Stretch.None;
-      image.Tag = tag;
+      //image.Tag = tag;
       if (z != 0)
         Canvas.SetZIndex(image, z);
       return image;
     }
     static public Image ImageInstance(BitmapImage bitmapImage,
-      string name, int z = 0, string tag = "")
+      string name, int z = 0/*, string tag = ""*/)
     {
-      return ImageInstance(0, 0, bitmapImage, name, z, tag);
+      return ImageInstance(0, 0, bitmapImage, name, z/*, tag*/);
     }
     static public Image ImageInstance(int x, int y, string path,
-      string name, int z = 0, string tag = "")
+      string name = "", int z = 0/*, string tag = ""*/)
     {
-      return ImageInstance(x, y, BitmapImageFromAssets(path), name, z, tag);
+      return ImageInstance(x, y, BitmapImageFromAssets(path), name, z/*, tag*/);
     }
     static public Image ImageInstance(string path,
-      string name, int z = 0, string tag = "")
+      string name, int z = 0/*, string tag = ""*/)
     {
-      return ImageInstance(0, 0, BitmapImageFromAssets(path), name, z, tag);
+      return ImageInstance(0, 0, BitmapImageFromAssets(path), name, z/*, tag*/);
     }
     static public FontWeight FontWeightBold(bool b = true)
     {

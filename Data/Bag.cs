@@ -8,15 +8,6 @@ namespace Univ.Data
 {
   internal class Bag
   {
-    Bag(int weaponsNum, int bodyNum, int headNum, int armNum, int exteriorNum, int accessoryNum)
-    {
-      s_weapons = new int[weaponsNum];
-      s_body = new int[bodyNum];
-      s_head = new int[headNum];
-      s_arm = new int[armNum];
-      s_exterior = new int[exteriorNum];
-      s_accessory = new int[accessoryNum];
-    }
     static int[] s_weapons;
     static int[] s_body;
     static int[] s_head;
@@ -24,9 +15,23 @@ namespace Univ.Data
     static int[] s_exterior;
     static int[] s_accessory;
 
-    public int wepons(int id) { return s_weapons[id]; }
-    public void wepons(int id, int num) { s_weapons[id] = num; }
-    public int weponsPlus(int id, int num = 1) { s_weapons[id] += num; JsTrans.Assert(s_weapons[id]>=0,"wepons"); return s_weapons[id]; }
+    static int[] s_item;
+    Bag(int weaponsNum, int bodyNum, int headNum, int armNum, int exteriorNum, int accessoryNum, int itemNum)
+    {
+      s_weapons = new int[weaponsNum];
+      s_body = new int[bodyNum];
+      s_head = new int[headNum];
+      s_arm = new int[armNum];
+      s_exterior = new int[exteriorNum];
+      s_accessory = new int[accessoryNum];
+
+      s_item = new int[itemNum];
+    }
+
+    //△△△装備△△△
+    public int weapons(int id) { return s_weapons[id]; }
+    public void weapons(int id, int num) { s_weapons[id] = num; }
+    public int weaponsPlus(int id, int num = 1) { s_weapons[id] += num; JsTrans.Assert(s_weapons[id]>=0,"wepons"); return s_weapons[id]; }
     public int body(int id) { return s_body[id]; }
     public void body(int id, int num) { s_body[id] = num; }
     public int bodyPlus(int id, int num = 1) { s_body[id] += num; JsTrans.Assert(s_body[id] >= 0, "body"); return s_body[id]; }
@@ -46,7 +51,7 @@ namespace Univ.Data
     {
       switch (equipCategory)
       {
-        case EquipCategory.Weapon: return wepons(id);
+        case EquipCategory.Weapon: return weapons(id);
         case EquipCategory.Body: return body(id);
         case EquipCategory.Head: return head(id);
         case EquipCategory.Arm: return arm(id);
@@ -61,7 +66,7 @@ namespace Univ.Data
     {
       switch (equipCategory)
       {
-        case EquipCategory.Weapon: return weponsPlus(id, num);
+        case EquipCategory.Weapon: return weaponsPlus(id, num);
         case EquipCategory.Body: return bodyPlus(id, num);
         case EquipCategory.Head: return headPlus(id, num);
         case EquipCategory.Arm: return armPlus(id, num);
@@ -102,6 +107,13 @@ namespace Univ.Data
           return null;
       }
     }
+    //▽▽▽装備▽▽▽
+
+    //△△△アイテム△△△
+    public int item(int id) { return s_item[id]; }
+    public void item(int id, int num) { s_item[id] = num; }
+    public int itemPlus(int id, int num = 1) { s_item[id] += num; JsTrans.Assert(s_item[id] >= 0, "item"); return s_item[id]; }
+    //▽▽▽アイテム▽▽▽
 
     static private Bag instance = null;
     static public Bag Instance
@@ -115,11 +127,11 @@ namespace Univ.Data
         return instance;
       }
     }
-    static public Bag Setup(int weaponsNum, int bodyNum, int headNum, int armNum, int exteriorNum, int accessoryNum)
+    static public Bag Setup(int weaponsNum, int bodyNum, int headNum, int armNum, int exteriorNum, int accessoryNum, int itemNum)
     {
       if (instance == null)
       {
-        return instance = new Bag(weaponsNum, bodyNum, headNum, armNum, exteriorNum, accessoryNum);
+        return instance = new Bag(weaponsNum, bodyNum, headNum, armNum, exteriorNum, accessoryNum, itemNum);
       }
       return null;
       //JsTrans.window_close("セットアップ済みなのに Bag.Setup() が呼び出されました。");

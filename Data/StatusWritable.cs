@@ -36,24 +36,47 @@ namespace Univ.Data
     public void PlusLight(int light) { light_ += light; }
     public void dark(int dark) { dark_ = dark; }
     public void PlusDark(int dark) { dark_ += dark; }
+    public void NowHp(int hp)
+    { nowHp_ = hp; }
+    public void PlusNowHp(int hp)
+    {
+      nowHp_ += hp;
+      if (nowHp_ > hp_) nowHp_ = hp;
+    }
+    public void NowMp(int mp)
+    { nowMp_ = mp; }
+    public void PlusNowMp(int mp)
+    {
+      nowMp_ += mp;
+      if (nowMp_ > mp_) nowMp_ = mp;
+    }
+    public void Heal(int hp, int mp = 0)
+    {
+      PlusNowHp(hp);
+      PlusNowMp(mp);
+    }
+    public void Heal()
+    {
+      Heal(99999, 99999);
+    }
 
     public void Level(int level)
     {
       level_ = level;
       int l = level + 2;
-      hp_ = l * this.unique.hp / 101;
-      mp_ = l * this.unique.mp / 101;
-      atk_ = l * this.unique.atk / 101;
-      def_ = l * this.unique.def / 101;
-      matk_ = l * this.unique.matk / 101;
-      mdef_ = l * this.unique.mdef / 101;
-      spd_ = l * this.unique.spd / 101;
-      fire_ = l * this.unique.fire / 101;
-      water_ = l * this.unique.water / 101;
-      wind_ = l * this.unique.wind / 101;
-      earth_ = l * this.unique.earth / 101;
-      light_ = l * this.unique.light / 101;
-      dark_ = l * this.unique.dark / 101;
+      hp_ = l * this.unique.hp() / 101;
+      mp_ = l * this.unique.mp() / 101;
+      atk_ = l * this.unique.atk() / 101;
+      def_ = l * this.unique.def() / 101;
+      matk_ = l * this.unique.matk() / 101;
+      mdef_ = l * this.unique.mdef() / 101;
+      spd_ = l * this.unique.spd() / 101;
+      fire_ = l * this.unique.fire() / 101;
+      water_ = l * this.unique.water() / 101;
+      wind_ = l * this.unique.wind() / 101;
+      earth_ = l * this.unique.earth() / 101;
+      light_ = l * this.unique.light() / 101;
+      dark_ = l * this.unique.dark() / 101;
     }
     public void ResetStatus()
     {
@@ -61,19 +84,19 @@ namespace Univ.Data
 
       void eq(ConstStatus cs)
       {
-        PlusHp(cs.hp);
-        PlusMp(cs.mp);
-        PlusAtk(cs.atk);
-        PlusDef(cs.def);
-        PlusMAtk(cs.matk);
-        PlusMDef(cs.mdef);
-        PlusSpd(cs.spd);
-        PlusFire(cs.fire);
-        PlusWater(cs.water);
-        PlusWind(cs.wind);
-        PlusEarth(cs.earth);
-        PlusLight(cs.light);
-        PlusDark(cs.dark);
+        PlusHp(cs.hp());
+        PlusMp(cs.mp());
+        PlusAtk(cs.atk());
+        PlusDef(cs.def());
+        PlusMAtk(cs.matk());
+        PlusMDef(cs.mdef());
+        PlusSpd(cs.spd());
+        PlusFire(cs.fire());
+        PlusWater(cs.water());
+        PlusWind(cs.wind());
+        PlusEarth(cs.earth());
+        PlusLight(cs.light());
+        PlusDark(cs.dark());
       }
 
       Loader l = Loader.Instance;
@@ -130,7 +153,8 @@ namespace Univ.Data
     {
       return level_.ToString() + "," + experience_.ToString() + "," + idWeapon.ToString() + "," +
         idBody.ToString() + "," + idHead.ToString() + "," + idArm.ToString() + "," +
-        idExterior.ToString() + "," + idAccessory.ToString();
+        idExterior.ToString() + "," + idAccessory.ToString() + "," +
+        nowHp_.ToString() + "," + nowMp_.ToString();
     }
     public void Load(string text)
     {
@@ -143,6 +167,8 @@ namespace Univ.Data
       idArm = int.Parse(ss[5]);
       idExterior = int.Parse(ss[6]);
       idAccessory = int.Parse(ss[7]);
+      nowHp_ = int.Parse(ss[8]);
+      nowMp_ = int.Parse(ss[9]);
     }
 
 
@@ -167,7 +193,7 @@ namespace Univ.Data
         for (int i = 0; i < instanceNumber; i++)
         {
           StatusWritable sw = new StatusWritable(uniques[i]);
-          sw.name(uniques[i].name);
+          sw.name(uniques[i].name());
           s_instances[i] = sw;
         }
       }

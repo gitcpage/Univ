@@ -32,7 +32,7 @@ namespace Univ
     public void FrameOne(object senderDispatcherTimer, object eNull)
     {
       // スペースキーで戻る
-      if (Data.Loader.LoadingState_ == Data.LoadingState.Loaded)
+      if (Data.Loader.loadingState == Data.LoadingState.Loaded)
       {
         frameManager_.ExitSequence();
       }

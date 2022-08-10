@@ -6,60 +6,82 @@ using System.Threading.Tasks;
 
 namespace Univ.Data
 {
+  // ConstStatus には名前に「Const」とついているが、
+  // 継承することによりフィールドを変更することができる。
+  // Statusクラスに継承し、コードの重複を減らす。
   internal class ConstStatus
   {
-    public  string name;
-    public readonly int hp;
-    public readonly int mp;
-    public readonly int atk;
-    public readonly int def;
-    public readonly int matk;
-    public readonly int mdef;
-    public readonly int spd;
-    public readonly int fire;
-    public readonly int water;
-    public readonly int wind;
-    public readonly int earth;
-    public readonly int light;
-    public readonly int dark;
-    public ConstStatus(string s)
+    protected string name_;
+    protected int hp_;
+    protected int mp_;
+    protected int atk_;
+    protected int def_;
+    protected int matk_;
+    protected int mdef_;
+    protected int spd_;
+    protected int fire_;
+    protected int water_;
+    protected int wind_;
+    protected int earth_;
+    protected int light_;
+    protected int dark_;
+
+    public string name() { return name_; }
+    public int hp() { return hp_; }
+    public int mp() { return mp_; }
+    public int atk() { return atk_; }
+    public int def() { return def_; }
+    public int matk() { return matk_; }
+    public int mdef() { return mdef_; }
+    public int spd() { return spd_; }
+    public int fire() { return fire_; }
+    public int water() { return water_; }
+    public int wind() { return wind_; }
+    public int earth() { return earth_; }
+    public int light() { return light_; }
+    public int dark() { return dark_; }
+
+
+    public ConstStatus(string text)
     {
-      string[] dem = new string[1];
-      dem[0] = "\t";
-      string[] items = s.Split(dem, StringSplitOptions.RemoveEmptyEntries);
+      string[] items = text.Split("\t", StringSplitOptions.RemoveEmptyEntries);
       JsTrans.Assert(items.Length == 14, "s of 'ConstStatus(string s)' split tab is not 14 items.");
-      this.name = items[0];
-      this.hp = int.Parse(items[1]);
-      this.mp = int.Parse(items[2]);
-      this.atk = int.Parse(items[3]);
-      this.def = int.Parse(items[4]);
-      this.matk = int.Parse(items[5]);
-      this.mdef = int.Parse(items[6]);
-      this.spd = int.Parse(items[7]);
-      this.fire = int.Parse(items[8]);
-      this.water = int.Parse(items[9]);
-      this.wind = int.Parse(items[10]);
-      this.earth = int.Parse(items[11]);
-      this.light = int.Parse(items[12]);
-      this.dark = int.Parse(items[13]);
+      this.name_ = items[0];
+      this.hp_ = int.Parse(items[1]);
+      this.mp_ = int.Parse(items[2]);
+      this.atk_ = int.Parse(items[3]);
+      this.def_ = int.Parse(items[4]);
+      this.matk_ = int.Parse(items[5]);
+      this.mdef_ = int.Parse(items[6]);
+      this.spd_ = int.Parse(items[7]);
+      this.fire_ = int.Parse(items[8]);
+      this.water_ = int.Parse(items[9]);
+      this.wind_ = int.Parse(items[10]);
+      this.earth_ = int.Parse(items[11]);
+      this.light_ = int.Parse(items[12]);
+      this.dark_ = int.Parse(items[13]);
     }
-    public ConstStatus(string name, int hp, int mp, int atk, int def, int matk, int mdef, int spd,
-      int fire = 0, int water = 0, int wind = 0, int earth = 0, int light = 0, int dark = 0)
+    // ConstStatusMonsクラスの継承元として使われたときのコンストラクタ。
+    protected ConstStatus(string text, int protectedUse)
     {
-      this.name = name;
-      this.hp = hp;
-      this.mp = mp;
-      this.atk = atk;
-      this.def = def;
-      this.matk = matk;
-      this.mdef = mdef;
-      this.spd = spd;
-      this.fire = fire;
-      this.water = water;
-      this.wind = wind;
-      this.earth = earth;
-      this.light = light;
-      this.dark = dark;
+      string[] items = text.Split("\t", StringSplitOptions.RemoveEmptyEntries);
+      JsTrans.Assert(items.Length >= 14, "s of 'ConstStatus(string s)' split tab is less 14 items.");
+      this.name_ = items[0];
+      this.hp_ = int.Parse(items[1]);
+      this.mp_ = int.Parse(items[2]);
+      this.atk_ = int.Parse(items[3]);
+      this.def_ = int.Parse(items[4]);
+      this.matk_ = int.Parse(items[5]);
+      this.mdef_ = int.Parse(items[6]);
+      this.spd_ = int.Parse(items[7]);
+      this.fire_ = int.Parse(items[8]);
+      this.water_ = int.Parse(items[9]);
+      this.wind_ = int.Parse(items[10]);
+      this.earth_ = int.Parse(items[11]);
+      this.light_ = int.Parse(items[12]);
+      this.dark_ = int.Parse(items[13]);
     }
+    // Statusクラスの継承元として使われたときのコンストラクタ。
+    protected ConstStatus() { }
   }
 }

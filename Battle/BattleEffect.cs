@@ -24,7 +24,7 @@ namespace Univ.NsBattle
     //▼▼▼Effect▼▼▼
 
     //▲▲▲Damage▲▲▲
-    int damageCount;
+    int damageCount_;
     TextBlock tb_;
     Border bdr_;
     int damageSpan_;
@@ -32,11 +32,21 @@ namespace Univ.NsBattle
     double ty_;
     //▼▼▼Damage▼▼▼
 
+    //▲▲▲Dead▲▲▲
+    bool isDead_;
+    Image image_;
+    int deadCount_;
+    int deadSpan_;
+    //▼▼▼Dead▼▼▼
+
+    enum Step { Effect, Damage, Dead, End }
+    Step step_;
+
     public BattleEffect()
     {
 
     }
-    public void Ready(Grid parent, Thickness thickness, Image image, int damage)
+    public void Ready(Grid parent, Thickness thickness, Image image, int damage, bool isDead)
     {
       //▲▲▲Effect▲▲▲
       double ox = thickness.Left + image.Width / 2;
@@ -77,12 +87,11 @@ namespace Univ.NsBattle
       //▼▼▼Effect▼▼▼
 
       //▲▲▲Damage▲▲▲
-      damageCount = 0;
+      damageCount_ = 0;
       ty_ = thickness.Top + image.ActualHeight;
 
       bdr_ = new Border();
-      bdr_.Margin = new Thickness(sx_, 0, 0, 0);//ex_, ty_);//100, 100, 300, 300);//sx_, 0, ex_, ty_);
-      //bdr_.Margin = new Thickness(100, 100, 300, 300);//sx_, 0, ex_, ty_);
+      bdr_.Margin = new Thickness(sx_, 0, 0, 0);
       bdr_.Width = 100;// ex_ - sx_;
       bdr_.Height = ty_;
       bdr_.HorizontalAlignment = HorizontalAlignment.Left;
@@ -97,47 +106,99 @@ namespace Univ.NsBattle
       tb_.HorizontalAlignment = HorizontalAlignment.Center;
       tb_.TextAlignment = TextAlignment.Center;
       tb_.HorizontalTextAlignment = TextAlignment.Center;
-      /*ty_ = thickness.Top + image.ActualHeight;
-      tb_.Margin = new Thickness(sx_, 0, 0, 0);//ex_, ty_);//100, 100, 300, 300);//sx_, 0, ex_, ty_);
-      tb_.Width = ex_ - sx_;
-      tb_.Height = ty_;*/
-      //tb_.Text = "123456";
       tb_.Foreground = UnivLib.GetBrush(Colors.White);
       bdr_.Child = tb_;
-      //bdr_.Background = UnivLib.GetBrush(Colors.Green);
       damageSpan_ = 15;
-      //damageSpanHalf_ = damageSpan_ / 2;
       //▼▼▼Damage▼▼▼
+
+      //▲▲▲Dead▲▲▲
+      isDead_ = isDead;
+      image_ = image;
+      deadCount_ = 0;
+      deadSpan_ = 10;
+      //▼▼▼Dead▼▼▼
+
+      step_ = Step.Effect;
     }
-    bool DamageFrameOne()
+    void EffectFrameOne()
     {
-      if (damageCount == 0)
+      if (effectCount_ == effectSpan_)
+      {
+        parent_.Children.Remove(canvas_);
+        effectCount_++;
+        step_ = Step.Damage;
+      }
+      if (effectCount_ <= effectSpanHalf_)
+      {
+        line_.X1 = sx_;
+        line_.Y1 = sy_;
+        line_.X2 = sx_ + effectCount_ * dx_ / effectSpanHalf_;
+        line_.Y2 = sy_ + effectCount_ * dy_ / effectSpanHalf_;
+      }
+      else
+      {
+        line_.X1 = sx_ + (effectCount_ - effectSpanHalf_) * dx_ / effectSpanHalf_;
+        line_.Y1 = sy_ + (effectCount_ - effectSpanHalf_) * dy_ / effectSpanHalf_;
+        line_.X2 = ex_;
+        line_.Y2 = ey_;
+      }
+      effectCount_++;
+    }
+    void DamageFrameOne()
+    {
+      const int kStepDelta = 5;
+      int kDivide3 = damageSpan_ / 3;
+
+      if (damageCount_ == 0)
       {
         parent_.Children.Add(bdr_);
       }
-      else if (damageCount == damageSpan_)
+      else if (damageCount_ == damageSpan_)
       {
         parent_.Children.Remove(bdr_);
-        return true;
+        step_ = isDead_ ? Step.Dead : Step.End;
       }
-      else if (damageCount < damageSpan_ / 3)
+      else if (damageCount_ < kDivide3)
       {
-        bdr_.Height = ty_ - damageCount * 5;
+        bdr_.Height = ty_ - damageCount_ * kStepDelta;
       }
-      else if (damageCount < damageSpan_ * 2 / 3)
+      else if (damageCount_ < damageSpan_ * 2 / 3)
       {
-        bdr_.Height = ty_ - damageSpan_ / 3 * 5 + (damageCount - damageSpan_ / 3) * 5;
+        bdr_.Height = ty_ - kDivide3 * kStepDelta + (damageCount_ - kDivide3) * kStepDelta;
       }
       else
       {
         bdr_.Height = ty_;
       }
-      damageCount++;
-      return false;
+      damageCount_++;
     }
-    public bool EffectFrameOne()
+    void DeadFrameOne()
     {
-      if (effectCount_ == effectSpan_)
+      deadCount_++;
+      image_.Opacity = (deadSpan_ - deadCount_) / (double)deadSpan_;
+      if (deadCount_ >= deadSpan_) step_ = Step.End;
+    }
+    public bool FrameOne()
+    {
+      switch (step_)
+      {
+        case Step.Effect:
+          EffectFrameOne();
+          break;
+        case Step.Damage:
+          DamageFrameOne();
+          break;
+        case Step.Dead:
+          DeadFrameOne();
+          break;
+        case Step.End:
+          return true;
+        default:
+          JsTrans.Assert("BattkeEffect.cs FrameOne()");
+          break;
+      }
+      return false;
+      /*if (effectCount_ == effectSpan_)
       {
         parent_.Children.Remove(canvas_);
         effectCount_++;
@@ -163,7 +224,7 @@ namespace Univ.NsBattle
         line_.Y2 = ey_;
       }
       effectCount_++;
-      return false;
+      return false;*/
     }
   }
 }

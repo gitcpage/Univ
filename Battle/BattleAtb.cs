@@ -10,7 +10,7 @@ namespace Univ.NsBattle
   {
     public enum State
     {
-      None, Command, TargetSelect, Doing, Done
+      None, Command, TargetSelect, Doing, Done, Win, Lose
     }
 
     public const int kBarFullValue = 1000;

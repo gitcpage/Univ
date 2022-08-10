@@ -1,59 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Univ.Data
 {
-  internal class Status
+  internal class Status : ConstStatus
   {
-    // データ要素と読み込みアクセサ
-    protected string name_;
-    public string name() { return name_; }
-    static public string[] names()
-    {
-      string[] names = new string[s_num];
-      for (int i = 0; i < names.Length; i++)
-        names[i] = s_instances[i].name_;
-      return names;
-    }
+    protected int nowHp_;
+    protected int nowMp_;
+    public int NowHp()
+      { return nowHp_; }
+    public int NowMp()
+      { return nowMp_; }
 
-    protected int hp_;
-    public int hp() { return hp_; }
     public string hpStr() { return hp_.ToString(); }
-    static public string[] hpStrings()
-    {
-      string[] hps = new string[s_num];
-      for (int i = 0; i < hps.Length; i++)
-        hps[i] = s_instances[i].hp_.ToString();
-      return hps;
-    }
-
-    protected int mp_;
-    public int mp() { return mp_; }
-    protected int atk_;
-    public int atk() { return atk_; }
-    protected int def_;
-    public int def() { return def_; }
-    protected int matk_;
-    public int matk() { return matk_; }
-    protected int mdef_;
-    public int mdef() { return mdef_; }
-    protected int spd_;
-    public int spd() { return spd_; }
-    protected int fire_;
-    public int fire() { return fire_; }
-    protected int water_;
-    public int water() { return water_; }
-    protected int wind_;
-    public int wind() { return wind_; }
-    protected int earth_;
-    public int earth() { return earth_; }
-    protected int light_;
-    public int light() { return light_; }
-    protected int dark_;
-    public int dark() { return dark_; }
 
     protected int level_;
     public int level() { return level_; }
@@ -101,50 +58,50 @@ namespace Univ.Data
     public int[] Hp_Spd(ConstStatus plus)
     {
       int[] ss = new int[7];
-      ss[0] = hp() + plus.hp;
-      ss[1] = mp() + plus.mp;
-      ss[2] = atk() + plus.atk;
-      ss[3] = def() + plus.def;
-      ss[4] = matk() + plus.matk;
-      ss[5] = mdef() + plus.mdef;
-      ss[6] = spd() + plus.spd;
+      ss[0] = hp() + plus.hp();
+      ss[1] = mp() + plus.mp();
+      ss[2] = atk() + plus.atk();
+      ss[3] = def() + plus.def();
+      ss[4] = matk() + plus.matk();
+      ss[5] = mdef() + plus.mdef();
+      ss[6] = spd() + plus.spd();
       return ss;
     }
     public int[] Hp_SpdWithMinus(ConstStatus minus)
     {
       int[] ss = new int[7];
-      ss[0] = hp() - minus.hp;
-      ss[1] = mp() - minus.mp;
-      ss[2] = atk() - minus.atk;
-      ss[3] = def() - minus.def;
-      ss[4] = matk() - minus.matk;
-      ss[5] = mdef() - minus.mdef;
-      ss[6] = spd() - minus.spd;
+      ss[0] = hp() - minus.hp();
+      ss[1] = mp() - minus.mp();
+      ss[2] = atk() - minus.atk();
+      ss[3] = def() - minus.def();
+      ss[4] = matk() - minus.matk();
+      ss[5] = mdef() - minus.mdef();
+      ss[6] = spd() - minus.spd();
       return ss;
     }
     public int[] Hp_Spd(ConstStatus plus, ConstStatus minus)
     {
       int[] ss = new int[7];
-      ss[0] = hp() + plus.hp - minus.hp;
-      ss[1] = mp() + plus.mp - minus.mp;
-      ss[2] = atk() + plus.atk - minus.atk;
-      ss[3] = def() + plus.def - minus.def;
-      ss[4] = matk() + plus.matk - minus.matk;
-      ss[5] = mdef() + plus.mdef - minus.mdef;
-      ss[6] = spd() + plus.spd - minus.spd;
+      ss[0] = hp() + plus.hp() - minus.hp();
+      ss[1] = mp() + plus.mp() - minus.mp();
+      ss[2] = atk() + plus.atk() - minus.atk();
+      ss[3] = def() + plus.def() - minus.def();
+      ss[4] = matk() + plus.matk() - minus.matk();
+      ss[5] = mdef() + plus.mdef() - minus.mdef();
+      ss[6] = spd() + plus.spd() - minus.spd();
       return ss;
     }
     public string[] Hp_SpdBareStrings()
     {
       string[] ss = new string[7];
       int l = level_ + 2;
-      ss[0] = (l * this.unique.hp / 101).ToString();
-      ss[1] = (l * this.unique.mp / 101).ToString();
-      ss[2] = (l * this.unique.atk / 101).ToString();
-      ss[3] = (l * this.unique.def / 101).ToString();
-      ss[4] = (l * this.unique.matk / 101).ToString();
-      ss[5] = (l * this.unique.mdef / 101).ToString();
-      ss[6] = (l * this.unique.spd / 101).ToString();
+      ss[0] = (l * this.unique.hp() / 101).ToString();
+      ss[1] = (l * this.unique.mp() / 101).ToString();
+      ss[2] = (l * this.unique.atk() / 101).ToString();
+      ss[3] = (l * this.unique.def() / 101).ToString();
+      ss[4] = (l * this.unique.matk() / 101).ToString();
+      ss[5] = (l * this.unique.mdef() / 101).ToString();
+      ss[6] = (l * this.unique.spd() / 101).ToString();
       return ss;
     }
     
@@ -162,50 +119,50 @@ namespace Univ.Data
     public int[] Fire_Dark(ConstStatus plus)
     {
       int[] ss = new int[6];
-      ss[0] = fire() + plus.fire;
-      ss[1] = water() + plus.water;
-      ss[2] = wind() + plus.wind;
-      ss[3] = earth() + plus.earth;
-      ss[4] = light() + plus.light;
-      ss[5] = dark() + plus.dark;
+      ss[0] = fire() + plus.fire();
+      ss[1] = water() + plus.water();
+      ss[2] = wind() + plus.wind();
+      ss[3] = earth() + plus.earth();
+      ss[4] = light() + plus.light();
+      ss[5] = dark() + plus.dark();
       return ss;
     }
     public int[] Fire_DarkWithMinus(ConstStatus minus)
     {
       int[] ss = new int[6];
-      ss[0] = fire() - minus.fire;
-      ss[1] = water() - minus.water;
-      ss[2] = wind() - minus.wind;
-      ss[3] = earth() - minus.earth;
-      ss[4] = light() - minus.light;
-      ss[5] = dark() - minus.dark;
+      ss[0] = fire() - minus.fire();
+      ss[1] = water() - minus.water();
+      ss[2] = wind() - minus.wind();
+      ss[3] = earth() - minus.earth();
+      ss[4] = light() - minus.light();
+      ss[5] = dark() - minus.dark();
       return ss;
     }
     public int[] Fire_Dark(ConstStatus plus, ConstStatus minus)
     {
       int[] ss = new int[6];
-      ss[0] = fire() + plus.fire - minus.fire;
-      ss[1] = water() + plus.water - minus.water;
-      ss[2] = wind() + plus.wind - minus.wind;
-      ss[3] = earth() + plus.earth - minus.earth;
-      ss[4] = light() + plus.light - minus.light;
-      ss[5] = dark() + plus.dark - minus.dark;
+      ss[0] = fire() + plus.fire() - minus.fire();
+      ss[1] = water() + plus.water() - minus.water();
+      ss[2] = wind() + plus.wind() - minus.wind();
+      ss[3] = earth() + plus.earth() - minus.earth();
+      ss[4] = light() + plus.light() - minus.light();
+      ss[5] = dark() + plus.dark() - minus.dark();
       return ss;
     }
     public string[] Fire_DarkBareStrings()
     {
       string[] ss = new string[6];
       int l = level_ + 2;
-      ss[0] = (l * this.unique.fire / 101).ToString();
-      ss[1] = (l * this.unique.water / 101).ToString();
-      ss[2] = (l * this.unique.wind / 101).ToString();
-      ss[3] = (l * this.unique.earth / 101).ToString();
-      ss[4] = (l * this.unique.light / 101).ToString();
-      ss[5] = (l * this.unique.dark / 101).ToString();
+      ss[0] = (l * this.unique.fire() / 101).ToString();
+      ss[1] = (l * this.unique.water() / 101).ToString();
+      ss[2] = (l * this.unique.wind() / 101).ToString();
+      ss[3] = (l * this.unique.earth() / 101).ToString();
+      ss[4] = (l * this.unique.light() / 101).ToString();
+      ss[5] = (l * this.unique.dark() / 101).ToString();
       return ss;
     }
 
-    // ▲▲▲装備▲▲▲
+    // △△△装備△△△
     // キャラクター固有ステータスは値で保持。
     protected ConstStatus unique;
 
@@ -222,12 +179,12 @@ namespace Univ.Data
       string[] ss = { "-", "-", "-", "-", "-", "-" };
       Loader l = Loader.Instance;
 
-      if (idWeapon != -1) ss[0] = l.weapons[idWeapon].name;
-      if (idBody != -1) ss[1] = l.body[idBody].name;
-      if (idHead != -1) ss[2] = l.head[idHead].name;
-      if (idArm != -1) ss[3] = l.arm[idArm].name;
-      if (idExterior != -1) ss[4] = l.exterior[idExterior].name;
-      if (idAccessory != -1) ss[5] = l.accessory[idAccessory].name;
+      if (idWeapon != -1) ss[0] = l.weapons[idWeapon].name();
+      if (idBody != -1) ss[1] = l.body[idBody].name();
+      if (idHead != -1) ss[2] = l.head[idHead].name();
+      if (idArm != -1) ss[3] = l.arm[idArm].name();
+      if (idExterior != -1) ss[4] = l.exterior[idExterior].name();
+      if (idAccessory != -1) ss[5] = l.accessory[idAccessory].name();
 
       return ss;
     }
@@ -245,14 +202,38 @@ namespace Univ.Data
       JsTrans.Assert("Status.cs EquipId");
       return -1;
     }
-    // ▼▼▼装備▼▼▼
+    // ▽▽▽装備▽▽▽
 
-    // ▲▲▲基底クラス シングルトンパターン▲▲▲
+    // △△△基底クラス シングルトンパターン△△△
     protected Status() { }
     static protected Status[] s_instances;
     static protected int s_num = 0;
     static public int Num { get { return s_num; } }
     static public Status[] Instances { get { return s_instances; } }
-    // ▼▼▼基底クラス シングルトンパターン▼▼▼
+    // ▽▽▽基底クラス シングルトンパターン▽▽▽
+
+    // △△△string[]を生成する静的メソッド△△△
+    static public string[] names()
+    {
+      string[] names = new string[s_num];
+      for (int i = 0; i < names.Length; i++)
+        names[i] = s_instances[i].name_;
+      return names;
+    }
+    static public string[] hpStrings()
+    {
+      string[] hps = new string[s_num];
+      for (int i = 0; i < hps.Length; i++)
+        hps[i] = s_instances[i].hp_.ToString();
+      return hps;
+    }
+    static public string[] NowHpStrings()
+    {
+      string[] hps = new string[s_num];
+      for (int i = 0; i < hps.Length; i++)
+        hps[i] = s_instances[i].nowHp_.ToString();
+      return hps;
+    }
+    // ▽▽▽string[]を生成する静的メソッド▽▽▽
   }
 }

@@ -31,6 +31,9 @@ namespace Univ.Data
     public readonly StatusWritable[] chars;
 
     public readonly FieldData[] fieldData;
+    public readonly ConstStatusMons[] monsData;
+    public readonly ConstMonsGroups[] monsGroupsData;
+    public readonly ConstItem[] itemData;
 
     public ConstStatus[] EquipArray(EquipCategory equipCategory)
     {
@@ -49,19 +52,22 @@ namespace Univ.Data
     }
 
     // △△△ロード関連△△△
-    static string kConstDataOfSetup = "";
-    static string kFieldDataOfSetup = "";
+    static string kCStatusDataOfSetup = "";
+    static string kCFieldDataOfSetup = "";
+    static string kCMonsDataOfSetup = "";
+    static string kCMonsGroupsDataOfSetup = "";
+    static string kCItemDataOfSetup = "";
 
     // 以下３つの静的文字列はセーブ後のロードに使われるので、セーブ時に上書きする。
     static string SaveBagDataOfSetup = "";
     static string SaveBasicDataOfSetup = "";
     static string SaveCharsDataOfSetup = "";
 
-    static public LoadingState LoadingState_ { get; private set; } = LoadingState.None;
+    static public LoadingState loadingState { get; private set; } = LoadingState.None;
     static public bool isSaveComplete = false;
     static public void UpdateLoadingState(LoadingState next)
     {
-      LoadingState_ = DataEnum.UpdateLoadingState(LoadingState_, next);
+      loadingState = DataEnum.UpdateLoadingState(loadingState, next);
     }
     static public void Load()
     {
@@ -69,13 +75,29 @@ namespace Univ.Data
       async void LoadBody()
       {
         //▲▲▲固定データ▲▲▲
-        // kConstDataOfSetup
-        StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Const.txt"));
-        kConstDataOfSetup = await FileIO.ReadTextAsync(file);
+        // kCStatusDataOfSetup
+        StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///CStatus.txt"));
+        kCStatusDataOfSetup = await FileIO.ReadTextAsync(file);
 
-        // kFieldDataOfSetup
-        file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Field.txt"));
-        kFieldDataOfSetup = await FileIO.ReadTextAsync(file);
+        // kCFieldDataOfSetup
+        file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///CField.txt"));
+        kCFieldDataOfSetup = await FileIO.ReadTextAsync(file);
+
+        //kCMonsDataOfSetup
+        file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///CMons.txt"));
+        kCMonsDataOfSetup = await FileIO.ReadTextAsync(file);
+
+        //kCMonsDataOfSetup
+        file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///CMons.txt"));
+        kCMonsDataOfSetup = await FileIO.ReadTextAsync(file);
+
+        //kCMonsGroupDataOfSetup
+        file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///CMonsGroup.txt"));
+        kCMonsGroupsDataOfSetup = await FileIO.ReadTextAsync(file);
+
+        //kCItemDataOfSetup
+        file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///CItem.txt"));
+        kCItemDataOfSetup = await FileIO.ReadTextAsync(file);
         //▼▼▼固定データ▼▼▼
 
         //▲▲▲流動データ▲▲▲
@@ -115,13 +137,14 @@ namespace Univ.Data
       }
       // ▼▼▼持ち物の初期化▼▼▼
 
-      // ▲▲▲キャラクターの装備を初期化▲▲▲
+      // ▲▲▲キャラクターの経験値・レベル・装備・初期HPとMPを初期化▲▲▲
       foreach (var c in chars)
       {
         c.experience(0);
         c.Level(1);
         for (int i = 0; i < (int)Data.EquipCategory.Number; i++)
           c.Equip((Data.EquipCategory)i, -1);
+        c.Heal();
       }
       // ▼▼▼キャラクターの装備を初期化▼▼▼
       Basic basic = Basic.Instance;
@@ -133,7 +156,7 @@ namespace Univ.Data
       //dem[0] = Environment.NewLine;
 
       // ▲▲SaveBagDataOfSetup▲▲
-      string[] groupNames = { "CharsUnique", "Weapon", "Body", "Head", "Arm", "Exterior", "Accessory" };
+      string[] groupNames = { "CharsUnique", "Weapon", "Body", "Head", "Arm", "Exterior", "Accessory", "Item" };
       string[] rows = SaveBagDataOfSetup.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
       Bag bag = Bag.Instance;
       for (int i = 0; i < rows.Length; i++)
@@ -153,7 +176,10 @@ namespace Univ.Data
                 i--;
                 goto Next;
               }
-              bag.equipSubstitution((Data.EquipCategory)(j - 1), id, have);
+              if (groupNames[j] == "Item")
+                bag.item(id, have);
+              else
+                bag.equipSubstitution((Data.EquipCategory)(j - 1), id, have);
               id++;
             }
             goto Next;
@@ -190,7 +216,7 @@ namespace Univ.Data
       // ▲▲kConstData▲▲
       string[] dem = new string[1];
       dem[0] = Environment.NewLine;
-      string[] rows = kConstDataOfSetup.Split(dem, StringSplitOptions.RemoveEmptyEntries);
+      string[] rows = kCStatusDataOfSetup.Split(dem, StringSplitOptions.RemoveEmptyEntries);
       string[] groupNames = { "CharsUnique", "Weapon", "Body", "Head", "Arm", "Exterior", "Accessory" };
 
       for (int i = 0; i < rows.Length; i++)
@@ -231,18 +257,45 @@ namespace Univ.Data
       chars = StatusWritable.Instances(charsUnique);
       for (int i = 0; i < charsUnique.Length; i++)
         chars[i].Level(1);
-
-      Bag.Setup(weapons.Length, body.Length, head.Length, arm.Length, exterior.Length, accessory.Length);
       // ▼▼kConstData▼▼
 
       // ▲▲kFieldDataOfSetup▲▲
-      string[] chuns = kFieldDataOfSetup.Split("*", StringSplitOptions.RemoveEmptyEntries);
-      fieldData = new FieldData[chuns.Length];
-      for (int i = 0; i < chuns.Length; i++)
+      string[] chunks = kCFieldDataOfSetup.Split("*", StringSplitOptions.RemoveEmptyEntries);
+      fieldData = new FieldData[chunks.Length];
+      for (int i = 0; i < chunks.Length; i++)
       {
-        fieldData[i] = new FieldData(chuns[i]);
+        fieldData[i] = new FieldData(chunks[i]);
       }
       // ▼▼kFieldDataOfSetup▼▼
+
+      // ▲▲kMonsDataOfSetup▲▲
+      chunks = kCMonsDataOfSetup.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+      monsData = new ConstStatusMons[chunks.Length];
+      for (int i = 0; i < chunks.Length; i++)
+      {
+        monsData[i] = new ConstStatusMons(chunks[i]);
+      }
+      // ▼▼kMonsDataOfSetup▼▼
+
+      // ▲▲kCMonsGroupsDataOfSetup▲▲
+      chunks = kCMonsGroupsDataOfSetup.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+      monsGroupsData = new ConstMonsGroups[chunks.Length];
+      for (int i = 0; i < chunks.Length; i++)
+      {
+        monsGroupsData[i] = new ConstMonsGroups(chunks[i]);
+      }
+      // ▼▼kCMonsGroupsDataOfSetup▼▼
+
+      // ▲▲kCItemDataOfSetup▲▲
+      chunks = kCItemDataOfSetup.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+      itemData = new ConstItem[chunks.Length];
+      for (int i = 0; i < chunks.Length; i++)
+      {
+        itemData[i] = new ConstItem(chunks[i]);
+      }
+      // ▼▼kCItemDataOfSetup▼▼
+
+      Bag.Setup(weapons.Length, body.Length, head.Length, arm.Length, exterior.Length, accessory.Length, itemData.Length);
 
       Basic.Setup();
       ReloadInside();
@@ -254,12 +307,12 @@ namespace Univ.Data
     // △△△セーブ関連△△△
     private async void SaveInside()
     {
+      Bag bag = Bag.Instance;
       StringBuilder s = new StringBuilder();
       string[] groupNames = { "Weapon", "Body", "Head", "Arm", "Exterior", "Accessory" };
       for (int i = 0; i < groupNames.Length; i++)
       {
         s.AppendLine(groupNames[i]);
-        Bag bag = Bag.Instance;
         int[] equips = bag.GetArrayByCategory((EquipCategory)i);
         for (int j = 0; j < equips.Length; j++)
         {
@@ -267,6 +320,12 @@ namespace Univ.Data
         }
         s.AppendLine();
       }
+      s.AppendLine("Item");
+      for (int i = 0; i < itemData.Length; i++)
+      {
+        s.AppendLine(bag.item(i).ToString());
+      }
+      s.AppendLine();
       StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
       StorageFile file = await storageFolder.GetFileAsync("Bag.txt");
       SaveBagDataOfSetup = s.ToString(); //■ロードに使われるので忘れずに
@@ -308,8 +367,8 @@ namespace Univ.Data
     }
     static public Loader Setup()
     {
-      JsTrans.Assert(LoadingState_ == LoadingState.Loaded,
-        "LoadingState is not LoadingState.Loaded. \nLoadingState_:" + LoadingState_.ToString());
+      JsTrans.Assert(loadingState == LoadingState.Loaded,
+        "LoadingState is not LoadingState.Loaded. \nLoadingState_:" + loadingState.ToString());
       if (instance == null)
       {
         return instance = new Loader();

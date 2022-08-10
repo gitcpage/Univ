@@ -265,7 +265,7 @@ namespace Univ.NsMenu
         Array.Resize(ref tbItemArrows_, tbItemArrows_.Length + 1);
         tbItemArrows_[viewPos] = MenuUI.RunLavel(view_, arrowLeft, placeY * 25, "➤");
         tbItemArrows_[viewPos].Foreground = kErasedBrush_;
-        bdr = UnivLib.WrapBorder(MenuUI.RunLavel(null, 0, 0, eqs[i].name), view_, 155, nameLeft, placeY * 25);
+        bdr = UnivLib.WrapBorder(MenuUI.RunLavel(null, 0, 0, eqs[i].name()), view_, 155, nameLeft, placeY * 25);
         MenuUI.RunLavelRightAligned(view_, numLeft, placeY * 25, 33, num);
         SetTapEvent(bdr, viewPos);
         Array.Resize(ref this.viewPositionToEquipId_, this.viewPositionToEquipId_.Length + 1);

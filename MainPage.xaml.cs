@@ -90,21 +90,21 @@ namespace Univ
     void FrameOne(object sender, object e)
     {
       //this.idProgress.Value = frameManager_.FrameCount;
-      if (Data.Loader.LoadingState_ == Data.LoadingState.Loading)
+      if (Data.Loader.loadingState == Data.LoadingState.Loading)
       {
         // データロード中
         frameManager_.EnterSequence(FrameOne, new Loading(this));
         return;
       }
-      else if (Data.Loader.LoadingState_ == Data.LoadingState.Loaded)
+      else if (Data.Loader.loadingState == Data.LoadingState.Loaded)
       {
         // データロード完了
         loader = Data.Loader.Setup();
         //loader.chars[0].Equip(Data.EquipCategory.Weapon, 0);
       }
 
-      frameManager_.EnterSequence(FrameOne, new BattleDebug(this, loader.chars));
-      //frameManager_.EnterSequence(FrameOne, new Field(this, loader.chars));
+      //frameManager_.EnterSequence(FrameOne, new BattleDebug(this, loader.chars, 0));
+      frameManager_.EnterSequence(FrameOne, new Field(this, loader.chars));
       /*if (opening_ == null || opening_.Selected == -1)
       {
         frameManager_.EnterSequence(FrameOne, opening_ = new Opening(this));
