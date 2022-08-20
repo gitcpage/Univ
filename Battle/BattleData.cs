@@ -20,17 +20,17 @@ namespace Univ.NsBattle
   internal class BattleData
   {
     Status[] chars_;
-    StatusWritable[] charsWritable_;
+    StatusWritable[] friendsWritable_;
     UnitInfo[] charsInfo_;
 
     ConstStatusMons[] monsStatuses_;
     ConstMonsArrangement[] monsArrangements_;
     UnitInfo[] monsInfo_;
 
-    public BattleData(StatusWritable[] charsWritable, int monsGroupId)
+    public BattleData(SecurityToken stFriends, int monsGroupId)
     {
       chars_ = Status.Instances;
-      charsWritable_ = charsWritable;
+      friendsWritable_ = DataSC.FriendsWritable(stFriends);//charsWritable;
       charsInfo_ = new UnitInfo[5];
       for (int i = 0; i < 5; i++)
       {
@@ -58,9 +58,13 @@ namespace Univ.NsBattle
     {
       return chars_[idx];
     }
-    public StatusWritable FriendWritable(int idx)
+    public StatusWritable FriendsWritable(int idx)
     {
-      return charsWritable_[idx];
+      return friendsWritable_[idx];
+    }
+    public StatusWritable[] FriendsWritable()
+    {
+      return friendsWritable_;
     }
     public UnitInfo FriendInfo(int idx)
     {

@@ -15,7 +15,7 @@ namespace Univ.Data
     public readonly int ItemPer;
     public readonly int Width;
 
-    public ConstStatusMons(string text) : base(text, 0)
+    public ConstStatusMons(string text, int id) : base(text, id/*, 0*/)
     {
       string[] items = text.Split("\t", StringSplitOptions.RemoveEmptyEntries);
       JsTrans.Assert(items.Length == 20, "text of 'ConstStatus(string text)' split tab is not 20 items.");

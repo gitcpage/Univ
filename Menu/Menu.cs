@@ -11,6 +11,7 @@ using Windows.UI.Xaml.Media; // Stretch
 using Windows.UI.Xaml.Input;
 using Windows.UI.Text;
 using Univ.NsMenu;
+using Univ.Data;
 
 namespace Univ
 {
@@ -21,28 +22,31 @@ namespace Univ
     Grid monitor_;   // 描画用
     Grid monitorBg_; //背景描画用
     Grid mainGrid_;
+    long msTimeMinuts_ = 0;
+    TextBlock tbTime_;
 
     MenuUI ui_;
     MenuNotify menuNotify_;
 
-    Data.StatusWritable[] charsWritable_;
+    Data.StatusWritable[] FriendsWritable_;
 
     readonly Grid[] mainLeftItems_ = new Grid[kMainLeftStringsNum];
-    readonly MainChar[] mainChar_ = new MainChar[kMainCenterNum];
+    readonly MainFriend[] mainChar_ = new MainFriend[kMainCenterNum];
 
     MenuStatus menuStatus_;
 
     NotifyCode leftItemSelected_;
-    int charSelected03_;
+    int friendSelected03_ = 0;
 
-    MenuEquip menuEquip_;
+    MenuEquip menuEquip_ = null;
+    MenuItem  menuItem_ = null;
 
     MenuSaveLoad menuSaveLoad_;
     
-    public Menu(MainPage mainPage, Data.StatusWritable[] charsWritable)
+    public Menu(MainPage mainPage, Data.SecurityToken stFriends)
     {
       mainPage_ = mainPage;
-      charsWritable_ = charsWritable;
+      FriendsWritable_ = Data.DataSC.FriendsWritable(stFriends);// charsWritable;
       frameManager_ = mainPage.GetFrameManager();
       monitor_ = mainPage.GetMonitor();
       monitorBg_ = mainPage.GetMonitorBg();
@@ -50,8 +54,6 @@ namespace Univ
       menuNotify_ = new MenuNotify(Notify);
 
       ui_ = new MenuUI(monitor_, menuNotify_);
-      menuEquip_ = null;
-      charSelected03_ = 0;
 
       menuSaveLoad_ = new MenuSaveLoad(frameManager_, monitor_, FrameOne);
     }
@@ -71,26 +73,36 @@ namespace Univ
         if (menuEquip_.Notify(notifyCode))
         {
           // ■装備画面を閉じる。
-          charSelected03_ = menuEquip_.Destroy();
+          friendSelected03_ = menuEquip_.Destroy();
           menuStatus_.SetTitle();
-          if (charSelected03_ > 3)
-            charSelected03_ = 0;
+          if (friendSelected03_ > 3)
+            friendSelected03_ = 0;
           for (int i = 0; i < mainChar_.Length; i++)
           {
-            if (i == charSelected03_)
+            if (i == friendSelected03_)
             {
               mainChar_[i].Tap();
               mainChar_[i].TapLeftMenu();
-              menuStatus_.Change(charSelected03_);
+              menuStatus_.Change(friendSelected03_);
             }
             else
             {
-              mainChar_[i].TapOtherChar();
+              mainChar_[i].TapOtherFriend();
             }
           }
           menuStatus_.SetTitle();
           menuStatus_.ResetColorBold();
           menuEquip_ = null;
+        }
+        return;
+      }
+      if (menuItem_ != null)
+      {
+        if (menuItem_.Notify(notifyCode))
+        {
+          // ■装備画面を閉じる。
+          menuItem_.Destroy();
+          menuItem_ = null;
         }
         return;
       }
@@ -114,7 +126,7 @@ namespace Univ
       else if (NotifyCode.Skill <= notifyCode && notifyCode <= NotifyCode.Load)
       {
         MainLeftArrowClear();
-        foreach (MainChar c in mainChar_)
+        foreach (MainFriend c in mainChar_)
         {
           c.TapLeftMenu();
         }
@@ -123,12 +135,12 @@ namespace Univ
       else if (NotifyCode.Char0 <= notifyCode && notifyCode <= NotifyCode.Char3)
       {
         MainLeftArrowClear();
-        foreach (MainChar c in mainChar_)
+        foreach (MainFriend c in mainChar_)
         {
-          c.TapOtherChar();
+          c.TapOtherFriend();
         }
-        charSelected03_ = notifyCode - NotifyCode.Char0;
-        menuStatus_.Change(charSelected03_);
+        friendSelected03_ = notifyCode - NotifyCode.Char0;
+        menuStatus_.Change(friendSelected03_);
         leftItemSelected_ = NotifyCode.None;
       }
       else if (notifyCode == NotifyCode.Ok)
@@ -137,8 +149,13 @@ namespace Univ
         {
           case NotifyCode.Equip:
             // ■装備画面を表示
-            menuEquip_ = new MenuEquip(mainGrid_, menuStatus_, charsWritable_);
-            menuEquip_.Create(charSelected03_);
+            menuEquip_ = new MenuEquip(mainGrid_, menuStatus_, FriendsWritable_);
+            menuEquip_.Create(friendSelected03_);
+            break;
+          case NotifyCode.Item:
+            // ■アイテム
+            menuItem_ = new MenuItem(mainGrid_, FriendsWritable_);
+            menuItem_.Create();
             break;
           case NotifyCode.Save:
             // ■セーブ
@@ -177,7 +194,7 @@ namespace Univ
       {
         Grid charGrid = ui_.RunGrid(108, 131 * i, 420, 125, 10, 15, mainGrid_);
         charGrid.Padding = new Thickness(10, 10, 10, 10);
-        mainChar_[i] = new MainChar(charGrid, i, Notify, NotifyCode.Char0+i);
+        mainChar_[i] = new MainFriend(charGrid, i, Notify, NotifyCode.Char0+i);
       }
       //▼▼▼各キャラクターのグリッド▼▼▼
       
@@ -197,11 +214,12 @@ namespace Univ
 
       Grid rightBottom2Grid = ui_.RunGrid(665, 458, 125, 60, 5, 5, mainGrid_);
       //tb = MenuUI.RunLavelCenterAligned(rightBottom2Grid, 0, 10, 125, "TIME 00:00");
-      long minutes = basic.msTimeMinutes();
+      /*long minutes = basic.msTimeMinutes();
       long hour = minutes / 60;
-      minutes %= 60;
-      tb = MenuUI.RunLavel(rightBottom2Grid, 0, 10, "TIME "+hour+":"+minutes);
-      UnivLib.MeasureWidth(tb, rightBottom2Grid);
+      minutes %= 60;*/
+      msTimeMinuts_ = basic.msTimeMinutes();
+      tbTime_ = MenuUI.RunLavel(rightBottom2Grid, 0, 10, "TIME " + basic.msTimeString());//hour+":"+minutes);
+      UnivLib.MeasureWidth(tbTime_, rightBottom2Grid);
       //▼▼▼右下のグリッド▼▼▼
 
       //▼▼▼▼メインウィンドウ▼▼▼▼
@@ -212,8 +230,8 @@ namespace Univ
       //▼▼▼下のウィンドウ▼▼▼
 
       // キャラクター選択状態を設定する。
-      Notify(NotifyCode.Char0 + charSelected03_);
-      mainChar_[charSelected03_].Tap();
+      Notify(NotifyCode.Char0 + friendSelected03_);
+      mainChar_[friendSelected03_].Tap();
 
       //■
       //menuEquip_.Create();
@@ -229,6 +247,12 @@ namespace Univ
     }
     public void FrameOne(object senderDispatcherTimer, object eNull)
     {
+      Data.Basic basic = Data.Basic.Instance;
+      if (msTimeMinuts_ != basic.msTimeMinutes())
+      {
+        msTimeMinuts_ = basic.msTimeMinutes();
+        tbTime_.Text = "TIME " + basic.msTimeString();
+      }
       // スペースキーで戻る
       if (frameManager_.IsKeyDownFirst(VirtualKey.Space))
       {

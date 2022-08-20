@@ -46,11 +46,11 @@ namespace Univ.NsBattle
     {
 
     }
-    public void Ready(Grid parent, Thickness thickness, Image image, int damage, bool isDead)
+    public void Ready(Grid parent, Thickness margin, Image image, int damage, bool isDead)
     {
       //▲▲▲Effect▲▲▲
-      double ox = thickness.Left + image.Width / 2;
-      double oy = thickness.Top + image.ActualHeight / 2;
+      double ox = margin.Left + image.Width / 2;
+      double oy = margin.Top + image.ActualHeight / 2;
       double hw = image.Width / 3;// 2;
       sx_ = (int)(ox - hw);
       sy_ = (int)(oy - hw);
@@ -88,7 +88,7 @@ namespace Univ.NsBattle
 
       //▲▲▲Damage▲▲▲
       damageCount_ = 0;
-      ty_ = thickness.Top + image.ActualHeight;
+      ty_ = margin.Top + image.ActualHeight;
 
       bdr_ = new Border();
       bdr_.Margin = new Thickness(sx_, 0, 0, 0);
@@ -192,39 +192,12 @@ namespace Univ.NsBattle
           DeadFrameOne();
           break;
         case Step.End:
-          return true;
+          return false;
         default:
           JsTrans.Assert("BattkeEffect.cs FrameOne()");
           break;
       }
-      return false;
-      /*if (effectCount_ == effectSpan_)
-      {
-        parent_.Children.Remove(canvas_);
-        effectCount_++;
-        //return true;
-      }
-      if (effectCount_ == effectSpan_ + 1)
-      {
-        return DamageFrameOne();
-      }
-
-      if (effectCount_ <= effectSpanHalf_)
-      {
-        line_.X1 = sx_;
-        line_.Y1 = sy_;
-        line_.X2 = sx_ + effectCount_ * dx_ / effectSpanHalf_;
-        line_.Y2 = sy_ + effectCount_ * dy_ / effectSpanHalf_;
-      }
-      else
-      {
-        line_.X1 = sx_ + (effectCount_ - effectSpanHalf_) * dx_ / effectSpanHalf_;
-        line_.Y1 = sy_ + (effectCount_ - effectSpanHalf_) * dy_ / effectSpanHalf_;
-        line_.X2 = ex_;
-        line_.Y2 = ey_;
-      }
-      effectCount_++;
-      return false;*/
+      return true;
     }
   }
 }

@@ -75,21 +75,18 @@ namespace Univ.NsBattle
       Arrow(0);
     }
 
-    public void Show(bool isShow = true)
+    public void Show()
     {
-      if (isShow)
-      {
-        JsTrans.Assert(grid_.Visibility == Visibility.Collapsed,
-          "BattleCommand.cs Show grid_.Visibility==Visibility.Collapsed");
-        Arrow(0);
-        grid_.Visibility = Visibility.Visible;
-      }
-      else
-      {
-        JsTrans.Assert(grid_.Visibility == Visibility.Visible,
-          "BattleCommand.cs Show grid_.Visibility==Visibility.Visible");
-        grid_.Visibility = Visibility.Collapsed;
-      }
+      JsTrans.Assert(grid_.Visibility == Visibility.Collapsed,
+        "BattleCommand.cs Show grid_.Visibility==Visibility.Collapsed");
+      Arrow(0);
+      grid_.Visibility = Visibility.Visible;
+    }
+    public void Hidden()
+    {
+      //JsTrans.Assert(grid_.Visibility == Visibility.Visible,
+      //  "BattleCommand.cs Show grid_.Visibility==Visibility.Visible");
+      grid_.Visibility = Visibility.Collapsed;
     }
   }
 }

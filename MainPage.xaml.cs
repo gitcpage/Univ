@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Input; //PointerPoint
 using Windows.Storage; // StorageFolder, ApplicationData, StorageFile, CreationCollisionOption, FileIO
+using System.Runtime.ConstrainedExecution;
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x411 を参照してください
 
 namespace Univ
@@ -36,7 +37,8 @@ namespace Univ
     string BottomTextLatter = ""; // マウス用に使用する
 
     //データ関連
-    Data.Loader loader;
+    Data.Loader loader_;
+    Data.SecurityToken stFriends_;
 
     public MainPage()
     {
@@ -99,12 +101,14 @@ namespace Univ
       else if (Data.Loader.loadingState == Data.LoadingState.Loaded)
       {
         // データロード完了
-        loader = Data.Loader.Setup();
-        //loader.chars[0].Equip(Data.EquipCategory.Weapon, 0);
+        stFriends_ = new Data.SecurityToken("Friends");
+        loader_ = Data.Loader.Setup(stFriends_);
+        //loader_.friends_[0].Equip(Data.EquipCategory.Weapon, 0);
       }
 
-      //frameManager_.EnterSequence(FrameOne, new BattleDebug(this, loader.chars, 0));
-      frameManager_.EnterSequence(FrameOne, new Field(this, loader.chars));
+      //frameManager_.EnterSequence(FrameOne, new BattleDebug(this, stFriends_, 0));
+      //frameManager_.EnterSequence(FrameOne, new Field(this, stFriends_));
+      frameManager_.EnterSequence(FrameOne, new Menu(this, stFriends_));
       /*if (opening_ == null || opening_.Selected == -1)
       {
         frameManager_.EnterSequence(FrameOne, opening_ = new Opening(this));
@@ -115,11 +119,11 @@ namespace Univ
         {
           if (opening_.Selected == 0)
           { // はじめから
-            loader.NewGame();
+            loader_.NewGame();
           }
           else
           { // つづきから
-            loader.Reload();
+            loader_.Reload();
           }
           opening_ = null;
           Field field = new Field(this);
@@ -130,20 +134,27 @@ namespace Univ
           JsTrans.Assert("「はじめから」でも「つづきから」でもありません。");
         }
       }*/
-      //frameManager_.EnterSequence(FrameOne, new Menu(this, loader.chars));
+      //frameManager_.EnterSequence(FrameOne, new Menu(this, loader_.friends_));
     }
     // △△△モニタアクセス共通処理△△△
-    public void Clear(bool doDataReload = false)
+    public void Clear()
     {
       this.idMonitor.Children.Clear();
       this.idMonitorBg.Children.Clear();
-      if (doDataReload)
-      {
-        //■データをリセットする
-        loader.Reload();
-      }
       this.idMonitorFade.Background.Opacity = 1.0;
       this.idMonitorFade.Visibility = Visibility.Visible;
+    }
+    public void ClearReload()
+    {
+      Clear();
+      loader_.Reload(false);//■データをロードリセットする
+      frameManager_.Initialize();
+    }
+    public void ClearAndNewGame()
+    {
+      Clear();
+      loader_.Reload(true);//■データをニューゲームリセットする
+      frameManager_.Initialize();
     }
     // ▽▽▽モニタアクセス共通処理▽▽▽
 
@@ -164,15 +175,20 @@ namespace Univ
     {
       UnivLib.MsgBitmapPaths();
     }
-
-    private void Slider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+    private void Button_Click_NewGame(object sender, RoutedEventArgs e)
     {
-      throw new NotImplementedException();
+      ClearAndNewGame();
     }
+    public bool HasEncountCheck()
+    {
+      return (bool)this.chkEncount.IsChecked;
+    }
+
 
     private void AppBarReset_Click(object sender, RoutedEventArgs e)
     {
-      frameManager_.Reset();
+      ClearReload();
+      frameManager_.Initialize();
     }
     private void AppBarPause_Click(object sender, RoutedEventArgs e)
     {

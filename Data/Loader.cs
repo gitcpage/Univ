@@ -15,8 +15,8 @@ namespace Univ.Data
   // ２．Data.Loader.LoadingState_ == Data.LoadingState.Loadingであればロード中です。
   //     Data.Loader.LoadingState_ == Data.LoadingState.Loaded になるまで待機します。
   // ３．Data.Loader.Setup();を呼び出します。
-  // ４．Data.Loader loader = Data.Loader.Instance; ローダーを取得します。
-  // ５．loader.EquipArray(); や loader.weapons などでデータを取得します。
+  // ４．Data.Loader loader_ = Data.Loader.Instance; ローダーを取得します。
+  // ５．loader_.EquipArray(); や loader_.weapons などでデータを取得します。
   internal class Loader
   {
     public readonly ConstStatus[] charsUnique = { };
@@ -28,7 +28,14 @@ namespace Univ.Data
     public readonly ConstStatus[] exterior = { };
     public readonly ConstStatus[] accessory = { };
 
-    public readonly StatusWritable[] chars;
+    readonly StatusWritable[] friends_;
+    Data.SecurityToken stFriends_ = null;
+    public StatusWritable[] Friends(SecurityToken stFriends)
+    {
+      JsTrans.Assert(stFriends_ != null, "Loader Frinds stFriends_!=null");
+      JsTrans.Assert(stFriends.Authorize(stFriends_), "Loader Frinds stFriends.Authorize(stFriends_)");
+      return friends_;
+    }
 
     public readonly FieldData[] fieldData;
     public readonly ConstStatusMons[] monsData;
@@ -123,7 +130,7 @@ namespace Univ.Data
       LoadBody();
     }
 
-    public void NewGame()
+    /*public void NewGame()
     {
       // ▲▲▲持ち物の初期化▲▲▲
       Bag bag = Bag.Instance;
@@ -138,7 +145,7 @@ namespace Univ.Data
       // ▼▼▼持ち物の初期化▼▼▼
 
       // ▲▲▲キャラクターの経験値・レベル・装備・初期HPとMPを初期化▲▲▲
-      foreach (var c in chars)
+      foreach (var c in friends_)
       {
         c.experience(0);
         c.Level(1);
@@ -149,12 +156,9 @@ namespace Univ.Data
       // ▼▼▼キャラクターの装備を初期化▼▼▼
       Basic basic = Basic.Instance;
       basic.Initialize();
-    }
+    }*/
     private void ReloadInside()
     {
-      //string[] dem = new string[1];
-      //dem[0] = Environment.NewLine;
-
       // ▲▲SaveBagDataOfSetup▲▲
       string[] groupNames = { "CharsUnique", "Weapon", "Body", "Head", "Arm", "Exterior", "Accessory", "Item" };
       string[] rows = SaveBagDataOfSetup.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
@@ -196,27 +200,55 @@ namespace Univ.Data
 
       // ▲▲SaveCharsDataOfSetup▲▲
       rows = SaveCharsDataOfSetup.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-      for (int i = 0; i < chars.Length; i++)
+      for (int i = 0; i < friends_.Length; i++)
       {
-        chars[i].Load(rows[i]);
+        friends_[i].Load(rows[i]);
       }
       // ▼▼SaveCharsDataOfSetup▼▼
     }
-    public void Reload()
+    public void Reload(bool isNewGame)
     {
       if (instance == null)
       {
         JsTrans.window_close("セットアップ前にLoader.Reloadが呼び出されました。");
         return;
       }
-      ReloadInside();
+      if (isNewGame)
+      {
+        // ▲▲▲持ち物の初期化▲▲▲
+        Bag bag = Bag.Instance;
+        for (int i = 0; i < (int)Data.EquipCategory.Number; i++)
+        {
+          Data.ConstStatus[] eqs = EquipArray((Data.EquipCategory)i);
+          for (int j = 0; j < eqs.Length; j++)
+          {
+            bag.equipSubstitution((Data.EquipCategory)i, j, 0);
+          }
+        }
+        // ▼▼▼持ち物の初期化▼▼▼
+
+        // ▲▲▲キャラクターの経験値・レベル・装備・初期HPとMPを初期化▲▲▲
+        foreach (var c in friends_)
+        {
+          c.experience(0);
+          c.Level(1);
+          for (int i = 0; i < (int)Data.EquipCategory.Number; i++)
+            c.Equip((Data.EquipCategory)i, -1);
+          c.Heal();
+        }
+        // ▼▼▼キャラクターの装備を初期化▼▼▼
+        Basic basic = Basic.Instance;
+        basic.Initialize();
+      }
+      else
+        ReloadInside();
     }
-    private Loader()
+    private Loader(SecurityToken stFriends)
     {
+      stFriends_ = stFriends;
+
       // ▲▲kConstData▲▲
-      string[] dem = new string[1];
-      dem[0] = Environment.NewLine;
-      string[] rows = kCStatusDataOfSetup.Split(dem, StringSplitOptions.RemoveEmptyEntries);
+      string[] rows = kCStatusDataOfSetup.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
       string[] groupNames = { "CharsUnique", "Weapon", "Body", "Head", "Arm", "Exterior", "Accessory" };
 
       for (int i = 0; i < rows.Length; i++)
@@ -233,7 +265,7 @@ namespace Univ.Data
               if (row.Length < 15 || !row.StartsWith("\t")) break;
 
               Array.Resize(ref css, css.Length + 1);
-              css[css.Length - 1] = new ConstStatus(row.Remove(0, 1));
+              css[css.Length - 1] = new ConstStatus(row.Remove(0, 1), css.Length - 1);
             }
             switch (j)
             {
@@ -254,9 +286,9 @@ namespace Univ.Data
       Next:;
       }
 
-      chars = StatusWritable.Instances(charsUnique);
+      friends_ = StatusWritable.Instances(charsUnique);
       for (int i = 0; i < charsUnique.Length; i++)
-        chars[i].Level(1);
+        friends_[i].Level(1);
       // ▼▼kConstData▼▼
 
       // ▲▲kFieldDataOfSetup▲▲
@@ -273,7 +305,7 @@ namespace Univ.Data
       monsData = new ConstStatusMons[chunks.Length];
       for (int i = 0; i < chunks.Length; i++)
       {
-        monsData[i] = new ConstStatusMons(chunks[i]);
+        monsData[i] = new ConstStatusMons(chunks[i], i);
       }
       // ▼▼kMonsDataOfSetup▼▼
 
@@ -291,7 +323,7 @@ namespace Univ.Data
       itemData = new ConstItem[chunks.Length];
       for (int i = 0; i < chunks.Length; i++)
       {
-        itemData[i] = new ConstItem(chunks[i]);
+        itemData[i] = new ConstItem(chunks[i], i);
       }
       // ▼▼kCItemDataOfSetup▼▼
 
@@ -336,7 +368,7 @@ namespace Univ.Data
       await FileIO.WriteTextAsync(file, SaveBasicDataOfSetup);
 
       s.Clear();
-      foreach (StatusWritable sw in chars)
+      foreach (StatusWritable sw in friends_)
       {
         s.AppendLine(sw.TextOfSave());
       }
@@ -365,13 +397,13 @@ namespace Univ.Data
         return instance;
       }
     }
-    static public Loader Setup()
+    static public Loader Setup(SecurityToken stFriends)
     {
       JsTrans.Assert(loadingState == LoadingState.Loaded,
         "LoadingState is not LoadingState.Loaded. \nLoadingState_:" + loadingState.ToString());
       if (instance == null)
       {
-        return instance = new Loader();
+        return instance = new Loader(stFriends);
       }
       JsTrans.window_close("セットアップ済みなのに Loader.Setup() が呼び出されました。");
       return instance;

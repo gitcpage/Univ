@@ -29,6 +29,7 @@ namespace Univ
     MainPage mainPage_;
     FrameManager frameManager_;
     Data.StatusWritable[] charsWritable_;
+    Data.SecurityToken stFriends_;
 
     //FieldBlock obj_;
     FieldBlock player_;
@@ -49,10 +50,10 @@ namespace Univ
     int tPosX_;
     int tPosY_;
 
-    public Field(MainPage mainPage, Data.StatusWritable[] charsWritable) : base(mainPage.GetMonitorBg())
+    public Field(MainPage mainPage, Data.SecurityToken stFriends) : base(mainPage.GetMonitorBg())
     {
       mainPage_ = mainPage;
-      charsWritable_ = charsWritable;
+      charsWritable_ = Data.DataSC.FriendsWritable(stFriends_ = stFriends);
       frameManager_ = mainPage.GetFrameManager();
       monitor_ = mainPage.GetMonitor();
     }
@@ -124,7 +125,7 @@ namespace Univ
       Data.Basic.Instance.SetField(name_, tPosX_, tPosY_);
       frameManager_.ExitSequence();
     }
-    public void OnFadeOutedToMenu(object senderDispatcherTimer, object eNull)
+    public void SaveFieldState()
     {
       mainPage_.Clear();
       int rtPosX, rtPosY;
@@ -134,7 +135,16 @@ namespace Univ
       this.tPosX_ = -rtPosX + px;
       this.tPosY_ = -rtPosY + py;
       Data.Basic.Instance.SetField(name_, tPosX_, tPosY_);
-      frameManager_.EnterSequence(FrameReturn, new Menu(mainPage_, charsWritable_));
+    }
+    public void OnFadeOutedToMenu(object senderDispatcherTimer, object eNull)
+    {
+      SaveFieldState();
+      frameManager_.EnterSequence(FrameReturn, new Menu(mainPage_, stFriends_));
+    }
+    public void OnFadeOutedToBattle(object senderDispatcherTimer, object eNull)
+    {
+      SaveFieldState();
+      frameManager_.EnterSequence(FrameReturn, new BattleDebug(mainPage_, stFriends_, 0));
     }
     public void OnFade(object senderDispatcherTimer, object eNull)
     {
@@ -262,6 +272,11 @@ namespace Univ
         }//if (existMoveOperation)
       }//if (player_moving_ == PlayerMoving.None)
     }
+    public void Encount()
+    {
+      if (mainPage_.HasEncountCheck())
+        frameManager_.EnterSequenceFadeOut(OnFadeOutedToBattle);
+    }
     public void FrameOne(object senderDispatcherTimer, object eNull)
     {
       /*if (frameManager_.ResettingOnce())
@@ -298,6 +313,7 @@ namespace Univ
           bg_.Move(-moveDirectionX_ * kMoveXStep, -moveDirectionY_ * kMoveYStep);
           moveStep_ = 0;
           whatDoing_ = WhatDoing.None;
+          Encount();
         }
       }//if (player_moving_)
       else if (whatDoing_ == WhatDoing.PlayerMove)
@@ -316,6 +332,7 @@ namespace Univ
           player_.BlockSync();
           moveStep_ = 0;
           whatDoing_ = WhatDoing.None;
+          Encount();
         }
       }
       else if (whatDoing_ == WhatDoing.MapChange)

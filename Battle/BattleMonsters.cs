@@ -11,6 +11,11 @@ using Windows.UI.Xaml.Input;
 
 namespace Univ.NsBattle
 {
+  internal interface IIsTargetSelect
+  {
+    bool IsTargetSelect();
+  }
+
   delegate void BattleTargetNotify(int target);
   internal class BattleMonsters
   {
@@ -60,15 +65,15 @@ namespace Univ.NsBattle
           tbs_[i].Text = "";
       }
     }
-    public void Create(BattleAtb atb)
+    public void Create(IIsTargetSelect iIsTargetSelect)
     {
       for (int i = 0; i < 5; i++) adjusts_[i] = 0;
 
-      void CreateOne(int idx, int width, int x, int y, string path)//, string name)
+      void CreateOne(int idx, int width, int x, int y, string path)
       {
         grids_[idx] = new Grid();
         grids_[idx].Margin = new Thickness(x, y, 0, 0);
-        images_[idx] = UnivLib.ImageInstance(0, 0, path);//, "");// name);
+        images_[idx] = UnivLib.ImageInstance(0, 0, path);
         images_[idx].Stretch = Stretch.Uniform;
         images_[idx].Width = width;
         grids_[idx].Children.Add(images_[idx]);
@@ -82,7 +87,7 @@ namespace Univ.NsBattle
 
         grids_[idx].Tapped += (Object sender, TappedRoutedEventArgs e) =>
         {
-          if (atb.state == BattleAtb.State.TargetSelect)
+          if (iIsTargetSelect.IsTargetSelect())
           {
             if (data_.MonsInfo(idx).hp > 0)
               Target(idx, true);
@@ -98,16 +103,12 @@ namespace Univ.NsBattle
         Data.ConstMonsArrangement arr = data_.MonsArrangement(i);
         CreateOne(i, data_.Monster(i).Width, arr.x, arr.y, arr.path);
       }
-      //CreateOne(0, monss[0].Width, 160, 110, "battle/mon1.png", "mon1");
-      //CreateOne(1, monss[1].Width, 160, 280, "battle/mon2.png", "mon2");
-      //CreateOne(0, 200, 160, 110, "battle/mon1.png", "mon1");
-      //CreateOne(1, 200, 160, 280, "battle/mon2.png", "mon2");
     }
     public void ShowTarget(bool doShow = true)
     {
       if (doShow)
       {
-        target_ = data_.MonsFirstAlive();//0;
+        target_ = data_.MonsFirstAlive();
         Target(target_, false);
       }
       else
@@ -133,7 +134,7 @@ namespace Univ.NsBattle
         }
       }
     }
-    public Thickness GetThickness(int idx)
+    public Thickness GetMargin(int idx)
     {
       return grids_[idx].Margin;
     }

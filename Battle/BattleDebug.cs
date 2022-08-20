@@ -10,8 +10,8 @@ namespace Univ
 {
   internal class BattleDebug : Battle
   {
-    public BattleDebug(MainPage mainPage, StatusWritable[] charsWritable, int monsGroupId)
-      : base(mainPage, charsWritable, monsGroupId)
+    public BattleDebug(MainPage mainPage, Data.SecurityToken stFriends, int monsGroupId)
+      : base(mainPage, stFriends, monsGroupId)
     {
     }
     public override void Run()

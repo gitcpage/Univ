@@ -41,14 +41,14 @@ namespace Univ.Data
     public void PlusNowHp(int hp)
     {
       nowHp_ += hp;
-      if (nowHp_ > hp_) nowHp_ = hp;
+      if (nowHp_ > hp_) nowHp_ = hp_;
     }
     public void NowMp(int mp)
     { nowMp_ = mp; }
     public void PlusNowMp(int mp)
     {
       nowMp_ += mp;
-      if (nowMp_ > mp_) nowMp_ = mp;
+      if (nowMp_ > mp_) nowMp_ = mp_;
     }
     public void Heal(int hp, int mp = 0)
     {
@@ -60,6 +60,22 @@ namespace Univ.Data
       Heal(99999, 99999);
     }
 
+    public int experiencePlus(int exp) 
+    {
+      experience_ += exp;
+      int ret = 0;
+      int oldHp = hp_;
+      int oldMp = mp_;
+      while (NeedEexperienceUntilNextLevel() <= 0)
+      {
+        level_++;
+        ret++;
+      }
+      ResetStatus();
+      PlusNowHp(hp_ - oldHp);
+      PlusNowMp(mp_ - oldMp);
+      return ret;
+    }
     public void Level(int level)
     {
       level_ = level;

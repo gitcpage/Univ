@@ -26,7 +26,7 @@ namespace Univ.NsField
 
     protected Grid monitor_;
 
-    public FieldInclude(Grid grid)
+    protected FieldInclude(Grid grid)
     {
       monitor_ = grid;
     }

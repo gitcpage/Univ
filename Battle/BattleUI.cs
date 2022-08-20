@@ -13,7 +13,7 @@ using Windows.UI.Xaml.Input; // PointerRoutedEventArgs
 namespace Univ.NsBattle
 {
   delegate void BattleNotify(Battle.NotifyCode notifyCode);
-  internal class BattleUI
+  internal class BattleUI : BattleInclude
   {
     Grid monitor_;   // 描画用
     BattleNotify notify_;
@@ -23,9 +23,9 @@ namespace Univ.NsBattle
     TextBlock[] charsActiveMark_;
     Image[] chars_;
     ProgressBar[] bars_;
-    Brush barsBrush_;
-    Brush barsActiveBrush_;
-    //int[] barsValue_;
+    Brush gaugeChargeBrush_;
+    Brush gaugeChargedBrush_;
+    Brush gaugeActingBrush_;
 
     public BattleUI(Grid monitor, BattleNotify battleNotify)
     {
@@ -37,9 +37,9 @@ namespace Univ.NsBattle
       charsActiveMark_ = new TextBlock[5];
       chars_ = new Image[5];
       bars_ = new ProgressBar[5];
-      barsActiveBrush_ = UnivLib.GetBrush(Colors.Orange);
-      barsBrush_ = UnivLib.GetBrush(0, 120, 212); // プログレスバーのデフォルト色
-      //barsValue_ = new int[5];
+      gaugeChargeBrush_ = UnivLib.GetBrush(0, 120, 212); // プログレスバーのデフォルト色
+      gaugeChargedBrush_ = UnivLib.GetBrush(Colors.Orange);
+      gaugeActingBrush_ = UnivLib.GetBrush(Colors.GreenYellow);
     }
     public void ShowCharsArrow(int index = -1)
     {
@@ -110,8 +110,8 @@ namespace Univ.NsBattle
         bar.Width = 80;
         bar.Height = 10;
         // ■ゲージ初期値の設定
-        bar.Maximum = BattleAtb.kBarFullValue;
-        bar.Value = atb.GetVarValue(charId);
+        bar.Maximum = BattleAtb.kGaugeFullValue;
+        bar.Value = atb.GetGaugeValue(charId);
         bar.Margin = new Thickness(0, MarginTop, 0, 0);
         stackPanel.Children.Add(bar);
         return bar;
@@ -163,22 +163,31 @@ namespace Univ.NsBattle
     }
     // ▽▽▽初期化▽▽▽
 
-    public void SetBarValue(int charId, int value)
+    public void SetGaugeValue(int charId, int value)
     {
       //■ゲージの設定
       bars_[charId].Value = value;
+      if (bars_[charId].Value >= kGaugeFullValue)
+      {
+        bars_[charId].Foreground = gaugeChargedBrush_;
+      }
     }
-    public void SetActiveMark(int charId, bool act)
+    public void SetActiveMark(int charId, bool isCommand, bool isAction = false)
     {
-      if (act)
+      if (isCommand)
       {
         charsActiveMark_[charId].Foreground = UnivLib.GetBrush(Colors.White);
-        bars_[charId].Foreground = barsActiveBrush_;
+        bars_[charId].Foreground = gaugeChargedBrush_;
+      }
+      else if (isAction)
+      {
+        charsActiveMark_[charId].Foreground = UnivLib.GetBrush(0, 255, 255, 255);
+        bars_[charId].Foreground = gaugeActingBrush_;
       }
       else
       {
         charsActiveMark_[charId].Foreground = UnivLib.GetBrush(0, 255, 255, 255);
-        bars_[charId].Foreground = barsBrush_;
+        bars_[charId].Foreground = gaugeChargeBrush_;
       }
     }
 

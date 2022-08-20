@@ -34,6 +34,8 @@
             <Button Content="savedataをロードする" Margin="11,65,0,0" VerticalAlignment="Top" Click="Button_Click_2"/>
             <Button Content="保存フォルダ" Margin="11,115,0,0" VerticalAlignment="Top" Click="Button_Click_3"/>
             <Button Content="画像パス一覧表示" Margin="11,165,0,0" VerticalAlignment="Top" Click="Button_Click_4"/>
+            <Button Content="NewGame" Margin="11,215,0,0" VerticalAlignment="Top" Click="Button_Click_NewGame"/>
+            <CheckBox Name="chkEncount" Content="エンカウントする" Height="35" Margin="13,255,0,0" VerticalAlignment="Top" Width="105" IsChecked="True" />
             <TextBox HorizontalAlignment="Center" Margin="0,320,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="270" Width="187" Name="txtConsole"/>
             <TextBlock HorizontalAlignment="Left" Margin="13,0,0,0" TextWrapping="Wrap" Text="console" VerticalAlignment="Center" RenderTransformOrigin="-1.121,0.526"/>
             <Button Content="クリアする" Margin="93,290,0,0" VerticalAlignment="Top" Click="Button_Click_Clear"/>

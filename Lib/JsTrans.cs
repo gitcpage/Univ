@@ -37,9 +37,10 @@ namespace Univ
         ApplicationView.GetForCurrentView().Title = value;
       }
     }
+    // 戻り値：0以上max未満の整数
     static public int getRandomInt(int max)
     { // https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Math/random
-      return s_random.Next(max - 1);
+      return s_random.Next(max);
     }
 
     //

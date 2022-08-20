@@ -7,6 +7,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Core; // CoreWindow, CoreVirtualKeyStates
 using Windows.System; // VirtualKey
 using Windows.UI.Xaml.Controls;
+using Univ.Data;
 
 namespace Univ
 {
@@ -110,7 +111,7 @@ namespace Univ
     
     int isMouseLDownCount = 0;
 
-    void Initialize()
+    public void Initialize()
     {
       if (timer_ != null)
       {
@@ -144,6 +145,12 @@ namespace Univ
         }
 
         frameCount_++;
+
+        if (Data.Loader.loadingState == Data.LoadingState.Success)
+        {
+          Basic basic = Basic.Instance;
+          basic.msTimePlus(kOneFrameTimeMs);
+        }
       }; // timer_.Tick += (object sender, object e) => {
 
       //■
@@ -169,11 +176,7 @@ namespace Univ
       timer_.Tick += handler_;
       int oneFrameTimeMs = isFast_ ? kOneFrameTimeMs / 2 : kOneFrameTimeMs;
       timer_.Interval = TimeSpan.FromMilliseconds(oneFrameTimeMs);
-      //if (!isRunning)
-      {
-        //isRunning = true;
-        timer_.Start();
-      }
+      timer_.Start();
     }
     internal void EnterSequence(EventHandler<object> returnMethod,IRun iRun)
     {
@@ -183,13 +186,13 @@ namespace Univ
     public void EnterSequenceFadeIn(EventHandler<object> returnMethod)
     {
       sequenceStack_.Push(returnMethod);
-      Fade.RunFadeIn(); //mainPage_.RunFadeIn();
+      Fade.RunFadeIn();
     }
     public void EnterSequenceFadeOut(EventHandler<object> returnMethod)
     {
       sequenceStack_.Push(returnMethod);
       if (this.enableFadeOut)
-        Fade.RunFadeOut();//mainPage_.RunFadeOut();
+        Fade.RunFadeOut();
       else
         ExitSequence();
     }
@@ -198,10 +201,11 @@ namespace Univ
       EventHandler<object> e = sequenceStack_.Pop();
       ChangeSequence(e);
     }
+    //※ニューゲーム処理を行う場合は、loader_.Reload(true); Initialize();とすること。
     public void Reset()
     {
-      JsTrans.console_log("ソフトリセット");
-      mainPage_.Clear(true);
+      //JsTrans.console_log("ソフトリセット");
+      mainPage_.ClearReload();
       Initialize();
     }
     /*public bool ResettingOnce()

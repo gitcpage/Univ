@@ -36,11 +36,21 @@ namespace Univ.Data
 
     public int gold() { return s_gold; }
     public void gold(int num) { s_gold = num; }
-    public int goldPlus(int num = 1) { s_gold += num; JsTrans.Assert(s_gold >= 0, "gold"); return s_gold; }
-    public long msTime() { return s_msTime; }
+    public int goldPlus(int num = 1) { s_gold += num; JsTrans.Assert(s_gold >= 0, "gold_"); return s_gold; }
+    //public long msTime() { return s_msTime; }
     public long msTimeMinutes() { return s_msTime/1000/60; }
+    public string msTimeString()
+    {
+      long minutes = s_msTime / 1000 / 60;
+      long hour = minutes / 60;
+      minutes %= 60;
+      if (minutes < 10)
+        return hour.ToString() + ":0" + minutes.ToString();
+      else
+        return hour.ToString() + ":" + minutes.ToString();
+    }
     public void msTime(long ms) { s_msTime = ms; }
-    public long msTimePlus(long ms = 1) { s_msTime += ms; JsTrans.Assert(s_msTime >= 0, "msTime"); return s_msTime; }
+    public long msTimePlus(long ms) { s_msTime += ms; JsTrans.Assert(s_msTime >= 0, "msTime"); return s_msTime; }
 
     public void SetField(string name, int x, int y)
     {
@@ -96,7 +106,7 @@ namespace Univ.Data
     {
       string s = "";
       s += "Gold\t" + gold().ToString() + Environment.NewLine;
-      s += "Time\t" + msTime().ToString() + Environment.NewLine;
+      s += "Time\t" + s_msTime.ToString() + Environment.NewLine;
       s += "FieldName\t" + s_fieldName + Environment.NewLine;
       s += "FieldX\t" + s_fieldX + Environment.NewLine;
       s += "FieldY\t" + s_fieldY + Environment.NewLine;
