@@ -74,12 +74,12 @@ namespace Univ.NsMenu
       parent.PointerEntered += (Object sender, PointerRoutedEventArgs e) =>
       {
         Grid o = sender as Grid;
-        o.Background = UnivLib.GetBrush(187, 211, 213);
+        o.Background = MenuUI.kPanelBgHoverBrush;
       };
       parent.PointerExited += (Object sender, PointerRoutedEventArgs e) =>
       {
         Grid o = sender as Grid;
-        o.Background = UnivLib.GetBrush(157, 181, 183);
+        o.Background = MenuUI.kPanelBgBrush;
       };
       parent.Tapped += (Object sender, TappedRoutedEventArgs e) =>
       {
@@ -90,7 +90,7 @@ namespace Univ.NsMenu
 
     public void Tap()
     {
-      leftArrow_.Foreground = UnivLib.GetBrush(14, 77, 108);
+      leftArrow_.Foreground = MenuUI.kCursorBrush;
       leftArrow_.Text = "➤";
     }
     public void TapOtherFriend()
@@ -100,7 +100,7 @@ namespace Univ.NsMenu
     public void TapLeftMenu()
     {
       if (leftArrow_.Text == "➤")
-        leftArrow_.Foreground = UnivLib.GetBrush(128, 14, 77, 108);
+        leftArrow_.Foreground = MenuUI.kCursorTranslucentBrush;
     }
   }
 }

@@ -42,7 +42,7 @@ namespace Univ.NsMenu
       txt.HorizontalAlignment = HorizontalAlignment.Left;
       txt.FontSize = fontSize;
       txt.FontFamily = new FontFamily("メイリオ");
-      txt.Foreground = UnivLib.GetBrush(14, 77, 108);
+      txt.Foreground = MenuUI.kCursorBrush;
       return txt;
     }
   }

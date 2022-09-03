@@ -39,5 +39,17 @@ namespace Univ.Data
     {
       return Equips((EquipCategory)equipCategory);
     }
+    static public ConstSkill[] Skills(SkillKind skillKind)
+    {
+      Loader loader = Loader.Instance;
+      return loader.skillAll[(int)skillKind];
+    }
+    static public ConstSkill[] MagicSkills()
+    {
+      Loader loader = Loader.Instance;
+      return loader.skillAll[(int)SkillKind.Recovery].Concat(
+             loader.skillAll[(int)SkillKind.Aid]).ToArray().Concat(
+             loader.skillAll[(int)SkillKind.Attack]).ToArray();
+    }
   }
 }

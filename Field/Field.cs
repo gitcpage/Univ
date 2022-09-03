@@ -28,7 +28,7 @@ namespace Univ
   {
     MainPage mainPage_;
     FrameManager frameManager_;
-    Data.StatusWritable[] charsWritable_;
+    //Data.StatusWritable[] charsWritable_;
     Data.SecurityToken stFriends_;
 
     //FieldBlock obj_;
@@ -53,7 +53,7 @@ namespace Univ
     public Field(MainPage mainPage, Data.SecurityToken stFriends) : base(mainPage.GetMonitorBg())
     {
       mainPage_ = mainPage;
-      charsWritable_ = Data.DataSC.FriendsWritable(stFriends_ = stFriends);
+      //charsWritable_ = Data.DataSC.FriendsWritable(stFriends_ = stFriends);
       frameManager_ = mainPage.GetFrameManager();
       monitor_ = mainPage.GetMonitor();
     }
@@ -125,15 +125,17 @@ namespace Univ
       Data.Basic.Instance.SetField(name_, tPosX_, tPosY_);
       frameManager_.ExitSequence();
     }
+    void MemberTPos()
+    {
+      int rtPosX, rtPosY;
+      bg_.GetTipPosition(out rtPosX, out rtPosY);
+      this.tPosX_ = -rtPosX + player_.BlockX;
+      this.tPosY_ = -rtPosY + player_.BlockY;
+    }
     public void SaveFieldState()
     {
       mainPage_.Clear();
-      int rtPosX, rtPosY;
-      bg_.GetTipPosition(out rtPosX, out rtPosY);
-      int px = player_.blockX_, py = player_.blockY_;
-      player_.GetBlockPosition(out px, out py);
-      this.tPosX_ = -rtPosX + px;
-      this.tPosY_ = -rtPosY + py;
+      MemberTPos();
       Data.Basic.Instance.SetField(name_, tPosX_, tPosY_);
     }
     public void OnFadeOutedToMenu(object senderDispatcherTimer, object eNull)
@@ -180,22 +182,28 @@ namespace Univ
         {
           int mouseX = frameManager_.clientX;
           int mouseY = frameManager_.clientY;
-          int max = player_.GetCenterX() - mouseX;
+          int centerX = kTipXSize * kTipXNum / 2;
+          int centerY = kTipYSize * kTipYNum / 2;
+          int max = centerX - mouseX;
+          //int max = player_.GetCenterX() - mouseX;
           moveDirectionX_ = -1; // 仮左方向移動
-          if (mouseX - player_.GetCenterX() > max)
+          //if (mouseX - player_.GetCenterX() > max)
+          if (mouseX - centerX > max)
           { //右方向移動
-            max = mouseX - player_.GetCenterX();
+            max = mouseX - centerX;//player_.GetCenterX();
             moveDirectionX_ = 1;
           }
-          if (player_.GetCenterY() - mouseY > max)
+          //if (player_.GetCenterY() - mouseY > max)
+          if (centerY - mouseY > max)
           { //上方向移動
-            max = player_.GetCenterY() - mouseY;
+            max = /*player_.GetCenterY()*/centerY - mouseY;
             moveDirectionY_ = -1;
             moveDirectionX_ = 0;
           }
-          if (mouseY - player_.GetCenterY() > max)
+          if (mouseY - centerY > max)
+          //if (mouseY - player_.GetCenterY() > max)
           { //下方向移動
-            max = mouseY - player_.GetCenterY();
+            max = mouseY - centerY;//player_.GetCenterY();
             moveDirectionY_ = 1;
             moveDirectionX_ = 0;
           }
@@ -209,9 +217,9 @@ namespace Univ
           //▲▲どう移動するか判定する▲▲
           if (moveDirectionX_ == -1)
           {
-            if (player_.blockX_ > 0) //画面上のキャラ位置による判定
+            if (player_.BlockX > 0) //画面上のキャラ位置による判定
             {
-              if (player_.blockX_ > kTipXNum / 2 - 1)
+              if (player_.BlockX > kTipXNum / 2 - 1)
                 whatDoing_ = WhatDoing.PlayerMove;
               else if (bg_.CanMove(-moveDirectionX_, 0))
                 whatDoing_ = WhatDoing.PlayerMoveByBg;
@@ -221,9 +229,9 @@ namespace Univ
           }
           if (moveDirectionX_ == 1)
           {
-            if (player_.blockX_ < kTipXNum - 1)
+            if (player_.BlockX < kTipXNum - 1)
             {
-              if (player_.blockX_ < kTipXNum / 2 - 1)
+              if (player_.BlockX < kTipXNum / 2 - 1)
                 whatDoing_ = WhatDoing.PlayerMove;
               else if (bg_.CanMove(-moveDirectionX_, 0))
                 whatDoing_ = WhatDoing.PlayerMoveByBg;
@@ -233,9 +241,9 @@ namespace Univ
           }
           if (moveDirectionY_ == -1)
           {
-            if (player_.blockY_ > 0)
+            if (player_.BlockY > 0)
             {
-              if (player_.blockY_ > kTipYNum / 2 - 1)
+              if (player_.BlockY > kTipYNum / 2 - 1)
                 whatDoing_ = WhatDoing.PlayerMove;
               else if (bg_.CanMove(0, -moveDirectionY_))
                 whatDoing_ = WhatDoing.PlayerMoveByBg;
@@ -245,9 +253,9 @@ namespace Univ
           }
           if (moveDirectionY_ == 1)
           {
-            if (player_.blockY_ < kTipYNum - 1)
+            if (player_.BlockY < kTipYNum - 1)
             {
-              if (player_.blockY_ < kTipYNum / 2 - 1)
+              if (player_.BlockY < kTipYNum / 2 - 1)
                 whatDoing_ = WhatDoing.PlayerMove;
               else if (bg_.CanMove(0, -moveDirectionY_))
                 whatDoing_ = WhatDoing.PlayerMoveByBg;
@@ -255,12 +263,12 @@ namespace Univ
                 whatDoing_ = WhatDoing.PlayerMove;
             }
           }
+          int toX = this.tPosX_ + moveDirectionX_;
+          int toY = this.tPosY_ + moveDirectionY_;
           foreach (Data.FieldMoveData fmd in fieldData_.Doors)
           {
-            int toX = player_.blockX_ + moveDirectionX_;
-            int toY = player_.blockY_ + moveDirectionY_;
             if (fmd.fromX == toX && fmd.fromY == toY)
-            {
+            { //■マップ切り替え
               name_ = fmd.toName;
               tPosX_ = fmd.toX;
               tPosY_ = fmd.toY;
@@ -309,10 +317,11 @@ namespace Univ
           bg_.Move(-moveDirectionX_ * kMoveXStep, -moveDirectionY_ * kMoveYStep);
         }
         else
-        {
+        { //■背景移動終了
           bg_.Move(-moveDirectionX_ * kMoveXStep, -moveDirectionY_ * kMoveYStep);
           moveStep_ = 0;
           whatDoing_ = WhatDoing.None;
+          MemberTPos();
           Encount();
         }
       }//if (player_moving_)
@@ -326,12 +335,11 @@ namespace Univ
             player_.GetY() + moveDirectionY_ * kMoveYStep);
         }
         else
-        {
-          player_.blockX_ += moveDirectionX_;
-          player_.blockY_ += moveDirectionY_;
-          player_.BlockSync();
+        { //■プレイヤー移動終了
+          player_.SetBlockPosition(player_.BlockX + moveDirectionX_, player_.BlockY + moveDirectionY_);
           moveStep_ = 0;
           whatDoing_ = WhatDoing.None;
+          MemberTPos();
           Encount();
         }
       }
@@ -343,11 +351,10 @@ namespace Univ
 
 
       if ((whatDoing_ == WhatDoing.None &&
-        (frameManager_.IsKeyDownFirst(VirtualKey.Space) || frameManager_.isMouseLDownFirst))
+        (frameManager_.IsKeyDownFirst(GameKey.Change)/* || frameManager_.isMouseLDownFirst*/))
          || whatDoing_ == WhatDoing.Talk)
       {
-        //bool yes;
-        if (Lib.Talk.TalkMsg(ref talk_, monitor_, frameManager_,// out yes, 
+        if (Lib.Talk.TalkMsg(ref talk_, monitor_, frameManager_,
           "ラジオを拾った。", "アクアテラリウム リミックス", "再生しますか？"))
         {
           whatDoing_ = WhatDoing.None;
@@ -358,7 +365,7 @@ namespace Univ
         }
       }
 
-      if (frameManager_.IsKeyDownFirst(VirtualKey.Escape))
+      if (frameManager_.IsKeyDownFirst(GameKey.Cancel))
       {
         //monitor_.Children.Clear();
         //mainPage_.GetMonitorBg().Children.Clear();

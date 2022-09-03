@@ -8,6 +8,7 @@ using Windows.UI.Core; // CoreWindow, CoreVirtualKeyStates
 using Windows.System; // VirtualKey
 using Windows.UI.Xaml.Controls;
 using Univ.Data;
+using static System.Runtime.CompilerServices.RuntimeHelpers;
 
 namespace Univ
 {
@@ -97,9 +98,19 @@ namespace Univ
 
     EventHandler<object> mainFrameOne_;
 
-    byte[] jkey_ = new byte[256];
-    int frameCount_ = 0;
+    //△△△キー制御△△△
+    //byte[] jkey_ = new byte[256];
+    Key key_ = new Key();
+    VirtualKey keyOk_ = VirtualKey.M;
+    VirtualKey keyCancel_ = VirtualKey.N;
+    VirtualKey keyUp_ = VirtualKey.E;
+    VirtualKey keyLeft_ = VirtualKey.S;
+    VirtualKey keyRight_ = VirtualKey.D;
+    VirtualKey keyDown_ = VirtualKey.X;
+    VirtualKey keyAll_ = VirtualKey.A;
+    //▽▽▽キー制御▽▽▽
 
+    int frameCount_ = 0;
     // kOneFrameTimeMs は40で固定する。必要な場合のみ変更する。20220708
     public const int kOneFrameTimeMs = 40; // from MainPage.FadeOut
     bool isFast_ = false;
@@ -121,7 +132,7 @@ namespace Univ
       timer_ = new DispatcherTimer();
       // ChangeSequence()の第１引数より先に実行されてほしいが保証はない。
       timer_.Tick += (sender, e) => {
-        CoreWindow coreWin = CoreWindow.GetForCurrentThread();
+        /*CoreWindow coreWin = CoreWindow.GetForCurrentThread();
         for (int i = 0; i < jkey_.Length; i++)
         {
           var state = coreWin.GetKeyState((VirtualKey)i);
@@ -133,7 +144,8 @@ namespace Univ
           {
             jkey_[i] = 0;
           }
-        }
+        }*/
+        key_.Update();
 
         if (mainPage_.isMouseLDown)
         {
@@ -145,6 +157,7 @@ namespace Univ
         }
 
         frameCount_++;
+        mainPage_.UpdateAppBarFrameCountText(FrameCount);
 
         if (Data.Loader.loadingState == Data.LoadingState.Success)
         {
@@ -229,63 +242,161 @@ namespace Univ
     }
 
     // △△△ キー関連処理 △△△
-    public bool IsKeyDown(char keyCode)
+    public bool IsCancelKeyDownFirstIgnoreAlpha()
     {
-      if (jkey_[keyCode] > 0)
+      return key_.IsKeyDownFirst(VirtualKey.Escape, VirtualKey.Delete);
+    }
+    public bool IsKeyDown(GameKey key)
+    {
+      switch (key)
       {
-        return true;
+        case GameKey.Ok:
+          return key_.IsKeyDown(keyOk_, VirtualKey.Enter, VirtualKey.Space);
+        case GameKey.Cancel:
+          return key_.IsKeyDown(keyCancel_, VirtualKey.Escape, VirtualKey.Delete);
+        case GameKey.Change:
+          return key_.IsKeyDown(keyAll_, VirtualKey.Control, VirtualKey.LeftControl);
+        case GameKey.Left:
+          return key_.IsKeyDown(keyLeft_, VirtualKey.Left);
+        case GameKey.Right:
+          return key_.IsKeyDown(keyRight_, VirtualKey.Right);
+        case GameKey.Up:
+          return key_.IsKeyDown(keyUp_, VirtualKey.Up);
+        case GameKey.Down:
+          return key_.IsKeyDown(keyDown_, VirtualKey.Down);
+        case GameKey.N1:
+          return key_.IsKeyDown(VirtualKey.Number1, VirtualKey.NumberPad1);
+        case GameKey.N2:
+          return key_.IsKeyDown(VirtualKey.Number2, VirtualKey.NumberPad2);
+        case GameKey.N3:
+          return key_.IsKeyDown(VirtualKey.Number3, VirtualKey.NumberPad3);
+        case GameKey.N4:
+          return key_.IsKeyDown(VirtualKey.Number4, VirtualKey.NumberPad4);
+        case GameKey.N5:
+          return key_.IsKeyDown(VirtualKey.Number5, VirtualKey.NumberPad5);
+        case GameKey.N6:
+          return key_.IsKeyDown(VirtualKey.Number6, VirtualKey.NumberPad6);
+        case GameKey.N7:
+          return key_.IsKeyDown(VirtualKey.Number7, VirtualKey.NumberPad7);
+        case GameKey.N8:
+          return key_.IsKeyDown(VirtualKey.Number8, VirtualKey.NumberPad8);
+        case GameKey.N9:
+          return key_.IsKeyDown(VirtualKey.Number9, VirtualKey.NumberPad9);
+      }
+      
+      return false;
+    }
+    public bool IsKeyDownFirst(GameKey key)
+    {
+      switch (key)
+      {
+        case GameKey.Ok:
+          return key_.IsKeyDownFirst(keyOk_, VirtualKey.Enter, VirtualKey.Space);
+        case GameKey.Cancel:
+          return key_.IsKeyDownFirst(keyCancel_, VirtualKey.Escape, VirtualKey.Delete);
+        case GameKey.Change:
+          return key_.IsKeyDownFirst(keyAll_, VirtualKey.Control, VirtualKey.LeftControl);
+        case GameKey.Left:
+          return key_.IsKeyDownFirst(keyLeft_, VirtualKey.Left);
+        case GameKey.Right:
+          return key_.IsKeyDownFirst(keyRight_, VirtualKey.Right);
+        case GameKey.Up:
+          return key_.IsKeyDownFirst(keyUp_, VirtualKey.Up);
+        case GameKey.Down:
+          return key_.IsKeyDownFirst(keyDown_, VirtualKey.Down);
+        case GameKey.N1:
+          return key_.IsKeyDownFirst(VirtualKey.Number1);
+        case GameKey.N2:
+          return key_.IsKeyDownFirst(VirtualKey.Number2);
+        case GameKey.N3:
+          return key_.IsKeyDownFirst(VirtualKey.Number3);
+        case GameKey.N4:
+          return key_.IsKeyDownFirst(VirtualKey.Number4);
+        case GameKey.N5:
+          return key_.IsKeyDownFirst(VirtualKey.Number5);
+        case GameKey.N6:
+          return key_.IsKeyDownFirst(VirtualKey.Number6);
+        case GameKey.N7:
+          return key_.IsKeyDownFirst(VirtualKey.Number7);
+        case GameKey.N8:
+          return key_.IsKeyDownFirst(VirtualKey.Number8);
+        case GameKey.N9:
+          return key_.IsKeyDownFirst(VirtualKey.Number9);
       }
       return false;
     }
-    public bool IsKeyDown(VirtualKey keyCode)
+    public bool IsKeyDownRepeat(GameKey key)
     {
-      if (jkey_[(int)keyCode] > 0)
+      switch (key)
       {
-        return true;
+        case GameKey.Ok:
+          return key_.IsKeyDownRepeat(keyOk_, VirtualKey.Enter, VirtualKey.Space);
+        case GameKey.Cancel:
+          return key_.IsKeyDownRepeat(keyCancel_, VirtualKey.Escape, VirtualKey.Delete);
+        case GameKey.Change:
+          return key_.IsKeyDownRepeat(keyAll_, VirtualKey.Control, VirtualKey.LeftControl);
+        case GameKey.Left:
+          return key_.IsKeyDownRepeat(keyLeft_, VirtualKey.Left);
+        case GameKey.Right:
+          return key_.IsKeyDownRepeat(keyRight_, VirtualKey.Right);
+        case GameKey.Up:
+          return key_.IsKeyDownRepeat(keyUp_, VirtualKey.Up);
+        case GameKey.Down:
+          return key_.IsKeyDownRepeat(keyDown_, VirtualKey.Down);
+        case GameKey.N1:
+          return key_.IsKeyDownRepeat(VirtualKey.Number1);
+        case GameKey.N2:
+          return key_.IsKeyDownRepeat(VirtualKey.Number2);
+        case GameKey.N3:
+          return key_.IsKeyDownRepeat(VirtualKey.Number3);
+        case GameKey.N4:
+          return key_.IsKeyDownRepeat(VirtualKey.Number4);
+        case GameKey.N5:
+          return key_.IsKeyDownRepeat(VirtualKey.Number5);
+        case GameKey.N6:
+          return key_.IsKeyDownRepeat(VirtualKey.Number6);
+        case GameKey.N7:
+          return key_.IsKeyDownRepeat(VirtualKey.Number7);
+        case GameKey.N8:
+          return key_.IsKeyDownRepeat(VirtualKey.Number8);
+        case GameKey.N9:
+          return key_.IsKeyDownRepeat(VirtualKey.Number9);
       }
       return false;
     }
-
-    public bool IsKeyDownFirst(char keyCode)
+    public bool IsKeyDownFirst(GameKey key1, GameKey key2)
     {
-      if (jkey_[keyCode] == 1)
-      {
-        jkey_[keyCode]++;
-        return true;
-      }
-      return false;
-    }
-    public bool IsKeyDownFirst(VirtualKey keyCode)
-    {
-      if (jkey_[(int)keyCode] == 1)
-      {
-        return true;
-      }
-      return false;
+      return IsKeyDownFirst(key1) || IsKeyDownFirst(key2);
     }
     public bool KeyDirection(out int x, out int y)
     {
       x = y = 0;
-      if (IsKeyDown(VirtualKey.Left))
+      if (IsKeyDown(GameKey.Left))
       { // ↑
         x = -1;
         return true;
       }
-      else if (IsKeyDown(VirtualKey.Right))
+      else if (IsKeyDown(GameKey.Right))
       { // ↓
         x = 1;
         return true;
       }
-      if (IsKeyDown(VirtualKey.Up))
+      if (IsKeyDown(GameKey.Up))
       { // ↑
         y = -1;
         return true;
       }
-      else if (IsKeyDown(VirtualKey.Down))
+      else if (IsKeyDown(GameKey.Down))
       { // ↓
         y = 1;
         return true;
       }
+      return false;
+    }
+    public bool IsKeyDownAlpha(Char c)
+    {
+      if ('A' <= c && c <= 'Z')
+        return key_.IsKeyDown((VirtualKey)c);
       return false;
     }
     // ▽▽▽ キー関連処理 ▽▽▽

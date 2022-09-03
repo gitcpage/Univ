@@ -12,90 +12,74 @@ using Windows.UI.Xaml.Media; // FontFamily
 
 namespace Univ.NsMenu
 {
-  internal class MenuEquip
+  internal class MenuEquip : Menu123Stack
   {
-    Grid parent_;
     MenuStatus menuStatus_;
 
     Data.Status[] friends_ = Data.DataSC.Friends();
     Data.StatusWritable[] friendsWritable_;
-
-    readonly Brush kCurrentBrush_; // fgBrush_
-    readonly Brush kSelectedBrush_;// bgBrush_
-    readonly Brush kErasedBrush_;  // groupBgBrush_
-
-    TextBlock[] tbTopArrows_;
-    int topArrowSelect_;
-
-    TextBlock[] tbSecArrows_;
-    int secArrowSelect_;
-
-    TextBlock[] tbItemArrows_;
-    int itemArrowSelect_;
     int[] viewPositionToEquipId_ = { };
 
-    StackPanel stackPanel_;
-    Grid view_;
-
-    public MenuEquip(Grid parent, MenuStatus menuStatus, Data.StatusWritable[] friendsWritable)
+    public MenuEquip(Grid parent, MenuStatus menuStatus, Data.StatusWritable[] friendsWritable,
+      int friendSelected) : base(parent)
     {
-      parent_ = parent;
       menuStatus_ = menuStatus;
       friendsWritable_ = friendsWritable;
 
-      kCurrentBrush_ = UnivLib.GetBrush(14, 77, 108);
-      kSelectedBrush_ = UnivLib.GetBrush(157, 181, 183);
-      kErasedBrush_ = UnivLib.GetBrush(0xf3, 0xe4, 0xd5);
-      secArrowSelect_ = topArrowSelect_ = 0;
-      itemArrowSelect_ = -1;
+      //▲▲▲Create▲▲▲
+      //▲▲トップ（キャラ選択）▲▲
+      base.CreateTopFriends(friendSelected);
+      //▼▼トップ（キャラ選択）▼▼
+
+      //▲▲セカンド（装備種類選択）▲▲
+      string[] secNames = { "武器", "体", "頭", "腕", "外装", "装飾" };
+      base.CreateSecondPanel(secNames);
+      //▼▼セカンド（装備種類選択）▼▼
+
+      //▲▲ビュー（装備選択）▲▲
+      view_ = CreateView();
+      base.NotifyTop(topArrowSelect_); //UpdateView();
+      wholePanel_.Children.Add(view_);
+      //▼▼ビュー（装備選択）▼▼
+
+      menuStatus_.SetTitle("現", "新");
+      menuStatus_.EquipChange(topArrowSelect_);
+      //▼▼▼Create▼▼▼
     }
-    void NotifyTop(int id)
+    protected override void NotifyTop(int id)
     {
       if (id != topArrowSelect_)
         menuStatus_.EquipChange(id);
-      topArrowSelect_ = id;
-      tbSecArrows_[secArrowSelect_].Foreground = kSelectedBrush_;
-      if (itemArrowSelect_ >= 0)
-      {
-        if (itemArrowSelect_ > tbItemArrows_.Length)
-          tbItemArrows_[itemArrowSelect_].Foreground = kErasedBrush_;
-      }
-      UpdateView();
+      base.NotifyTop(id);
       menuStatus_.EquipChange(topArrowSelect_);
     }
-    void NotifySec(int id)
+    protected override void NotifySec(int id)
     {
-      tbTopArrows_[topArrowSelect_].Foreground = kSelectedBrush_;
-      if (itemArrowSelect_ >= 0)
-      {
-        if (itemArrowSelect_ > tbItemArrows_.Length)
-          tbItemArrows_[itemArrowSelect_].Foreground = kErasedBrush_;
-      }
-      UpdateView();
-      menuStatus_.EquipChange(topArrowSelect_);
+      base.NotifySec(id);
+      //menuStatus_.EquipChange(topArrowSelect_);
     }
-    void NotifyItem(int viewItemId)
+    protected override void NotifyItem(int viewItemId)
     {
-      tbTopArrows_[topArrowSelect_].Foreground = kSelectedBrush_;
-      tbSecArrows_[secArrowSelect_].Foreground = kSelectedBrush_;
+      tbTopArrows_[topArrowSelect_].Foreground = kSelectedCursorBrush_;
+      tbSecArrows_[secArrowSelect_].Foreground = kSelectedCursorBrush_;
       menuStatus_.EquipChangeCalc(topArrowSelect_, secArrowSelect_, viewItemId-1);
     }
     // 戻り値：装備ウィンドウを終了する場合は true を返す。
-    public bool Notify(NotifyCode notifyCode)
+    public override bool Notify(NotifyCode notifyCode)
     {
       switch (notifyCode)
       {
         case NotifyCode.Ok:
-          if (tbTopArrows_[topArrowSelect_].Foreground == kCurrentBrush_)
+          if (tbTopArrows_[topArrowSelect_].Foreground == kCurrentCursorBrush_)
           {
-            tbTopArrows_[topArrowSelect_].Foreground = kSelectedBrush_;
-            tbSecArrows_[secArrowSelect_].Foreground = kCurrentBrush_;
+            tbTopArrows_[topArrowSelect_].Foreground = kSelectedCursorBrush_;
+            tbSecArrows_[secArrowSelect_].Foreground = kCurrentCursorBrush_;
           }
-          else if (tbSecArrows_[secArrowSelect_].Foreground == kCurrentBrush_)
+          else if (tbSecArrows_[secArrowSelect_].Foreground == kCurrentCursorBrush_)
           {
-            tbSecArrows_[secArrowSelect_].Foreground = kSelectedBrush_;
+            tbSecArrows_[secArrowSelect_].Foreground = kSelectedCursorBrush_;
             itemArrowSelect_ = 0;
-            tbItemArrows_[itemArrowSelect_].Foreground = kCurrentBrush_;
+            tbItemArrows_[itemArrowSelect_].Foreground = kCurrentCursorBrush_;
           }
           else
           {
@@ -119,21 +103,22 @@ namespace Univ.NsMenu
               }
               menuStatus_.EquipChange(topArrowSelect_);
               UpdateView();
-              tbSecArrows_[secArrowSelect_].Foreground = kCurrentBrush_;
+              tbSecArrows_[secArrowSelect_].Foreground = kCurrentCursorBrush_;
             }
           }
           break;
         case NotifyCode.Cancel:
           if (itemArrowSelect_ >= 0)
           {
-            tbSecArrows_[secArrowSelect_].Foreground = kCurrentBrush_;
-            tbItemArrows_[itemArrowSelect_].Foreground = kErasedBrush_;
+            tbSecArrows_[secArrowSelect_].Foreground = kCurrentCursorBrush_;
+            if (tbItemArrows_.Length >= itemArrowSelect_)//◇
+              tbItemArrows_[itemArrowSelect_].Foreground = kErasedCursorBrush_;
             itemArrowSelect_ = -1;
           }
-          else if (tbSecArrows_[secArrowSelect_].Foreground == kCurrentBrush_)
+          else if (tbSecArrows_[secArrowSelect_].Foreground == kCurrentCursorBrush_)
           {
-            tbTopArrows_[topArrowSelect_].Foreground = kCurrentBrush_;
-            tbSecArrows_[secArrowSelect_].Foreground = kSelectedBrush_;
+            tbTopArrows_[topArrowSelect_].Foreground = kCurrentCursorBrush_;
+            tbSecArrows_[secArrowSelect_].Foreground = kSelectedCursorBrush_;
           }
           else
           {
@@ -144,186 +129,36 @@ namespace Univ.NsMenu
       }
       return false;
     }
-    StackPanel CreateStackPanel(Panel parent, int margin, int marginTop, Brush border, 
-      int width, int height, Brush bg)
+    protected override void UpdateView()
     {
-      StackPanel g = new StackPanel();
-      g.HorizontalAlignment = HorizontalAlignment.Left;
-      g.VerticalAlignment = VerticalAlignment.Top;
-      g.Margin = new Thickness(margin, marginTop, margin, margin);
-      g.Width = width;
-      g.Height = height;
-      if (border != null)
-      {
-        g.BorderThickness = new Thickness(2, 2, 2, 2);
-        g.BorderBrush = border;
-      }
-      g.Background = bg;
-      parent.Children.Add(g);
-      return g;
-    }
-    void CreateGroup(StackPanel parent, string[] items, TextBlock[] arrows, bool isTop = true)
-    {
-      parent.Orientation = Orientation.Horizontal;
-      parent.HorizontalAlignment = HorizontalAlignment.Center;
-      parent.VerticalAlignment = VerticalAlignment.Center;
-
-      TextBlock[] tbs = new TextBlock[items.Length * 2];
-      for (int i = 0; i < items.Length; i++)
-      {
-        TextBlock tbArrow = new TextBlock();
-        tbArrow.VerticalAlignment = VerticalAlignment.Center;
-        tbArrow.Text = "➤";
-        tbArrow.Foreground = kErasedBrush_;
-        tbArrow.FontSize = 16;
-        parent.Children.Add(tbArrow);
-        arrows[i] = tbArrow;
-        tbs[i * 2] = tbArrow;
-
-        TextBlock tbChar = new TextBlock();
-        tbChar.VerticalAlignment = VerticalAlignment.Center;
-        tbChar.Text = items[i] + "　";
-        tbChar.Padding = new Thickness(0, 0, 10, 0);
-        tbChar.Foreground = kCurrentBrush_;
-        tbChar.FontSize = 16;
-        Border bdrChar = UnivLib.WrapBorder(tbChar, parent);
-        //parent.Children.Add(bdrChar);
-        tbs[i * 2 + 1] = tbChar;
-        int hold = i;
-        bdrChar.Tapped += (Object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e) =>
-        {
-          if (isTop)
-          {
-            arrows[topArrowSelect_].Foreground = kErasedBrush_;
-            arrows[hold].Foreground = kCurrentBrush_;
-            NotifyTop(hold);
-          }
-          else
-          {
-            arrows[secArrowSelect_].Foreground = kErasedBrush_;
-            arrows[hold].Foreground = kCurrentBrush_;
-            secArrowSelect_ = hold;
-            NotifySec(hold);
-          }
-        };
-      }
-      UnivLib.MeasureWidth(tbs, parent);
-      arrows[isTop ? topArrowSelect_ : secArrowSelect_].Foreground = kCurrentBrush_;
-    }
-    void UpdateView()
-    {
-      void SetTapEvent(Border bdrEvent, int viewItemId)
-      {
-        bdrEvent.Tapped += (Object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e) =>
-        {
-          if (itemArrowSelect_ >= 0)
-          {
-            if (itemArrowSelect_ < tbItemArrows_.Length)
-              tbItemArrows_[itemArrowSelect_].Foreground = kErasedBrush_;
-          }
-          tbItemArrows_[viewItemId].Foreground = kCurrentBrush_;
-          itemArrowSelect_ = viewItemId;
-          NotifyItem(viewItemId);
-        };
-      }
-
       view_.Children.Clear();
       Data.Loader loader = Data.Loader.Instance;
       Data.ConstStatus[] eqs = loader.EquipArray((Data.EquipCategory)secArrowSelect_);
 
-      // ▲▲▲はずす▲▲▲
-      tbItemArrows_ = new TextBlock[1];
-      tbItemArrows_[0] = MenuUI.RunLavel(view_, 5, 0, "➤");
-      tbItemArrows_[0].Foreground = kErasedBrush_;
-      Border bdr = UnivLib.WrapBorder(MenuUI.RunLavel(null, 30, 0, "はずす"), view_, 155, 0, 0);
-      SetTapEvent(bdr, 0);
-      MenuUI.RunLavelRightAligned(view_, 190, 0, 33, "-".ToString());
-      // ▼▼▼はずす▼▼▼
+      int viewPos = 0;
+      tbItemArrows_ = new TextBlock[0];
+      AddViewItem(viewPos, "はずす", "-");
+      viewPos++;
 
-      int half = 515 / 2;
       Data.Bag bag = Data.DataSC.Bag();
       int eqId = friends_[topArrowSelect_].GetEquipId((Data.EquipCategory)secArrowSelect_);
       Array.Resize(ref this.viewPositionToEquipId_, 1);
       viewPositionToEquipId_[0] = -1; // はずす分
-      int viewPos = 1;
       for (int i = 0; i < eqs.Length; i++)
       {
         string num = eqId == i ? "E" : bag.equip((Data.EquipCategory)secArrowSelect_, i).ToString();
         if (num == "0") continue;
-        int placeY = viewPos / 2;
-        int arrowLeft = 5;
-        int nameLeft = 30;
-        int numLeft = 190;
-        if (viewPos % 2 != 0)
-        {
-          arrowLeft += half;
-          nameLeft += half;
-          numLeft += half;
-        }
-        Array.Resize(ref tbItemArrows_, tbItemArrows_.Length + 1);
-        tbItemArrows_[viewPos] = MenuUI.RunLavel(view_, arrowLeft, placeY * 25, "➤");
-        tbItemArrows_[viewPos].Foreground = kErasedBrush_;
-        bdr = UnivLib.WrapBorder(MenuUI.RunLavel(null, 0, 0, eqs[i].name()), view_, 155, nameLeft, placeY * 25);
-        MenuUI.RunLavelRightAligned(view_, numLeft, placeY * 25, 33, num);
-        SetTapEvent(bdr, viewPos);
+        AddViewItem(viewPos, eqs[i].name(), num);
         Array.Resize(ref this.viewPositionToEquipId_, this.viewPositionToEquipId_.Length + 1);
         this.viewPositionToEquipId_[viewPos] = i;
         viewPos++;
       }
     }
-    Grid CreateView()
-    {
-      Grid view = new Grid();
-      view.HorizontalAlignment = HorizontalAlignment.Left;
-      view.VerticalAlignment = VerticalAlignment.Top;
-      view.Margin = new Thickness(5, 10, 5, 5);
-      view.Width = 515;
-      view.Height = 329;
-      view.Background = kErasedBrush_;
-      return view;
-    }
-    public void Create(int charSelected03)
-    {
-      stackPanel_ = CreateStackPanel(parent_, 0, 0, UnivLib.GetBrush(5, 50, 70),
-        529, 519, kSelectedBrush_);
-
-      //▲▲▲トップ（キャラ選択）▲▲▲
-      StackPanel top = CreateStackPanel(stackPanel_, 5, 15, UnivLib.GetBrush(0x63, 0x42, 0x42),
-        515, 29, kErasedBrush_);
-      string[] names = new string[friends_.Length];
-      for (int i = 0; i < friends_.Length; i++)
-      {
-        names[i] = friends_[i].name();
-      }
-      tbTopArrows_ = new TextBlock[friends_.Length];
-      topArrowSelect_ = charSelected03;
-      CreateGroup(top, names, tbTopArrows_);
-      //▼▼▼トップ（キャラ選択）▼▼▼
-
-      //▲▲▲セカンド（装備種類選択）▲▲▲
-      StackPanel sec = CreateStackPanel(stackPanel_, 5, 10, UnivLib.GetBrush(0x63, 0x42, 0x42),
-        515, 29, kErasedBrush_);
-      string[] secNames = { "武器", "体", "頭", "腕", "外装", "装飾" };
-      tbSecArrows_ = new TextBlock[secNames.Length];
-      CreateGroup(sec, secNames, tbSecArrows_, false);
-
-      //NotifyTop(topArrowSelect_);
-      //▼▼▼セカンド（装備種類選択）▼▼▼
-
-      //▲▲▲ビュー（装備選択）▲▲▲
-      view_ = CreateView();
-      NotifyTop(topArrowSelect_); //UpdateView();
-      stackPanel_.Children.Add(view_);
-      //▼▼▼ビュー（装備選択）▼▼▼
-
-      menuStatus_.SetTitle("現", "新");
-      menuStatus_.EquipChange(topArrowSelect_);
-    }
 
     // 戻り値：選択しているキャラクター番号を返す。
-    public int Destroy()
+    public override int Destroy()
     {
-      parent_.Children.Remove(stackPanel_);
+      parent_.Children.Remove(wholePanel_);
       return topArrowSelect_;
     }
   }

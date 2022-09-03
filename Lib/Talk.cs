@@ -124,7 +124,7 @@ namespace Univ.Lib
       switch (yesNoState_)
       {
         case YesNoState.None:
-          JsTrans.Assert("public void Change() Talk.cs");
+          JsTrans.Assert("public void Change() Change.cs");
           break;
         case YesNoState.Yes:
           Select(false);
@@ -183,19 +183,19 @@ namespace Univ.Lib
       }
       s_GridOvelap_.Background = brush;
     }
-    // Talk を簡略化して使えるようにした静的メソッド。
+    // Change を簡略化して使えるようにした静的メソッド。
     // 戻り値：消去時にtrue
     // 以下使用例。
-    //if (whatDoing_ == WhatDoing.None || whatDoing_ == WhatDoing.Talk)
+    //if (whatDoing_ == WhatDoing.None || whatDoing_ == WhatDoing.Change)
     //  bool yes;
-    //  if (Lib.Talk.TalkYesNo(ref talk_, monitor_, frameManager_, out yes, 
+    //  if (Lib.Change.TalkYesNo(ref talk_, monitor_, frameManager_, out yes, 
     //    "ラジオを拾った。", "アクアテラリウム リミックス", "再生しますか？"))
     //  {
     //    whatDoing_ = WhatDoing.None;
     //  }
     //  if (talk_ != null)
     //  {
-    //    whatDoing_ = WhatDoing.Talk;
+    //    whatDoing_ = WhatDoing.Change;
     //  }
     //}
     static public bool TalkYesNoOverlap(ref Talk talk, Grid parent, FrameManager frameManager, out bool yes,
@@ -220,9 +220,9 @@ namespace Univ.Lib
         }
         else
         {
-          if (frameManager.IsKeyDownFirst(VirtualKey.Space))
-            talk.Change();
-          else if (frameManager.IsKeyDownFirst(VirtualKey.Enter))
+          if (frameManager.IsKeyDownFirst(GameKey.Change))
+            talk.Change();//選択肢切り替え
+          else if (frameManager.IsKeyDownFirst(GameKey.Ok))
           {
             yes = talk.IsYes();
             talk.Remove(parent);
@@ -244,9 +244,8 @@ namespace Univ.Lib
       }
       else
       {
-        if (frameManager.IsKeyDownFirst(VirtualKey.Space) || 
-          frameManager.isMouseLDownFirst || 
-          frameManager.IsKeyDownFirst(VirtualKey.Enter))
+        if (frameManager.IsKeyDownFirst(GameKey.Ok, GameKey.Change) || 
+          frameManager.isMouseLDownFirst)
         {
           talk.Remove(parent);
           talk = null;
@@ -267,9 +266,8 @@ namespace Univ.Lib
       }
       else
       {
-        if (frameManager.IsKeyDownFirst(VirtualKey.Space) ||
-          frameManager.isMouseLDownFirst ||
-          frameManager.IsKeyDownFirst(VirtualKey.Enter))
+        if (frameManager.IsKeyDownFirst(GameKey.Ok, GameKey.Change) ||
+          frameManager.isMouseLDownFirst)
         {
           talk.Remove(parent);
           talk = null;

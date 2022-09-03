@@ -120,7 +120,7 @@ namespace Univ.NsMenu
     {
       Data.Status[] sts = Data.Status.Instances;
       Data.Status st = sts[0];
-      Brush normal = UnivLib.GetBrush(14, 77, 108);
+      Brush normal = MenuUI.kCursorBrush;
       FontWeight nBold = UnivLib.FontWeightBold(false);
 
       string[] h_sBare = st.Hp_SpdBareStrings();
@@ -152,7 +152,7 @@ namespace Univ.NsMenu
       tbLv_.Text = "Lv " + st.level();
       tbExperience_.Text = st.experience().ToString();
 
-      Brush normal = UnivLib.GetBrush(14, 77, 108);
+      Brush normal = MenuUI.kCursorBrush;
       FontWeight nBold = UnivLib.FontWeightBold(false);
 
       string[] h_sBare = st.Hp_SpdBareStrings();
@@ -225,7 +225,7 @@ namespace Univ.NsMenu
 
       Brush blue = UnivLib.GetBrush(Colors.Blue);
       Brush red = UnivLib.GetBrush(Colors.Red);
-      Brush normal = UnivLib.GetBrush(14, 77, 108);
+      Brush normal = MenuUI.kCursorBrush;
       FontWeight bold = UnivLib.FontWeightBold();
       FontWeight nBold = UnivLib.FontWeightBold(false);
       for (int i = 0; i < h_s.Length; i++)

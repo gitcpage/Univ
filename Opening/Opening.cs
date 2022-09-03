@@ -99,7 +99,7 @@ namespace Univ
       }
 
       // スペースキーで戻る
-      if (frameManager_.IsKeyDownFirst(VirtualKey.Space))
+      if (frameManager_.IsKeyDownFirst(GameKey.Change))
       {
         frameManager_.EnterSequenceFadeOut(OnFadeOuted);
       }

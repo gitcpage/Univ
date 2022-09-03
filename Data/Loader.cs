@@ -41,6 +41,11 @@ namespace Univ.Data
     public readonly ConstStatusMons[] monsData;
     public readonly ConstMonsGroups[] monsGroupsData;
     public readonly ConstItem[] itemData;
+    public readonly ConstSkill[] skillTech;    //技
+    public readonly ConstSkill[] skillRecovery;//回復魔法
+    public readonly ConstSkill[] skillAid;     //補助魔法
+    public readonly ConstSkill[] skillAttack;  //攻撃魔法
+    public readonly ConstSkill[][] skillAll;
 
     public ConstStatus[] EquipArray(EquipCategory equipCategory)
     {
@@ -64,6 +69,7 @@ namespace Univ.Data
     static string kCMonsDataOfSetup = "";
     static string kCMonsGroupsDataOfSetup = "";
     static string kCItemDataOfSetup = "";
+    static string kCSkillDataOfSetup = "";
 
     // 以下３つの静的文字列はセーブ後のロードに使われるので、セーブ時に上書きする。
     static string SaveBagDataOfSetup = "";
@@ -82,29 +88,30 @@ namespace Univ.Data
       async void LoadBody()
       {
         //▲▲▲固定データ▲▲▲
+        StorageFile file;
         // kCStatusDataOfSetup
-        StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///CStatus.txt"));
+        file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Text/CStatus.txt"));
         kCStatusDataOfSetup = await FileIO.ReadTextAsync(file);
 
         // kCFieldDataOfSetup
-        file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///CField.txt"));
+        file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Text/CField.txt"));
         kCFieldDataOfSetup = await FileIO.ReadTextAsync(file);
 
         //kCMonsDataOfSetup
-        file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///CMons.txt"));
-        kCMonsDataOfSetup = await FileIO.ReadTextAsync(file);
-
-        //kCMonsDataOfSetup
-        file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///CMons.txt"));
+        file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Text/CMons.txt"));
         kCMonsDataOfSetup = await FileIO.ReadTextAsync(file);
 
         //kCMonsGroupDataOfSetup
-        file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///CMonsGroup.txt"));
+        file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Text/CMonsGroup.txt"));
         kCMonsGroupsDataOfSetup = await FileIO.ReadTextAsync(file);
 
         //kCItemDataOfSetup
-        file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///CItem.txt"));
+        file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Text/CItem.txt"));
         kCItemDataOfSetup = await FileIO.ReadTextAsync(file);
+
+        //kCSkillDataOfSetup
+        file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Text/CSkill.txt"));
+        kCSkillDataOfSetup = await FileIO.ReadTextAsync(file);
         //▼▼▼固定データ▼▼▼
 
         //▲▲▲流動データ▲▲▲
@@ -241,7 +248,13 @@ namespace Univ.Data
         basic.Initialize();
       }
       else
+      {
         ReloadInside();
+        foreach (var c in friends_)
+        {
+          c.ResetStatus();
+        }
+      }
     }
     private Loader(SecurityToken stFriends)
     {
@@ -298,6 +311,10 @@ namespace Univ.Data
       {
         fieldData[i] = new FieldData(chunks[i]);
       }
+      for (int i = 0; i < chunks.Length; i++)
+      {
+        fieldData[i].ConstructorLatter(fieldData);
+      }
       // ▼▼kFieldDataOfSetup▼▼
 
       // ▲▲kMonsDataOfSetup▲▲
@@ -326,6 +343,44 @@ namespace Univ.Data
         itemData[i] = new ConstItem(chunks[i], i);
       }
       // ▼▼kCItemDataOfSetup▼▼
+
+      // ▲▲kCSkillDataOfSetup▲▲
+      chunks = kCSkillDataOfSetup.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+      ConstSkill[] skills = new ConstSkill[0];
+      skillAll = new ConstSkill[4][];
+      for (int i = 0; i < chunks.Length; i++)
+      {
+        if (chunks[i].StartsWith("\t\t"))
+        {
+          continue;
+        }
+        else if (chunks[i].StartsWith(SkillKind.Tech.ToString()))
+        {
+          skills = new ConstSkill[0];
+        }
+        else if (chunks[i].StartsWith(SkillKind.Recovery.ToString()))
+        {
+          this.skillAll[(int)SkillKind.Tech] = this.skillTech = skills;
+          skills = new ConstSkill[0];
+        }
+        else if (chunks[i].StartsWith(SkillKind.Aid.ToString()))
+        {
+          this.skillAll[(int)SkillKind.Recovery] = this.skillRecovery = skills;
+          skills = new ConstSkill[0];
+        }
+        else if (chunks[i].StartsWith(SkillKind.Attack.ToString()))
+        {
+          this.skillAll[(int)SkillKind.Aid] = this.skillAid = skills;
+          skills = new ConstSkill[0];
+        }
+        else
+        {
+          Array.Resize(ref skills, skills.Length + 1);
+          skills[skills.Length-1] = new ConstSkill(chunks[i]);
+        }
+      }
+      this.skillAll[(int)SkillKind.Attack] = this.skillAttack = skills;
+      // ▼▼kCSkillDataOfSetup▼▼
 
       Bag.Setup(weapons.Length, body.Length, head.Length, arm.Length, exterior.Length, accessory.Length, itemData.Length);
 

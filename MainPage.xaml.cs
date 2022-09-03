@@ -33,8 +33,9 @@ namespace Univ
     //RunImplements runImplements_;
     //RunImplementsFade runImplementsFade_;
 
-    string BottomTextFormer = ""; // シーケンス遷移用に使用する
-    string BottomTextLatter = ""; // マウス用に使用する
+    string BottomTextFormer_ = ""; // シーケンス遷移用に使用する
+    string BottomTextMiddle_ = ""; // マウス用に使用する
+    string BottomTextLatter_ = ""; // フレームカウント用に使用する
 
     //データ関連
     Data.Loader loader_;
@@ -91,7 +92,9 @@ namespace Univ
     // ■エントリーポイント
     void FrameOne(object sender, object e)
     {
-      //this.idProgress.Value = frameManager_.FrameCount;
+      //this.BottomTextLatter_ = frameManager_.FrameCount.ToString();
+      //UpdateAppBarText();
+
       if (Data.Loader.loadingState == Data.LoadingState.Loading)
       {
         // データロード中
@@ -104,11 +107,16 @@ namespace Univ
         stFriends_ = new Data.SecurityToken("Friends");
         loader_ = Data.Loader.Setup(stFriends_);
         //loader_.friends_[0].Equip(Data.EquipCategory.Weapon, 0);
+
+        foreach (Data.StatusWritable c in loader_.Friends(stFriends_))
+        {
+          c.ResetStatus();
+        }
       }
 
       //frameManager_.EnterSequence(FrameOne, new BattleDebug(this, stFriends_, 0));
-      //frameManager_.EnterSequence(FrameOne, new Field(this, stFriends_));
-      frameManager_.EnterSequence(FrameOne, new Menu(this, stFriends_));
+      frameManager_.EnterSequence(FrameOne, new Field(this, stFriends_));
+      //frameManager_.EnterSequence(FrameOne, new Menu(this, stFriends_));
       /*if (opening_ == null || opening_.Selected == -1)
       {
         frameManager_.EnterSequence(FrameOne, opening_ = new Opening(this));
@@ -158,10 +166,10 @@ namespace Univ
     }
     // ▽▽▽モニタアクセス共通処理▽▽▽
 
+    //△△△<Grid x:Name="grid"><Grid Name="idNavi">△△△
     private void Button_Click_1(object sender, RoutedEventArgs e)
     {
     }
-
     private void Button_Click_2(object sender, RoutedEventArgs e)
     {
     }
@@ -183,8 +191,9 @@ namespace Univ
     {
       return (bool)this.chkEncount.IsChecked;
     }
+    //▽▽▽<Grid x:Name="grid"><Grid Name="idNavi">▽▽▽
 
-
+    //△△△<Page.BottomAppBar><CommandBar><AppBarButton>△△△
     private void AppBarReset_Click(object sender, RoutedEventArgs e)
     {
       ClearReload();
@@ -212,16 +221,28 @@ namespace Univ
       this.AppBarFastPlay.IsEnabled = false;
       frameManager_.Start(true);
     }
+    //▽▽▽<Page.BottomAppBar><CommandBar><AppBarButton>▽▽▽
+
+    //△△△<Page.BottomAppBar><CommandBar><CommandBar.Content>△△△
+    void UpdateAppBarText()
+    {
+      this.AppBar.Text = BottomTextFormer_ + " | " + BottomTextMiddle_ + " | " + BottomTextLatter_;
+    }
+    public void UpdateAppBarFrameCountText(int frameCount)
+    {
+      const int divide = 1000 / FrameManager.kOneFrameTimeMs;
+      this.BottomTextLatter_ = frameCount.ToString() + "(" + (frameCount/divide).ToString() + "秒)";
+      UpdateAppBarText();
+    }
     public void BottomTextBySequence(string name)
     {
-      BottomTextFormer = name;
-      this.AppBar.Text = BottomTextFormer + " | " + BottomTextLatter;
+      BottomTextFormer_ = name;
+      UpdateAppBarText();
     }
-
     void BottomTextByMouse()
     {
-      BottomTextLatter = (int)mousePoint.X + ":" + (int)mousePoint.Y + (isMouseLDown ? " Down" : "");
-      this.AppBar.Text = BottomTextFormer + " | " + BottomTextLatter;
+      BottomTextMiddle_ = (int)mousePoint.X + ":" + (int)mousePoint.Y + (isMouseLDown ? " Down" : "");
+      UpdateAppBarText();
     }
     private void idMonitor_PointerMoved(object sender, PointerRoutedEventArgs e)
     {
@@ -229,17 +250,16 @@ namespace Univ
       mousePoint = new Point(pp.Position.X, pp.Position.Y);
       BottomTextByMouse();
     }
-
     private void idMonitor_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
       isMouseLDown = true;
       BottomTextByMouse();
     }
-
     private void idMonitor_PointerReleased(object sender, PointerRoutedEventArgs e)
     {
       isMouseLDown = false;
       BottomTextByMouse();
     }
+    //▽▽▽<Page.BottomAppBar><CommandBar><CommandBar.Content>▽▽▽
   }
 }

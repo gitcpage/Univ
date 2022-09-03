@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.System;
 
 namespace Univ
 {
@@ -33,6 +34,23 @@ namespace Univ.Data
     static int s_fieldX;
     static int s_fieldY;
 
+    public static VirtualKey s_OkKey = VirtualKey.M;
+    public static VirtualKey s_CancelKey = VirtualKey.N;
+    public static VirtualKey s_ChangeKey = VirtualKey.A;
+    public static VirtualKey s_LeftKey = VirtualKey.S;
+    public static VirtualKey s_RightKey = VirtualKey.D;
+    public static VirtualKey s_UpKey = VirtualKey.E;
+    public static VirtualKey s_DownKey = VirtualKey.X;
+    static public void ResetKey()
+    {
+      s_OkKey = VirtualKey.M;
+      s_CancelKey = VirtualKey.N;
+      s_ChangeKey = VirtualKey.A;
+      s_LeftKey = VirtualKey.S;
+      s_RightKey = VirtualKey.D;
+      s_UpKey = VirtualKey.E;
+      s_DownKey = VirtualKey.X;
+    }
 
     public int gold() { return s_gold; }
     public void gold(int num) { s_gold = num; }
@@ -68,7 +86,7 @@ namespace Univ.Data
     {
       gold(0);
       msTime(0);
-      s_fieldName = "初期フィールド";
+      s_fieldName = "フィールド1";
       s_fieldX = 7;
       s_fieldY = 6;
     }
@@ -98,6 +116,27 @@ namespace Univ.Data
           case "FieldY":
             s_fieldY = int.Parse(cells[1]);
             break;
+          case "OkKey":
+            s_OkKey = (VirtualKey)cells[1][0];
+            break;
+          case "CancelKey":
+            s_CancelKey = (VirtualKey)cells[1][0];
+            break;
+          case "ChangeKey":
+            s_ChangeKey = (VirtualKey)cells[1][0];
+            break;
+          case "LeftKey":
+            s_LeftKey = (VirtualKey)cells[1][0];
+            break;
+          case "RightKey":
+            s_RightKey = (VirtualKey)cells[1][0];
+            break;
+          case "UpKey":
+            s_UpKey = (VirtualKey)cells[1][0];
+            break;
+          case "DownKey":
+            s_DownKey = (VirtualKey)cells[1][0];
+            break;
         }
       }
     }
@@ -110,6 +149,14 @@ namespace Univ.Data
       s += "FieldName\t" + s_fieldName + Environment.NewLine;
       s += "FieldX\t" + s_fieldX + Environment.NewLine;
       s += "FieldY\t" + s_fieldY + Environment.NewLine;
+      s += Environment.NewLine;
+      s += "OkKey\t" + s_OkKey + Environment.NewLine;
+      s += "CancelKey\t" + s_CancelKey + Environment.NewLine;
+      s += "ChangeKey\t" + s_ChangeKey + Environment.NewLine;
+      s += "LeftKey\t" + s_LeftKey + Environment.NewLine;
+      s += "RightKey\t" + s_RightKey + Environment.NewLine;
+      s += "UpKey\t" + s_UpKey + Environment.NewLine;
+      s += "DownKey\t" + s_DownKey + Environment.NewLine;
       return s;
     }
 

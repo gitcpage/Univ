@@ -8,7 +8,9 @@ namespace Univ.NsField
 {
   internal class FieldBgEx : FieldBg
   {
-    BitmapImage water_;
+    BitmapImage[] waters_ = new BitmapImage[16];
+    BitmapImage forest_, forestb_, foresttb_, forestt_;
+    BitmapImage mountain_, mountainr_, mountainlr_, mountainl_;
     int rMoveX_ = 0;
     int rMoveY_ = 0;
     int[,] what;
@@ -16,40 +18,83 @@ namespace Univ.NsField
 
     public FieldBgEx(Grid monitorBg, Data.FieldData data) : base(monitorBg, data)
     {
-      water_ = UnivLib.BitmapImageFromAssets("tipf/p.png"); //"tipf/p.png");
+      for (int i = 0 ; i < 16; i++)
+      {
+        waters_[i] = UnivLib.BitmapImageFromAssets("tipf/p"+Convert.ToString(i, 2).PadLeft(4, '0')+".png");
+      }
+
+      forest_ = UnivLib.BitmapImageFromAssets("tipf/forest.png");
+      forestb_ = UnivLib.BitmapImageFromAssets("tipf/forestb.png");
+      foresttb_ = UnivLib.BitmapImageFromAssets("tipf/foresttb.png");
+      forestt_ = UnivLib.BitmapImageFromAssets("tipf/forestt.png");
+
+      mountain_ = UnivLib.BitmapImageFromAssets("tipf/mountain.png");
+      mountainr_ = UnivLib.BitmapImageFromAssets("tipf/mountainr.png");
+      mountainlr_ = UnivLib.BitmapImageFromAssets("tipf/mountainlr.png");
+      mountainl_ = UnivLib.BitmapImageFromAssets("tipf/mountainl.png");
     }
 
     public override void Run()
     {
-      System.Text.StringBuilder sbForLog = new System.Text.StringBuilder();
+      //System.Text.StringBuilder sbForLog = new System.Text.StringBuilder();
       what = new int[tWholeYNum_, tWholeXNum_];
       foreImages_ = new Image[tWholeYNum_, tWholeXNum_];
       backImages_ = new Image[tWholeYNum_, tWholeXNum_];
       UnivLib.Array2DimensionInit(what);
 
       int[,] d = fieldData_.Data;
+      bool isL, isR, isT, isB;
+      BitmapImage bi;
+      int b4;
       for (var y = 0; y < tWholeYNum_; y++)
       { //右
         var y00 = string.Format("{0:D2}", y);
         for (var x = 0; x < tWholeXNum_; x++)
         {
-          var x00 = string.Format("{0:D2}", x);
-          var id = "idMapTip" + x00 + y00;
-          if (d[y,x] == 0)
+          string x00 = string.Format("{0:D2}", x);
+          string id = "idMapTip" + x00 + y00;
+          switch (d[y,x])
           {
-            foreImages_[y, x] = AppendXyIndex(x, y, weeds_[0], id);
-            id = "idMapTip" + x00 + y00 + "Back";
-            backImages_[y, x] = UnivLib.ImageInstance(x * kTipXSize, y * kTipYSize, weeds_[1], id);
-            what[y, x] = 1;
-            sbForLog.Append(0);
-          }
-          else
-          {
-            foreImages_[y, x] = AppendXyIndex(x, y, water_, id);
-            sbForLog.Append(1);
+            case 0:
+              b4 = (x > 0 && d[y, x - 1]==0) ? 0 : 0x8;
+              b4 |= (y > 0 && d[y - 1, x] == 0) ? 0 : 0x4;
+              b4 |= (x < tWholeXNum_ - 1 && d[y, x + 1] == 0) ? 0 : 0x2;
+              b4 |= (y < tWholeYNum_ - 1 && d[y + 1, x] == 0) ? 0 : 0x1;
+              foreImages_[y, x] = AppendXyIndex(x, y, waters_[b4], id);
+              break;
+            case 1:
+              foreImages_[y, x] = AppendXyIndex(x, y, weeds_[0], id);
+              id = "idMapTip" + x00 + y00 + "Back";
+              backImages_[y, x] = UnivLib.ImageInstance(x * kTipXSize, y * kTipYSize, weeds_[1], id);
+              what[y, x] = 1;
+              break;
+            case 2:
+              isT = y > 0 && d[y-1, x] == 2;
+              isB = y < tWholeYNum_ - 1 && d[y+1, x] == 2;
+              {
+                if (isT && isB) bi = foresttb_;
+                else if (isT) bi = forestt_;
+                else if (isB) bi = forestb_;
+                else bi = forest_;
+              }
+              foreImages_[y, x] = AppendXyIndex(x, y, bi, id);
+              break;
+            case 3:
+              isL = x > 0 && d[y, x - 1] == 3;
+              isR = x < tWholeXNum_-1 && d[y, x + 1] == 3;
+              {
+                if (isL && isR) bi = mountainlr_;
+                else if (isL) bi = mountainl_;
+                else if (isR) bi = mountainr_;
+                else bi = mountain_;
+              }
+              foreImages_[y, x] = AppendXyIndex(x, y, bi, id);
+              break;
+            default:
+              JsTrans.Assert("FieldBgEx.cs Run()");
+              break;
           }
         }
-        sbForLog.Append(Environment.NewLine);
       }
     }
 
@@ -112,9 +157,9 @@ namespace Univ.NsField
     }
     public override void SyncTip()
     {
-      for (int y = 0; y < kTipYNum * 2; y++)
+      for (int y = 0; y < tWholeYNum_/*kTipYNum * 2*/; y++)
       {
-        for (int x = 0; x < kTipXNum * 2; x++)
+        for (int x = 0; x < tWholeXNum_/*kTipXNum * 2*/; x++)
         {
           Thickness t = foreImages_[y, x].Margin;
           t.Left = x * kTipXSize + rMoveX_;
@@ -140,9 +185,9 @@ namespace Univ.NsField
     {
       rMoveX_ += rx;
       rMoveY_ += ry;
-      for (int y = 0; y < kTipYNum*2; y++)
+      for (int y = 0; y < tWholeYNum_/*kTipYNum*2*/; y++)
       {
-        for (int x = 0; x < kTipXNum*2; x++)
+        for (int x = 0; x < tWholeXNum_/*kTipXNum*2*/; x++)
         {
           Thickness t = foreImages_[y, x].Margin;
           t.Left += rx;

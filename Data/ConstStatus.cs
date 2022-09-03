@@ -48,8 +48,8 @@ namespace Univ.Data
       string[] items = text.Split("\t", StringSplitOptions.RemoveEmptyEntries);
       //モンスターの場合、textにdark以降に落とすアイテムなどがある。
       JsTrans.Assert(items.Length >= 14,
-        "ConstStatus text of 'ConstStatus(string s)' split tab is less 14 items.");
-      //JsTrans.Assert(items.Length == 14, "s of 'ConstStatus(string s)' split tab is not 14 items.");
+        "ConstStatus text of 'ConstStatus(string text)' split tab is less 14 items.");
+      //JsTrans.Assert(items.Length == 14, "text of 'ConstStatus(string text)' split tab is not 14 items.");
       this.name_ = items[0];
       this.hp_ = int.Parse(items[1]);
       this.mp_ = int.Parse(items[2]);

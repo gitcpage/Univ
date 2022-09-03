@@ -11,15 +11,24 @@ namespace Univ.NsMenu
   delegate void MenuNotify(NotifyCode notifyCode);
   internal class MenuUI
   {
-    Grid monitor_;   // 描画用
-    MenuNotify notify_;
-    public MenuUI(Grid monitor, MenuNotify menuNotify)
-    {
-      notify_ = menuNotify;
+    public static Brush kMonitorBgBrush = UnivLib.GetBrush(11, 70, 100);
+    public static Brush kMainGridBrush = UnivLib.GetBrush(Colors.Orange);
+    public static Brush kPanelBorderBrush = UnivLib.GetBrush(5, 50, 70);
+    public static Brush kPanelBgBrush = UnivLib.GetBrush(157, 181, 183);
+    public static Brush kPanelBgHoverBrush = UnivLib.GetBrush(187, 211, 213); //メインのフレンドホバー
+    public static Brush kPanelBgTransparentBrush = UnivLib.GetBrush(0, 157, 181, 183);
+    public static Brush kChildPanelBgBrush = UnivLib.GetBrush(0xf3, 0xe4, 0xd5);
+    public static Brush kChildPanelBorderBrush = UnivLib.GetBrush(0x63, 0x42, 0x42);
+    public static Brush kCursorBrush = UnivLib.GetBrush(14, 77, 108);
+    public static Brush kCursorTranslucentBrush = UnivLib.GetBrush(128, 14, 77, 108);
 
-      monitor_ = monitor;
+    //Grid monitor_;   // 描画用
+    //MenuNotify notify_;
+    private MenuUI()//MenuNotify menuNotify)
+    {
+      //notify_ = menuNotify;
     }
-    public Grid RunGrid(int left, int top, int width, int height,int paddingLeft, int paddingTop, Grid parent, bool hasBorder = true, Brush bgBrush = null)
+    static public Grid RunGrid(int left, int top, int width, int height,int paddingLeft, int paddingTop, Grid parent, bool hasBorder = true, Brush bgBrush = null)
     {
       Grid g = new Grid();
       g.HorizontalAlignment = HorizontalAlignment.Left;
@@ -30,24 +39,25 @@ namespace Univ.NsMenu
       if (hasBorder)
       {
         g.BorderThickness = new Thickness(2, 2, 2, 2);
-        g.BorderBrush = UnivLib.GetBrush(5, 50, 70);
+        g.BorderBrush = kPanelBorderBrush;
       }
       g.Padding = new Thickness(paddingLeft, paddingTop, 0, 0);
       if (bgBrush == null)
-        g.Background = UnivLib.GetBrush(157, 181, 183);
+        g.Background = kPanelBgBrush;
       else
         g.Background = bgBrush;
 
       parent.Children.Add(g);
       return g;
     }
-    public Grid RunMainLeftItem(int top, string str, Grid parent, NotifyCode notifyCode)
+    static public Grid RunMainLeftItem(int top, string str, Grid parent,
+      MenuNotify menuNotify, NotifyCode notifyCode)
     {
       Grid btn = new Grid();
       btn.Margin = new Thickness(0, top, 0, 0);
       btn.HorizontalAlignment = HorizontalAlignment.Left;
       btn.VerticalAlignment = VerticalAlignment.Top;
-      btn.Background = UnivLib.GetBrush(0, 157, 181, 183);//Tappedイベント検出のため
+      btn.Background = kPanelBgTransparentBrush;//Tappedイベント検出のため
       btn.Width = 85;
       btn.Height = 55;
       btn.PointerEntered += (Object sender, PointerRoutedEventArgs e) =>
@@ -87,7 +97,7 @@ namespace Univ.NsMenu
       };
       btn.Tapped += (Object sender, TappedRoutedEventArgs e) =>
       {
-        notify_(notifyCode);
+        menuNotify(notifyCode);
         Grid g = sender as Grid;
         foreach (UIElement uie in g.Children)
         {
@@ -110,7 +120,7 @@ namespace Univ.NsMenu
       parent.Children.Add(btn);
       return btn;
     }
-    static public TextBlock RunLavel(Grid parent, int x, int y, string text, 
+    static public TextBlock RunLavel(Panel parent, int x, int y, string text, 
       bool useMeiryo = false, int fontSize = 19, bool useBold = false)
     {
       TextBlock textBlock = new TextBlock();
@@ -119,13 +129,13 @@ namespace Univ.NsMenu
       textBlock.Text = text;
       textBlock.Margin = new Thickness(x, y, 0, 0);
       textBlock.FontSize = fontSize;
-      textBlock.Foreground = UnivLib.GetBrush(14, 77, 108);
+      textBlock.Foreground = kCursorBrush;
       if (useMeiryo) textBlock.FontFamily = new FontFamily("メイリオ");
       if (useBold) textBlock.FontWeight = UnivLib.FontWeightBold();
       if (parent != null) parent.Children.Add(textBlock);
       return textBlock;
     }
-    static public TextBlock RunLavelCenterAligned(Grid parent, int x, int y, int width, string text, int fontSize = 19, bool useBold = false)
+    static public TextBlock RunLavelCenterAligned(Panel parent, int x, int y, int width, string text, int fontSize = 19, bool useBold = false)
     {
       TextBlock textBlock = new TextBlock();
       textBlock.HorizontalAlignment = HorizontalAlignment.Left;
@@ -135,12 +145,12 @@ namespace Univ.NsMenu
       textBlock.Text = text;
       textBlock.Margin = new Thickness(x, y, 0, 0);
       textBlock.FontSize = fontSize;
-      textBlock.Foreground = UnivLib.GetBrush(14, 77, 108);
+      textBlock.Foreground = kCursorBrush;
       if (useBold) textBlock.FontWeight = UnivLib.FontWeightBold();
       parent.Children.Add(textBlock);
       return textBlock;
     }
-    static public TextBlock RunLavelRightAligned(Grid parent, int x, int y, int width, string text, int fontSize = 19)
+    static public TextBlock RunLavelRightAligned(Panel parent, int x, int y, int width, string text, int fontSize = 19)
     {
       TextBlock textBlock = new TextBlock();
       textBlock.HorizontalAlignment = HorizontalAlignment.Left;
@@ -150,11 +160,13 @@ namespace Univ.NsMenu
       textBlock.Text = text;
       textBlock.Margin = new Thickness(x, y, 0, 0);
       textBlock.FontSize = fontSize;
-      textBlock.Foreground = UnivLib.GetBrush(14, 77, 108);
+      textBlock.Foreground = kCursorBrush;
       parent.Children.Add(textBlock);
       return textBlock;
     }
-    public void RunButton(int left, int top, string str, Grid parent, NotifyCode notifyCode)
+    static public Border RunButton(int left, int top, string str, Panel parent,
+      MenuNotify menuNotify, NotifyCode notifyCode,
+      int width = 100)
     {
       Border btn = new Border();
       btn.Margin = new Thickness(left, top, 0, 0);
@@ -163,7 +175,7 @@ namespace Univ.NsMenu
       btn.Background = UnivLib.GetBrush(Colors.White);
       btn.BorderThickness = new Thickness(2, 2, 2, 2);
       btn.BorderBrush = UnivLib.GetBrush(Colors.Gray);
-      btn.Width = 100;
+      btn.Width = width;
       btn.Height = 30;
       btn.PointerEntered += (Object obj, PointerRoutedEventArgs e) =>
       {
@@ -175,9 +187,9 @@ namespace Univ.NsMenu
         Border o = obj as Border;
         o.Background = UnivLib.GetBrush(Colors.White);
       };
-      btn.Tapped += (Object sender, TappedRoutedEventArgs e) =>
+      btn.Tapped += (object sender, TappedRoutedEventArgs e) =>
       {
-        notify_(notifyCode);
+        menuNotify(notifyCode);
       };
       TextBlock tb = new TextBlock();
       tb.Text = str;
@@ -187,6 +199,25 @@ namespace Univ.NsMenu
       btn.Child = tb;
 
       parent.Children.Add(btn);
+      return btn;
+    }
+    public static StackPanel CreateStackPanel(Panel parent, int margin, int marginTop, Brush border,
+      int width, int height, Brush bg)
+    {
+      StackPanel g = new StackPanel();
+      g.HorizontalAlignment = HorizontalAlignment.Left;
+      g.VerticalAlignment = VerticalAlignment.Top;
+      g.Margin = new Thickness(margin, marginTop, margin, margin);
+      g.Width = width;
+      g.Height = height;
+      if (border != null)
+      {
+        g.BorderThickness = new Thickness(2, 2, 2, 2);
+        g.BorderBrush = border;
+      }
+      g.Background = bg;
+      parent.Children.Add(g);
+      return g;
     }
   }
 }

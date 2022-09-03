@@ -48,28 +48,69 @@ namespace Univ.Data
     public readonly int toX;
     public readonly int toY;
 
-    FieldMoveData(string txt)
+    FieldMoveData(string txt, int width, int height, FieldData[] fieldDatas, bool isOutside)
     {
       string[] items = txt.Split(",");
-      fromX = int.Parse(items[0]);
-      fromY = int.Parse(items[1]);
+      {
+        if (items[0] == "L")
+          fromX = isOutside ? -1 : 0;
+        else if (items[0] == "R")
+          fromX = isOutside ? width : width - 1;
+        else
+          fromX = int.Parse(items[0]);
+      }
+      {
+        if (items[1] == "T")
+          fromY = isOutside ? -1 : 0;
+        else if (items[1] == "B")
+          fromY = isOutside ? height : height - 1;
+        else
+          fromY = int.Parse(items[1]);
+      }
       toName = items[2];
-      toX = int.Parse(items[3]);
-      toY = int.Parse(items[4]);
+      int toWidth = 0;
+      int toHeight = 0;
+      int i;
+      for (i = 0; i < fieldDatas.Length; i++)// FieldData d in fieldDatas)
+      {
+        if (fieldDatas[i].Name == toName)
+        {
+          toWidth = fieldDatas[i].Width;
+          toHeight = fieldDatas[i].Height;
+          break;
+        }
+      }
+      JsTrans.Assert(i < fieldDatas.Length, "FieldData.cs FieldMoveData >Not found field name.");
+      {
+        if (items[3] == "L")
+          toX = 0;
+        else if (items[3] == "R")
+          toX = toWidth - 1;
+        else
+          toX = int.Parse(items[3]);
+      }
+      {
+        if (items[4] == "T")
+          toY = 0;
+        else if (items[4] == "B")
+          toY = toHeight - 1;
+        else
+          toY = int.Parse(items[4]);
+      }
     }
 
-    static public FieldMoveData[] Create(string txt)
+    static public FieldMoveData[] Create(string txt, int width, int height, FieldData[] fieldDatas, bool isOutside)
     {
       FieldMoveData[] datas = { };
-      string[] rows = txt.Split(";");
-      JsTrans.Assert(rows.Length != 0, "FieldData.cs FieldMoveData.Create() rows.Length != 0");
-      if (rows[0] == "-")
+      string[] chunks = txt.Split(";");
+      JsTrans.Assert(chunks.Length != 0, "FieldData.cs FieldMoveData.Create() >chunks.Length != 0");
+      if (chunks[0] == "-")
         return datas;
       
-      datas = new FieldMoveData[rows.Length];
-      for (int i = 0; i < rows.Length; i++)
+      datas = new FieldMoveData[chunks.Length];
+      for (int i = 0; i < chunks.Length; i++)
       {
-        datas[i] = new FieldMoveData(rows[i]);
+        datas[i] = new FieldMoveData(chunks[i], width, height, fieldDatas, isOutside);
       }
       return datas;
     }
@@ -81,8 +122,11 @@ namespace Univ.Data
     public int Height;
     public int[,] Data;
 
-    public readonly FieldMoveData[] Doors;
-    public readonly FieldMoveData[] Stairs;
+    public FieldMoveData[] Doors;
+    public FieldMoveData[] Stairs;
+
+    string doorsText;
+    string stairsText;
 
     // コンストラクタは*を取り除くこと("*"でsplitする)。
     public FieldData(string txt)
@@ -93,12 +137,14 @@ namespace Univ.Data
       Name = heads[0];
       Width = int.Parse(heads[1]);
       Height = int.Parse(heads[2]);
-      JsTrans.Assert(rows.Length == Height + 3, "Data FieldData.cs rows.Length == Height + 3");
+      JsTrans.Assert(rows.Length == Height + 3, "Data FieldData.cs chunks.Length == Height + 3");
 
-      Doors = FieldMoveData.Create(rows[1]);
-      Stairs = FieldMoveData.Create(rows[2]);
+      //Doors = FieldMoveData.Create(rows[1]);
+      //Stairs = FieldMoveData.Create(rows[2]);
+      doorsText = rows[1];
+      stairsText = rows[2];
 
-      //Array.Copy(rows, 1, rows, 0, Height);
+      //Array.Copy(chunks, 1, chunks, 0, Height);
       rows = rows.Where((item, index) => index >= 3).ToArray();
       Data = new int[Height, Width];
       for (int y = 0; y < rows.Length; y++)
@@ -109,6 +155,11 @@ namespace Univ.Data
           Data[y, x] = int.Parse(row[x].ToString());
         }
       }
+    }
+    public void ConstructorLatter(FieldData[] fieldDatas)
+    {
+      Doors = FieldMoveData.Create(doorsText, Width, Height, fieldDatas, true);
+      Stairs = FieldMoveData.Create(stairsText, Width, Height, fieldDatas, false);
     }
 
     static public FieldData Instance(string name)

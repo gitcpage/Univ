@@ -15,8 +15,10 @@ namespace Univ.NsField
 
     BitmapImage bmp_;
     Image img_;
-    public int blockX_ = 0;
-    public int blockY_ = 0;
+    int blockX_ = 0;
+    int blockY_ = 0;
+    public int BlockX { get { return blockX_; } }
+    public int BlockY { get { return blockY_; } }
 
     public FieldBlock(string path, Grid monitoBg) : base(monitoBg)
     {
@@ -96,18 +98,18 @@ namespace Univ.NsField
       img_.Margin = t;
     }
     //public void UpdateWalktipImg(tagId, imageId, x, y, step = 0)
-    public void GetBlockPosition(out int blockX, out int blockY)
+    /*public void GetBlockPosition(out int blockX, out int blockY)
     {
       blockX = this.blockX_;
       blockY = this.blockY_;
-    }
+    }*/
     public void SetBlockPosition(int blockX, int blockY)
     {
       this.blockX_ = blockX;
       this.blockY_ = blockY;
       BlockSync();
     }
-    public void BlockSync()
+    void BlockSync()
     {
       img_.Margin = new Thickness(blockX_ * kTipXSize, blockY_ * kTipYSize, 0, 0);
     }
